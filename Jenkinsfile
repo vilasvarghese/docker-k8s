@@ -1,7 +1,7 @@
 pipeline {
   
   environment {
-    registry = "nevincleetus/java-web-app-cicd"
+    registry = "vilasvarghese/docker-k8s"
     registryCredential = 'dockerhub'
     dockerImage = ''
   }
@@ -9,7 +9,7 @@ pipeline {
   stages {
     stage('Cloning Git') {
       steps {
-        git  'https://github.com/nevincleetus/java-webapp-cicd.git'
+        git  'https://github.com/vilasvarghese/docker-k8s.git'
       }
     }
     stage('Building image') {
