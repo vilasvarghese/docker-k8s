@@ -46,6 +46,15 @@
       <plugin>
         <artifactId>maven-war-plugin</artifactId>
         <version>3.2.1</version>
+	<configuration>
+        <attachClasses>true</attachClasses>
+	<webResources>
+		<resource>
+			<directory>src/main/webapp</directory>
+			<filtering>true</filtering>
+		</resource>
+	</webResources>
+	</configuration>
       </plugin>
     </plugins>
   </build>
