@@ -5,7 +5,7 @@ metadata:
   labels:
     app: tomcat-cicd
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: tomcat-cd
