@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tomcat-deploy
+  labels:
+    app: tomcat-cicd
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: tomcat-cd
+  template:
+    metadata:
+      labels:
+        app: tomcat-cd
+    spec:
+      containers:
+      - name: tomcat-cd
+        image: vilasvarghese/java-web-app-cicd:latest
+        ports:
+        - containerPort: 8888 
