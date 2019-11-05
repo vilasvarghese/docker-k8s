@@ -19,4 +19,4 @@ spec:
         image: vilasvarghese/java-web-app-cicd:latest
         ports:
         - containerPort: 8080
-      imagePullPolicy: Always
+        imagePullPolicy: Always
