@@ -1,3 +1,0 @@
-From ubuntu:trustry
-ENTRYPOINT ["/bin/ping","-c","-3"]
-CMD ["localhost"]
