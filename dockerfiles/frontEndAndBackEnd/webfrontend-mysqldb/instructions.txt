@@ -55,6 +55,7 @@ insert  into `customers`(`customerNumber`,`customerName`,`contactLastName`,`cont
 
 
 Checkout the git project 
+sudo apt install maven
 
 mvn clean package
 
