@@ -1,0 +1,77 @@
+
+Run Mysql DB
+
+docker run -d -e MYSQL_ROOT_PASSWORD=admin -v /home/docker/mysql-data:/var/lib/mysql --name mysqlserver mysql
+
+
+Once you started the Mysql container, connect to the container using docker exec -it <containerid> /bin/bash
+
+
+$mysql -u root -p    (Password is admin) 
+
+mysql> CREATE DATABASE /*!32312 IF NOT EXISTS*/`classicmodels` /*!40100 DEFAULT CHARACTER SET latin1 */;
+
+mysql> USE `classicmodels`;
+
+mysql>>CREATE TABLE `customers` (
+  `customerNumber` int(11) NOT NULL,
+  `customerName` varchar(50) NOT NULL,
+  `contactLastName` varchar(50) NOT NULL,
+  `contactFirstName` varchar(50) NOT NULL,
+  `phone` varchar(50) NOT NULL,
+  `addressLine1` varchar(50) NOT NULL,
+  `addressLine2` varchar(50) DEFAULT NULL,
+  `city` varchar(50) NOT NULL,
+  `state` varchar(50) DEFAULT NULL,
+  `postalCode` varchar(15) DEFAULT NULL,
+  `country` varchar(50) NOT NULL,
+  `salesRepEmployeeNumber` int(11) DEFAULT NULL,
+  `creditLimit` decimal(10,2) DEFAULT NULL,
+  PRIMARY KEY (`customerNumber`),
+  KEY `salesRepEmployeeNumber` (`salesRepEmployeeNumber`));
+
+
+
+
+insert  into `customers`(`customerNumber`,`customerName`,`contactLastName`,`contactFirstName`,`phone`,`addressLine1`,`addressLine2`,`city`,`state`,`postalCode`,`country`,`salesRepEmployeeNumber`,`creditLimit`) values 
+(103,'Atelier graphique','Schmitt','Carine ','40.32.2555','54, rue Royale',NULL,'Nantes',NULL,'44000','France',1370,'21000.00'),
+(112,'Signal Gift Stores','King','Jean','7025551838','8489 Strong St.',NULL,'Las Vegas','NV','83030','USA',1166,'71800.00'),
+(114,'Australian Collectors, Co.','Ferguson','Peter','03 9520 4555','636 St Kilda Road','Level 3','Melbourne','Victoria','3004','Australia',1611,'117300.00'),
+(119,'La Rochelle Gifts','Labrune','Janine ','40.67.8555','67, rue des Cinquante Otages',NULL,'Nantes',NULL,'44000','France',1370,'118200.00'),
+(121,'Baane Mini Imports','Bergulfsen','Jonas ','07-98 9555','Erling Skakkes gate 78',NULL,'Stavern',NULL,'4110','Norway',1504,'81700.00'),
+(124,'Mini Gifts Distributors Ltd.','Nelson','Susan','4155551450','5677 Strong St.',NULL,'San Rafael','CA','97562','USA',1165,'210500.00'),
+(125,'Havel & Zbyszek Co','Piestrzeniewicz','Zbyszek ','(26) 642-7555','ul. Filtrowa 68',NULL,'Warszawa',NULL,'01-012','Poland',NULL,'0.00'),
+(128,'Blauer See Auto, Co.','Keitel','Roland','+49 69 66 90 2555','Lyonerstr. 34',NULL,'Frankfurt',NULL,'60528','Germany',1504,'59700.00'),
+(129,'Mini Wheels Co.','Murphy','Julie','6505555787','5557 North Pendale Street',NULL,'San Francisco','CA','94217','USA',1165,'64600.00'),
+(131,'Land of Toys Inc.','Lee','Kwai','2125557818','897 Long Airport Avenue',NULL,'NYC','NY','10022','USA',1323,'114900.00'),
+(141,'Euro+ Shopping Channel','Freyre','Diego ','(91) 555 94 44','C/ Moralzarzal, 86',NULL,'Madrid',NULL,'28034','Spain',1370,'227600.00'),
+(144,'Volvo Model Replicas, Co','Berglund','Christina ','0921-12 3555','Berguvsvägen  8',NULL,'Luleå',NULL,'S-958 22','Sweden',1504,'53100.00'),
+(145,'Danish Wholesale Imports','Petersen','Jytte ','31 12 3555','Vinbæltet 34',NULL,'Kobenhavn',NULL,'1734','Denmark',1401,'83400.00'),
+(146,'Saveley & Henriot, Co.','Saveley','Mary ','78.32.5555','2, rue du Commerce',NULL,'Lyon',NULL,'69004','France',1337,'123900.00'),
+(148,'Dragon Souveniers, Ltd.','Natividad','Eric','+65 221 7555','Bronz Sok.','Bronz Apt. 3/6 Tesvikiye','Singapore',NULL,'079903','Singapore',1621,'103800.00'),
+(151,'Muscle Machine Inc','Young','Jeff','2125557413','4092 Furth Circle','Suite 400','NYC','NY','10022','USA',1286,'138500.00')
+
+
+
+
+Checkout the git project 
+sudo apt install maven
+
+mvn clean package
+
+Goto target directory and rename the HelloWorldXXXXX.war file to HelloWorld.war
+
+
+docker  build -f Dockerfile.dockerfile -t tomcat:8 .
+
+docker run -it -p 8888:8080 --link mysqlserver:mysqldb tomcat:8
+(Here we are linking the mysql database name with the tomcat container. Our customers.jsp uses the DB name mysqldb to connect to the classicmodel database and retrieve the data)
+
+Once the container is started, access   http://localhost:8888/HelloWorld/customers.jsp
+
+  
+
+
+  
+
+ 

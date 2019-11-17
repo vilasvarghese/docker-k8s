@@ -1,0 +1,73 @@
+Java Installation
+sudo apt update
+sudo apt install openjdk-8-jdk
+
+#install maven
+sudo apt install maven
+
+Jenkins installation
+
+wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add -
+sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+sudo apt-get update
+sudo apt-get install jenkins
+
+
+systemctl start jenkins
+systemctl status jenkins
+
+go to the url
+http://localhost:8080
+
+Copy the url from the location mentioned in the initial page
+/var/lib/jenkins/secrets/initialAdminPassword
+
+Install all default plugin
+
+Create the user of your choise.
+
+Execute the below instructions
+1. sudo gropuadd docker
+2. sudo usermod -aG docker jenkins
+3. chmod root:docker /var/run/docker.sock
+
+reboot
+
+Login to Jenkins
+	Clicke "Jenkins" - New Item - 
+	Enter a name and click on "Free Style Project"
+
+	Mention the git hub repo.
+	
+	Click "Add Build Step" - Execute as shell
+	and copy paste the below
+
+
+On the terminal
+	sudo su
+	mv /var/lib/jenkins/.kube/config /home #this may fail if you haven't execute jenkins till kubectl at least once
+	cp /home/<user>/config /var/lib/jenkins/.kube/
+	restart jenkins
+	systemctl restart jenkins
+	
+	cd /var/lib/jenkins/.kube
+	chown jenkins:jenkins config
+	ls -ld config
+##########################################################################
+mvn clean install
+docker build -t java-web-app-cicd:latest .
+if (docker ps -a | grep 'java-web-app-cicd')
+then
+  docker stop java-web-app-cicd
+  docker rm -f java-web-app-cicd
+fi
+docker run -d -p 8888:8080 --name java-web-app-cicd java-web-app-cicd
+mvn test
+docker login -u <your docker user name> -p <your password>
+docker commit java-web-app-cicd <your docker user name>/java-web-app-cicd:latest
+docker push <your docker user name>/java-web-app-cicd:latest
+
+kubectl delete deploy --all
+kubectl create -f deploy-tomcat.yaml
+##########################################################################
+

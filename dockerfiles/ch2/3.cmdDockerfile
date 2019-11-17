@@ -1,0 +1,3 @@
+FROM ubuntu:latest
+CMD ls -ltr
+
