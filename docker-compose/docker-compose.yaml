@@ -1,0 +1,25 @@
+db:
+  image: mysql:latest
+  environment:
+    MYSQL_ROOT_PASSWORD: root 
+    MYSQL_DATABASE: mydb
+    MYSQL_USER: admin 
+    MYSQL_PASSWORD: admin 
+#  ports:
+#    - "3306:3306"
+  volumes:
+   - ./db:/docker-entrypoint-initdb.d
+
+web:
+  image: tomcat:latest
+  # Environment variables do not appear to be getting loaded the first time Tomcat starts!
+  environment:
+    JDBC_URL: jdbc:mysql://db:3306/mydb?connectTimeout=0&amp;socketTimeout=0&amp;autoReconnect=true
+    JDBC_USER: admin 
+    JDBC_PASS: admin 
+  ports:
+   - "80:8080"
+  volumes:
+   - ./tomcat/webapps:/usr/local/tomcat/webapps
+  links:
+    - db
