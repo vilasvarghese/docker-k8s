@@ -1,0 +1,26 @@
+ConfigMaps allow you to decouple configuration artifacts from image content to keep containerized applications portable.
+
+General syntax
+kubectl create configmap <name you want> <file/directory - data-source>
+
+Lab1 
+
+# Create the local directory
+mkdir -p configure-pod-container/configmap/
+
+# Download the sample files into `configure-pod-container/configmap/` directory
+wget https://kubernetes.io/examples/configmap/game.properties -O configure-pod-container/configmap/game.properties
+wget https://kubernetes.io/examples/configmap/ui.properties -O configure-pod-container/configmap/ui.properties
+
+# Create the configma. This will load both the property files
+#Creating config map from a directory
+kubectl create configmap game-config --from-file=configure-pod-container/configmap/
+
+#Creating config map from a file
+kubectl create configmap game-config-2 --from-file=configure-pod-container/configmap/game.properties
+
+#Creating config map from multiple files
+kubectl create configmap game-config-2 --from-file=configure-pod-container/configmap/game.properties --from-file=configure-pod-container/configmap/ui.properties
+
+Lot more details can be found at
+https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/

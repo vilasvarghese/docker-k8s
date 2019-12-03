@@ -1,4 +1,3 @@
-#Stateful set needs to be deployed along with Service
 apiVersion: v1
 kind: Service
 metadata:
@@ -13,16 +12,18 @@ spec:
   selector:
     app: nginx
 ---
-apiVersion: apps/v1
+apiVersion: apps/v1 #  for k8s versions before 1.9.0 use apps/v1beta2  and before 1.8.0 use extensions/v1beta1
 kind: StatefulSet
 metadata:
   name: web
+  labels:
+    app: nginx
 spec:
   serviceName: "nginx"
-  replicas: 2
   selector:
     matchLabels:
       app: nginx
+  replicas: 3
   template:
     metadata:
       labels:
@@ -34,15 +35,3 @@ spec:
         ports:
         - containerPort: 80
           name: web
-        volumeMounts:
-        - name: www
-          mountPath: /usr/share/nginx/html
-  volumeClaimTemplates:
-  - metadata:
-      name: www
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-C
-          storage: 1MGi

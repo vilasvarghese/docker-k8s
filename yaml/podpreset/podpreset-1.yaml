@@ -7,5 +7,5 @@ spec:
     matchLabels:
       role: app1
   env:
-    - name: CHANNEL
-      value: "Just Me and Opensource"
+    - name: COMPANY_NAME
+      value: "Oracle India Pvt Ltd." 
