@@ -6,3 +6,4 @@ RUN apt-get update && \
 
 #CMD ab
 ENTRYPOINT ["ab"]
+#docker run 4.entrypoint http://bencane.com/
