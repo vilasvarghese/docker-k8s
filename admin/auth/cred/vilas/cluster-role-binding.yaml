@@ -1,0 +1,14 @@
+apiVersion: rbac.authorization.k8s.io/v1
+# This role binding allows "jane" to read pods in the "default" namespace.
+kind: ClusterRoleBinding
+metadata:
+  name: node-reader
+#  namespace: default
+subjects:
+- kind: User
+  name: vilas # Name is case sensitive
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole #this must be Role or ClusterRole
+  name: node-reader # this must match the name of the Role or ClusterRole you wish to bind to
+  apiGroup: rbac.authorization.k8s.io
