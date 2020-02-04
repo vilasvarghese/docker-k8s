@@ -1,0 +1,614 @@
+copy paste from host to vm.
+
+1. Talk about network, process and filesystem isolation in docker.
+	- Network and FS isolation is real
+	- Process isolation is psuedo
+		- Execute top
+	
+	
+containerd : Layer wrapping Kernel
+
+2. Should ephemeral process
+
+	By “ephemeral”, 
+		- container 
+			stopped  
+			destroyed .
+			kill 
+			die 
+		
+3. Explain Layered architecture 
+	Difference between Dockerfile, Docker Image and Container.
+
+4. Explain Dockerfile
+
+	FROM, RUN, ADD, COPY, Expose, ENV, CMD, Entrypoint
+	
+	###############################################################
+	1. FROM
+	
+		docker build -t from . #from should be image name
+		docker run -it from bash
+		
+		Execute the Dockerfile1
+		FROM	
+			- start with FROM. 
+			#ARG is the only command that can appear before FROM.
+			- multiple times.
+			- clears state. 
+			- FROM xxx AS abc
+			- --from=<name|index> .
+			- FROM: tag/digest 
+		 
+		ARG  CODE_VERSION=latest
+		FROM base:${CODE_VERSION}
+		CMD  /code/run-app
+
+		FROM extras:${CODE_VERSION}
+		CMD  /code/run-extras
+
+		An ARG defined before FROM can't be used anywhere else other than FROM.
+
+	2. RUN
+		
+		docker build -t run-ex -f 2.Runfile .
+		docker run -it run-ex bash
+			-> javac
+			
+		RUN
+			- Execute the command
+			- while image is generated
+			- Check in back to image
+			- New layer
+			- Creates a new image
+			- 2 types
+				- command
+				- ["executable", "param", "param2"]
+					RUN ["/bin/bash", "-c", "echo hello"]
+					json array
+			- Default is shell
+
+	3. CMD
+		- adds default command
+		- overwritten from command line
+		- Executed when container runs
+		- Only one CMD
+		- Last one executed
+		
+		Refer -> 3.cmdDockerfile
+			-> docker build -t cmd-test -f 3.cmdDockerfile  .
+			-> docker run cmd-test ping google.com#ping might fail
+			-> docker run -it cmd-test ls -ltr # we can override the instruction.
+		
+		3 types
+		    - CMD ["<executable>","<param1>","<param2>"] 
+			
+			- CMD <command> <param1> <param2> (shell form)
+			
+			- Default to entrypoint
+				CMD ["<param1>","<param2>"] 
+
+
+	4. ENTRYPOINT
+	
+		- docker build -t entrypt -f 4.entrypoint .
+		- docker run entrypoint http://bencane.com/
+		
+		ENTRYPOINT 
+			- Configures container to run as an executable. 
+			- Execute a command in container.
+			- Override all elements in CMD
+			- Default shell
+			- Only one Entrypoint
+				- Last one
+			
+		Usage:
+		    ENTRYPOINT ["<executable>", "<param1>", "<param2>"] (exec form, preferred)
+		    
+			ENTRYPOINT <command> <param1> <param2> (shell form)
+
+####################################################
+We can do the same thing with CMD, so what is the diff.
+We'll create our own image and specify a new command:
+
+FROM ubuntu
+CMD sleep 10
+Now, we build the image:
+
+docker build -t custom_sleep .
+docker run custom_sleep
+# sleeps for 10 seconds and exits
+What if we want to change the number of seconds? We would have to change the Dockerfile as the value is hardcoded there, or override the command by providing a different one:
+
+docker run custom_sleep sleep 20
+While this works, it's not a good solution, as we have a redundant "sleep" command (the container's purpose is to sleep, so having to explicitly specify the sleep command is not a good practice).
+
+Now let's try using the ENTRYPOINT instruction:
+
+FROM ubuntu
+ENTRYPOINT sleep
+This instruction specifies the program that will be run when the container starts.
+
+Now we can run:
+
+docker run custom_sleep 20
+What about a default value? Well, you guessed it right:
+
+FROM ubuntu
+ENTRYPOINT ["sleep"]
+CMD ["10"]
+The ENTRYPOINT is the program that will be run, and the value passed to the container will be appended to it.
+
+The ENTRYPOINT can be overridden by specifying an --entrypoint flag, followed by the new entry point you want to use.
+------------------------------------------------------
+
+Docker has a default entrypoint which is /bin/sh -c but does not have a default command.
+
+When you run docker like this: docker run -i -t ubuntu bash the entrypoint is the default /bin/sh -c, the image is ubuntu and the command (param to entrypoint) is bash.
+
+The command is run via the entrypoint. i.e., the actual thing that gets executed is /bin/sh -c bash. This allowed Docker to implement RUN quickly by relying on the shell's parser.
+
+Later on, people asked to be able to customize this, so ENTRYPOINT and --entrypoint were introduced.
+
+Everything after ubuntu in the example above is the command and is passed to the entrypoint. When using the CMD instruction, it is exactly as if you were doing docker run -i -t ubuntu <cmd>. <cmd> will be the parameter of the entrypoint.
+
+You will also get the same result if you instead type this command docker run -i -t ubuntu. You will still start a bash shell in the container because of the ubuntu Dockerfile specified a default CMD: CMD ["bash"]
+
+As everything is passed to the entrypoint, you can have a very nice behavior from your images. @Jiri example is good, it shows how to use an image as a "binary". When using ["/bin/cat"] as entrypoint and then doing docker run img /etc/passwd, you get it, /etc/passwd is the command and is passed to the entrypoint so the end result execution is simply /bin/cat /etc/passwd.
+
+Another example would be to have any cli as entrypoint. For instance, if you have a redis image, instead of running docker run redisimg redis -H something -u toto get key, you can simply have ENTRYPOINT ["redis", "-H", "something", "-u", "toto"] and then run like this for the same result: docker run redisimg get key.
+
+
+####################################################
+
+	x. ENV
+	
+		docker build -t env -f 6.envDockerfile .
+		docker run -it env bash
+		
+		ENV abc=hello
+		ENV ghi=$abc
+		
+		CMD ["/bin/sh", "echo","$abc"] #will echo bye
+		CMD echo $abc #will echo bye
+		
+
+	6. COPY
+		
+
+		Usage:
+		    COPY <src> [<src> ...] <dest>
+		    COPY ["<src>", ... "<dest>"] 
+
+		    - Copies new files or directories
+			- from <src> to <dest>.
+			- may contain wildcards
+			- Match - Go’s filepath
+			- <src> : relative to the source 
+		    - <dest> : 
+				- absolute path, 
+				- relative to WORKDIR.
+		    - <dest> created if missing
+
+
+	7. ADD
+
+		Usage:
+		    ADD <src> [<src> ...] <dest>
+		    ADD ["<src>", ... "<dest>"] (this form is required for paths containing whitespace)
+
+		    - Copies 
+				new files, 
+				directories, or 
+				remote file URLs 
+			- from <src> to <dest>.
+		    - <src> wildcards and 
+			- matching : Go’s filepath.Match rules.
+		    - <src> : relative to the source directory 
+		    - <dest> : 
+				- absolute path, 
+				- relative to WORKDIR.
+		    - <dest> created if required
+
+	##################################################################################
+			Difference between ADD and COPY
+		
+		COPY takes in a (one or more) src and destination. 
+			- Copy 
+				- from host
+				- to destination in image
+			- For local files always use COPY.
+			
+		ADD lets you do that too, but it also supports 2 other sources.
+			- ADD 
+				- from 
+					- host 
+					- url (can be tar)
+					- tar file
+			- Instead use RUN with curl
+			- May be chain to make smaller docker image
+			
+	###############################################################
+
+
+	8. MAINTAINER
+		The MAINTAINER instruction allows you to set the Author field of the generated images.
+
+	9. EXPOSE
+
+		Usage:
+		    EXPOSE <port> [<port> ...]
+
+		    - Informs Docker container.
+			- does not make PORT accessible.
+		At runtime you can decide the network plugin.
+		
+######################################################
+This doesn't help in exposing on the host. Then why use it?
+
+It is used 
+	- internally by other containers
+	- reader of Dockerfile can quickly understand where the service refers?
+	
+Not mentioned anywhere else, by Vilas thinks so...
+	- this port should be used internally by Docker for health check and liveness check. (since other containers use it).
+	
+#######################################################		
+
+	10. VOLUME
+
+		Usage:
+		    VOLUME ["<path>", ...]
+		    VOLUME <path> [<path> ...]
+
+		- Defines mount point. 
+
+
+	11. USER
+
+		docker build -t user-eg -f 8.userDockerfile .
+		docker run -it user-eg bash
+			-> whoami
+			
+			
+		Usage:
+		    USER <username | UID>
+
+		- Sets the user name or UID 
+		- For 
+			- RUN, 
+			- CMD 
+			- ENTRYPOINT
+
+	12. WORKDIR
+
+		Usage:
+		    WORKDIR </path/to/workdir>
+
+		    Sets the working directory for 
+				RUN, 
+				CMD, 
+				ENTRYPOINT, 
+				COPY, and 
+				ADD .
+			- Multiple times . 
+			- relative path 
+				relative : previous WORKDIR instruction.
+
+	13. ARG
+
+		Usage:
+			ARG <name>[=<default value>]
+
+			- Defines a variable 
+					- Pass at build-time.
+			- Multiple variables
+			- Not for secret keys
+			- ENV override ARG instruction 
+			- Predefined
+				- HTTP_PROXY and http_proxy
+				- HTTPS_PROXY and https_proxy
+				- FTP_PROXY and ftp_proxy
+				- NO_PROXY and no_proxy
+
+	14. ONBUILD
+
+		Usage:
+
+		    ONBUILD <Dockerfile INSTRUCTION>
+
+		    - image trigger for later 
+			- when used as base executed for downstream build after FROM
+			- Not inherited by grand children
+			
+			
+	15. STOPSIGNAL
+
+		Usage:
+		    STOPSIGNAL <signal>
+
+				- system call signal to exit container.
+				- Unsigned number ,
+					- 9, 
+					- SIGNAME like SIGKILL.
+	
+
+	16. HEALTHCHECK
+
+		Usage:
+
+		    HEALTHCHECK [<options>] CMD <command> 
+				- check container health
+				
+		    HEALTHCHECK NONE : disable healthcheck inherited from the base image
+
+				    Tells Docker 
+						- how to test
+						
+				    health check passes, 
+						- becomes healthy. 
+					
+					- consecutive failures, 
+						- it becomes unhealthy.
+				    
+					The <options> 
+					--interval=<duration> (default: 30s)
+					--timeout=<duration> (default: 30s)
+					--retries=<number> (default: 3)
+					
+				    first run 
+						- interval seconds after start.
+					second run
+						- interval seconds after previous 
+					
+					If longer than timeout 
+						- then failed. 
+						
+				    - Only one 
+					- last HEALTHCHECK will take effect.
+					
+			2 ways	
+			shell command 
+			exec JSON array.
+			
+			Exit status 
+					0: success 
+					1: unhealthy
+					2: reserved 
+
+	17. SHELL
+
+		Usage:
+			SHELL ["executable", "parameters"]
+			Default 
+				SHELL ["/bin/sh", "-c"]
+
+
+		Override default shell
+		
+
+
+Volumes
+****************************************************
+#####################################################
+1. Containers are ephemeral
+2. Containers writable layer is tightly coupled to the host machine.
+3. Containers memory gets used.
+
+	Adv. of volumes
+	1. Easier to backup or migrate.
+	2. Can manage using docker cli commands or api.
+	3. Can be safely shared among multiple containers.
+	4. Works on linux and windows.
+	5. Can store on remote hosts or cloud providers.
+	6. New volumes can have their content pre-populated by containers.
+	7. Data persists outside the lifecycle of a container.
+
+3 types
+	1. Volume stored in 
+	2. Bind Mounts
+	3. tmpfs [only on linux]
+
+	
+	When do you use Volume?
+	
+1. Persists data (may be on remote host like NFS)
+2. Sharing among multiple containers
+3. Decouple the configurations of Docker host from file system.
+4. Backup
+5. Restore
+6. Migrate data
+	
+	
+	When to use Bind Mounts?
+1. Sharing configuration files 
+	- from host to container.
+2. Sharing source code or build artifacts from host to container. e.g. tar get build regularly on host - container gets access to it.
+3. directory structure is guarantee.
+	
+	
+	
+	
+	
+	Volumes
+	1. Volumes stored 
+		(/var/lib/docker/volumes/ on Linux). 
+	2. Non-Docker processes should not modify
+	3. Prefered mechanism
+	
+	Can be created using
+	1. -v or --volume. 
+	-v <vol name>:<directory mounted in container>:<comma seperated list of options>
+	
+	where vol name
+	1. If <vol name> is skipped it becomes anonymous volumes.
+	2. should be unique on a given host (among multiple containers).
+	
+
+	
+	
+
+Bind Mounts
+	1. stored anywhere 
+		Imp. directory on HOST.
+	2. Host can modify them at any time.
+	
+tmpfs	
+	1. stored in memory 
+	2. never written to host system’s filesystem.
+	3. Can't be shared between containers.
+	4. Available only on linux machines.
+
+
+
+#####################################################
+
+
+	1. logical seperation of container and data
+	2. persist container crash 
+	3. volumes can be used to share between containers.
+
+	docker volume --help
+	docker volume ls
+	
+	Both Volumes and Bind mounts
+	1. Created on host machine
+	2. mounted to the container.
+	3. Full path required.
+	3. Will be created if it doesn't exist.
+	
+	Volumes
+	1. Created and managed by Docker.
+	2. Created on host system 
+		mounted into the countainer. 
+		Bind mount also works similarly. But location can be anywhere.
+	3. Managed by Docker 
+		isolated from host machine.
+	4. Volumes can be mounted into multiple containers.
+	5. Isolated volume are available to docker. Not automatically removed.
+	
+	Volumes are of two types
+		1. Named
+		2. Anonymous - docker gives a unique name.
+	
+	1. docker volume create
+	2. docker run -v or docker volume --mount
+	3. docker volume prune
+	
+	
+	Bind Mounts
+	1. Created on host 
+		mounted to container. 
+		(Unlike docker : specific directory).
+	2. Very performant
+	3. Unlike volumes 
+		depends on host FS.
+	4. Directory is created if it doesn't exist.
+	
+	tmpfs mounts: 
+	1. Not persisted on the disk. 
+	2. Can be used to store non-persistent data.
+	3. Supported only on linux.
+	4. Stored on host memory.
+	5. When container stops, the tmpfs mount is removed and files written there won't be persisted.
+	6. Can't share between containers (unlike volume and bindmounts)
+	
+	
+	named pipes: An npipe can be used for communication between the Docker host and container.
+	
+	Syntax between volume and Bind mounts look very similar. So lets understand the difference better. 
+	For bind mounts we specify type=bind while --mount. But we don't do that when we -v.
+	
+	-v or --volume
+	
+		<<<Refer the slide>>>
+	
+	Volume								
+	First field : 						
+	1. name of the volume
+	2. Should be unique on host
+	3. Anonymous volumes, 
+		the first field is omitted.
+	
+	Bind Mounts
+	First field :
+	1. Path to the file or directory on the host machine.
+	
+	Volume 
+	Second field
+	path where the file or directory are mounted in the container.
+	
+	Bind Mounts
+	Second field
+	path where the file or directory is mounted in the container.
+	
+	Volume 
+	Third field 
+	optional, and is a comma-separated list of options, such as ro.
+	ro, rw are different options.
+	
+	Volume create instructions
+	--------------------------
+	
+	1. docker volume create my-vol
+	2. docker volume ls
+	3. docker volume inspect my-vol
+	4. docker volume rm my-vol
+	
+	For the rest in general you can do it 2 ways
+	1. Using -v or --volume 
+	2. Using --mount : More descriptive
+	
+	1. While creating container - create a named volume
+		a. Using --mount
+		
+		docker run -d  --name devtest  --mount source=<vol name>,target=/app nginx:latest
+	
+		docker volume inspect <vol name>
+		find the path on host
+		
+		docker run -it <container id> bash
+		make changes and see it can be observed.
+	
+		b. Using -v
+		docker run -d --name devtest -v myvol2:/app nginx:latest
+		
+	clean up the env.	
+		docker container stop <id>
+		docker rm <id>
+		docker volume rm <volume name>
+		
+	2. Populate a volume from container.
+		/usr/share/nginx/html is the directory to stop html content in nginx. This has default files
+		
+		a. --mount
+		docker run -d --name=nginxtest --mount source=<volume name>,destination=/usr/share/nginx/html nginx:latest
+  
+		b. -v
+		docker run -d --name=nginxtest -v nginx-vol:/usr/share/nginx/html nginx:latest
+		
+		Cleanup
+		docker container stop <id>
+		docker container rm <id>
+		docker volume rm nginx-vol
+		
+	3. Creating a read only volume
+	
+		a. --mount
+		docker run -d --name=nginxtest --mount source=nginx-vol,destination=/usr/share/nginx/html,readonly nginx:latest
+		
+		
+		b. -v (Use ro)
+		docker run -d --name=nginxtest -v nginx-vol:/usr/share/nginx/html:ro nginx:latest
+		
+		docker volume inspect <id>
+		go to the container 
+			cd /usr/share/nginx/html
+			echo test > test.html
+				#Error - readonly file system
+		got to the host
+		find the location - cd to the location
+		echo test > test.html # no error.
+		
+		docker stop <id>
+		docker rm <id>

@@ -1,0 +1,302 @@
+4. Explain Dockerfile
+
+	FROM, RUN, ADD, COPY, Expose, ENV, CMD, Entrypoint
+	
+	###############################################################
+	1. FROM
+	
+		docker build -t from .
+		docker run -it from bash
+		
+		Execute the Dockerfile1
+		 
+
+	2. RUN
+		
+		docker build -t run-ex -f 2.Runfile .
+		docker run -it run-ex bash
+			-> javac
+
+	3. CMD
+			-> docker build -t cmd-test -f 3.cmdDockerfile  .
+			-> docker run cmd-test #ping might fail
+			-> docker run cmd-test ping google.com
+			-> docker run -it cmd-test ls -ltr # we can override the instruction.
+
+	4. ENTRYPOINT
+	
+		    ENTRYPOINT ["<executable>", "<param1>", "<param2>"] (exec form, preferred)
+		    ENTRYPOINT <command> <param1> <param2> (shell form)
+		    
+
+	x. ENV
+	
+		docker build -t env -f 6.envDockerfile .
+		docker run -it env bash
+
+	6. COPY
+		
+		docker build -t "tag" -f <file> .
+		docker run <image>
+
+	7. ADD
+
+		Usage:
+		docker build -t "tag" -f <file> .
+		docker run <image>
+    	
+	8. MAINTAINER
+		The MAINTAINER instruction allows you to set the Author field of the generated images.
+
+	9. EXPOSE
+
+		Usage:
+		    EXPOSE <port> [<port> ...]
+
+		    Informs Docker that the container listens on the specified network port(s) at runtime.
+		    EXPOSE does not make the ports of the container accessible to the host.
+
+	10. VOLUME
+
+		Usage:
+		    VOLUME ["<path>", ...]
+		    VOLUME <path> [<path> ...]
+
+		Creates a mount point with the specified name and marks it as holding externally mounted volumes from native host or other containers. 
+
+
+	11. USER
+
+		docker build -t user-eg -f 8.userDockerfile .
+		docker run -it user-eg bash
+			-> whoami
+			
+			
+		Usage:
+		    USER <username | UID>
+
+	12. WORKDIR
+
+		Usage:
+		    WORKDIR </path/to/workdir>
+
+	13. ARG
+
+		Usage:
+			ARG <name>[=<default value>]
+	14. ONBUILD
+
+		Usage:
+
+		    ONBUILD <Dockerfile INSTRUCTION>
+
+	15. STOPSIGNAL
+
+		Usage:
+		    STOPSIGNAL <signal>
+
+
+	16. HEALTHCHECK
+
+		Usage:
+
+
+	17. SHELL
+
+		Usage:
+
+		    SHELL ["<executable>", "<param1>", "<param2>"]
+
+https://kapeli.com/cheat_sheets/Dockerfile.docset/Contents/Resources/Documents/index
+##################################################################################
+
+
+May be start with 
+	FROM Ubuntu
+	RUN apt-get update
+	RUN apt-get install -y apache2
+	
+add	
+	COPY hello /var/www/html
+	
+add 
+	EXPOSE 80
+
+add
+	ENTRYPOINT ["apache2ctl"]
+
+add
+	CMD ["-D FOREGROUND"]
+
+####################################################################
+
+Volumes
+#####################################################
+
+Mysql example
+	
+	Can be created using
+	1. -v or --volume. 
+	-v <vol name>:<directory mounted>:<comma seperated list of options>
+	
+
+
+
+	docker volume --help
+	docker volume ls
+
+	
+	-v or --volume
+	
+	
+	Volume create instructions
+	--------------------------
+	
+	1. docker volume create my-vol
+	2. docker volume ls
+	3. docker volume inspect my-vol
+	4. docker volume rm my-vol
+	
+	For the rest in general you can do it 2 ways
+	1. Using -v or --volume 
+	2. Using --mount : More descriptive
+	
+	1. While creating container - create a named volume
+		a. Using --mount
+		
+		docker run -d  --name devtest  --mount source=<vol name>,target=/app nginx:latest
+	
+		docker volume inspect <vol name>
+		find the path on host
+		
+		docker run -it <container id> bash
+		make changes and see it can be observed.
+	
+		b. Using -v
+		docker run -d --name devtest -v myvol2:/app nginx:latest
+		
+	clean up the env.	
+		docker container stop <id>
+		docker rm <id>
+		docker volume rm <volume name>
+		
+	2. Populate a volume from container.
+		/usr/share/nginx/html is the directory to stop html content in nginx. This has default files
+		
+		a. --mount
+		docker run -d --name=nginxtest --mount source=<volume name>,destination=/usr/share/nginx/html nginx:latest
+  
+		b. -v
+		docker run -d --name=nginxtest -v nginx-vol:/usr/share/nginx/html nginx:latest
+		
+		Cleanup
+		docker container stop <id>
+		docker container rm <id>
+		docker volume rm nginx-vol
+		
+	3. Creating a read only volume
+	
+		a. --mount
+		docker run -d --name=nginxtest --mount source=nginx-vol,destination=/usr/share/nginx/html,readonly nginx:latest
+		
+		
+		b. -v (Use ro)
+		docker run -d --name=nginxtest -v nginx-vol:/usr/share/nginx/html:ro nginx:latest
+		
+		docker volume inspect <id>
+		go to the container 
+			cd /usr/share/nginx/html
+			echo test > test.html
+				#Error - readonly file system
+		got to the host
+		find the location - cd to the location
+		echo test > test.html # no error.
+		
+		docker stop <id>
+		docker rm <id>
+		
+		docker run -it -v sshvolume:/data -p 9002:80 nginx # this is however failing investigate more.
+		
+	4. Taking a backup.
+		For example if you have a container like the below
+		docker run -it -v /dbdata --name dbstore ubuntu /bin/bash
+		
+		Then you can create a container just for taking back up as below
+		docker run --rm --volumes-from dbstore -v $(pwd):/backup ubuntu tar cvf /backup/backup.tar /dbdata
+		
+		above command is doing the following 
+		1. Taking a volume from the first container.
+		2. Creating a new volume where it is creating a backup.tar of /dbdata
+		
+	4b. Restoring from backup.
+		Create a new container instruction very similar to 4a.
+		docker run -it -v /dbdata --name dbstore2 ubuntu /bin/bash
+		
+		un-tar the backup file in the new container`s data volume:
+		
+		docker run --rm --volumes-from dbstore2 -v xyz:/persist ubuntu bash -c "cd /persist && tar xvf backup.tar --strip 1"
+		
+		--rm will remove the container when it stops.
+		
+		
+	Bind Mount execute instructions.
+	--------------------------------
+
+	1. Start a container with Bind Mount
+	
+	Using --mount
+	docker run -d -it --name devtest --mount type=bind,source="$(pwd)"/target1,target=/app nginx:latest
+	#does that fail. Create the folder and try again.
+	
+	
+	Using -v #N.B : There is not type here. So you should be intelligent to distinguish.
+	
+	docker run -d -it --name devtest -v "$(pwd)"/target:/app  nginx:latest
+	
+	2. Read only bind mount
+	
+	--mount
+	docker run -d -it--name devtest --mount type=bind,source="$(pwd)"/target,target=/app,readonly nginx:latest
+	
+	-v
+	docker run -d -it --name devtest -v "$(pwd)"/target:/app:ro nginx:latest
+	
+	in the container try to add a file/directory in /app # it fails
+	in the host add a directory in "target" folder 
+		#it works and changes are visible inside container.
+		
+	
+	tmpfs create instructions
+	--------------------------
+	There are two ways to create
+	1. --tmpfs : Does not support any configurable options
+	2. --mount : 
+		Consists of key:value pair.
+			a. type=tmpfs #other options are volume and bind
+			b. destination/dst/target - where it should mounted in the container
+			c. tmpfs-size/tmpfs-mode : 
+				tmpfs-size : size of the tmpfs 
+				tmpfs-mode : mode of file system in octal.
+					default 1777 world writable
+							1xxx
+	
+	
+		docker run -d -it --name tmptest --mount type=tmpfs,destination=/app,tmpfs-mode=1770 nginx:latest	
+	
+	
+	Backup and Restore
+	------------------
+	
+		docker run -it -v /persist --name ubcnt1 ubuntu /bin/bash
+		
+		Then you can create a container just for taking back up as below
+		docker run --rm --volumes-from ubcnt1 -v xyz1:/backup ubuntu tar cvf /backup/backup.tar /persist
+		
+		
+	4b. Restoring from backup.
+		Create a new container instruction very similar to 4a.
+		docker run -it -v /persist --name ubcnt2 ubuntu /bin/bash
+		
+		un-tar the backup file in the new container`s data volume:
+		
+		docker run --rm --volumes-from ubcnt2 -v xyz1:/backup ubuntu bash -c "cd /persist && tar xvf /backup/backup.tar --strip 1"
