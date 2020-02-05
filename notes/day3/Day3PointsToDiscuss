@@ -1,0 +1,235 @@
+Understanding the networking fundaments
+
+What is IP address?
+		- Internet Protocol address (IP address) 
+		- numerical label on computer network that uses the  Internet Protocol for communication.
+		
+		2 purpose
+			- Identify on n/w
+			- location adressing
+			
+		IPv4
+			- 32-bit number.
+		IP (IPv6), 
+			- using 128 bits 
+			
+	What is MAC address?
+		- Media access control address 
+		- unique identifier assigned to device. 
+		
+		- Within the Open Systems Interconnection (OSI) model, 
+			- MAC addresses are used in the medium access control protocol sublayer of the data link layer. 
+		
+	How packets move?
+	
+	Subnet mask?
+		Subnetting an IP network 
+			- separate a big network 
+			- into smaller multiple networks 
+			
+			A subnet mask separates the IP address into the network and host addresses (<network><host>). Subnetting further divides the host part of an IP address into a subnet and host address (<network><subnet><host>) if additional subnetwork is needed.
+		
+		Explain good image.
+		
+NIC (Network interface card)
+	show online.
+NAT (Network address translator)
+	explain.
+
+ip addr show
+	# Look for the NIC (Network interface card) 
+		IP address
+		Broadcast ip address
+		whether it uses ipv6/ipv4
+		
+	#Bridge related details
+	
+	NIC en 
+		- is ethernet
+	"wi" 
+		- wifi
+	"w" 
+		- wlan.
+	ip : 192.168.92.5/24 - ip address - 192.168.92.5 and 24 is the subnet mask.
+
+	All above are external NIC	
+	"s" : slot 
+	ens33 
+		33rd slot. 
+		Pci slot number 33
+		
+		enp5s25 - en stands for ethernet, p for port -5 and s for slot - 25.
+		wlp3s0 - wl - wlan (wide lan), port 3 and slot 0
+		
+	Below would be internal NIC.	
+		eno - ethernet onboard, ie. it is inbuild or internal card.
+	
+
+	#External NIC - doesn't come with the mother board
+	#Internal NIC - came with the mother board
+
+ip route
+	
+	For e.g an output like below
+	172.17.0.0/16 dev docker0 proto kernel scope link src 192.17.0.1 linkdown
+	would indicate
+	any traffic to any ip in the series 172.17.0.x would go through the docker0 
+	instead of docker0 it can be an ethernet NIC like enp0s3 
+
+
+
+
+NAT
+----
+NAT 
+	(network address translators) gateway - 
+	[wifi] router 
+		- picks up the public IP 
+		- assigns private IP. 
+		- Private IP's : dynamic 
+		- May get a different IP everytime. 
+		- Generally Public IP's are static. 
+		- maintains IP table. 
+		- For the devices exposed publicly, it should pick up a MAC address which is static.
+		
+
+	ip addr show
+	tr ls
+	brctl show
+	
+			
+			
+	Docker networking has following advantages
+			1. Portability
+			2. Extensibility.
+			3. Pluggable flexibility
+			4. Docker Native UX and API
+			5. Distributed Scalability and Performance
+			6. Decentralized HA
+			7. Out of the box Support EE
+			8. Cross platform
+		
+		This is implemented through libnetwork.
+
+	docker info
+Plugins:
+ Volume: local
+ Network: bridge host ipvlan mcvlan null overlay
+ 
+Above are the networking supported out of the box.
+
+docker network create -d <driver type> name 
+docker run --network ...
+
+
+libnetwork is based on CNM
+CNM - container networking management specification
+it defines sandboxes, endpoints and networks.
+open source 
+cross platform specificaiton
+extensible via pluggable drivers.
+Drivers allow libnetwork to support many network technolgoies.
+
+CNM and libnetwork 
+	- simplify the container networking 
+	- improve application portability.
+
+		Docker’s networking subsystem is pluggable, using "Docker Network drivers". Several drivers exist by default, and provide core networking functionality:
+
+    bridge: 
+		
+		docker network create my-bridge -d bridge
+		docker run -it --net=my-bridge ubuntu bash
+			
+		Default : bridge
+		Best : multiple containers on same host
+		Allocates IP address
+		
+		Other nodes IP address may repeat.
+		Map ports.
+			
+			
+			
+    host: 
+		docker run --network host --name my_nginx nginx 
+		docker run --net=host ubuntu bash
+		docker network create host
+		#host network is predefined and reserved for host. We cannot create a network with that name.		
+
+		- No network isolation with the host.
+		- Will not get it's own ip address.
+		- No NAT (network address translation) required.
+		- Works only on Linux (not on MAC and windows)
+		- N/w not isolated from the Docker host (the container shares the host’s networking namespace),
+		- No IP for container 
+
+
+	overlay: 
+		- Container1 on Host1 can talk to Container2 on Host2
+		- connect multiple Docker daemons together
+		- Removes the need for OS level networking.
+		
+		- Portable
+			- Works cloud/on-prem environments
+			- as same L2 network. 			
+			- Simple to setup
+				- Docker handles all control plane configuration and management
+				- Network control plane self configures and manages itself. Totally transparent to users. 
+			- Secure
+				- Control plane : encrypted by default.
+				- Data plane can be optionally encrypted.
+			- Portable connectivity that is easy to setup.
+				- Management network control plane is transparent to users.
+			- Ingress/Egress Traffic
+				- Leaves or enters on every host - no central "on-ramp" gateway to overlay network (no bottleneck/SPOF).
+			- Load Balancing
+				- Service VIP (virtual IP) load balancing
+				- Supports docker health checks.
+				
+			This will work only with Docker swarm enabled.
+			-> docker network create my-ovrly-ntw -d overlay 
+	Best : Multi node setup with Swarm
+
+
+	macvlan: 
+			- Attach containers to existing networks and VLANs. 
+			- Easily plumbed in.
+			- Ideal for apps that are not fully ready to be containeraized
+			- Uses MACVLAN linux network type. Well known.
+			- Doesn't include NAT or linux bridge, it is very high in performance.
+			
+			- Each container gets its own MAC and IP on the underlay network. 
+			- Each container is visible on the physical underlay networks.
+			- No need to map port.
+			- Requires promiscous mode.
+			- Docker daemon routes traffic to containers by their MAC addresses.
+			
+			Best : when migrating from VM
+			legacy applications
+			apps which require McVLan : applications which monitor network traffic
+
+-> docker network create -d macvlan --subnet=192.168.32.0/24 --ip-range=192.168.32.128/25 --gateway=192.168.32.254 --aux-address="my-router=192.168.32.129" \
+  			-o parent=eth0 <name e.g. macnet32>
+
+
+    none: For this container, disable all networking. Usually used in conjunction with a custom network driver.
+		-> docker run -it --net=none ubuntu bash # --net=none will do the trick.
+		
+
+	Copy the network parameters including IP address from one container to the other using the following
+		-> docker run -it --name=cnt1 centos bash # just creating a container with name
+		-> docker run -it --net=container:cnt1 ubuntu bash # --net=container:<source container name> does the trick.
+********************************************************************
+
+
+
+Docker monitoring
+-----------------
+1. docker stats
+2. curl --unix-socket /var/run/docker.sock  http://localhost/containers/<container-name | cid>/stats 
+e.g.
+	docker run -it alpine:latest /bin/sh
+	curl --unix-socket /var/run/docker.sock  http://localhost/containers/<id>/stats
+
+
+Docker best practices.

@@ -1,0 +1,69 @@
+ip addr show
+ip route
+tr ls
+brctl show
+docker info
+
+docker network create -d <driver type> name 
+docker run --network ...
+
+bridge: 
+		
+			docker network create my-bridge -d bridge
+			docker run -it --net=my-bridge ubuntu bash
+			
+			
+			- Simple behavior and architecture. 
+			- Allows containers on the same network to communicate.
+			- Offers local service discovery.
+			- Offers external access to containers through port mapping.
+			Refer images
+			
+	This will work only with Docker swarm enabled.
+	-> docker network create my-ovrly-ntw -d overlay 
+	
+	-> docker run -it --net=none ubuntu bash # --net=none will do the trick.
+
+    	
+	Host network
+
+		docker run --network host --name my_nginx nginx 
+		docker run --net=host ubuntu bash
+		docker network create host
+		
+	macvlan network
+		- Each Device gets its own MAC address.
+		- Simulates like a physical device is connected to the physical network.
+
+		-> docker network create -d macvlan --subnet=192.168.32.0/24 --ip-range=192.168.32.128/25 --gateway=192.168.32.254 --aux-address="my-router=192.168.32.129" \
+  			-o parent=eth0 <name e.g. macnet32>
+
+		
+	We can copy the network parameters including IP address from one container to the other using the following
+		-> docker run -it --name=cnt1 centos bash # just creating a container with name
+		-> docker run -it --net=container:cnt1 ubuntu bash # --net=container:<source container name> does the trick.
+*********************************************************************	
+####################################################################
+setup ssh
+---------
+https://linuxize.com/post/how-to-enable-ssh-on-ubuntu-18-04/
+sudo apt update
+sudo apt install openssh-server
+sudo systemctl status ssh
+
+ssh-copy-id user@host
+scp user@remote ip:/home/abc.txt .
+
+
+
+
+Docker monitoring
+-----------------
+1. docker stats
+2. curl --unix-socket /var/run/docker.sock  http://localhost/containers/<container-name | cid>/stats 
+e.g.
+	docker run -it alpine:latest /bin/sh
+	curl --unix-socket /var/run/docker.sock  http://localhost/containers/<id>/stats
+
+
+Docker best practices.
