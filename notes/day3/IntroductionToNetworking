@@ -1,0 +1,166 @@
+whoami
+su - root
+whoami
+
+Hard links
+----------
+ln <file name> <new link name>
+ls li #displays the links
+ls ll #displays all but links highlighted.
+man ln #manual of link
+
+Create user
+--------------
+sudo cat /etc/password
+sudo cat /etc/shadow
+
+sudo useradd vilas
+sudo cat /etc/group
+sudo groupadd admins_group
+adding user to a group
+sudo useradd <user> -g <group>
+	e.g. sudo useradd vilas -g admins_group
+Go to application - users, we can see them listed.
+
+Network
+--------
+ip addr
+	lo - loopback
+	enp - ethernet
+		link/ether - internet MAC address
+		inet - IPV4
+		inet6- IPV6
+
+ethtool enp03 #network device
+	
+##############################
+Sockets and /var/run/docker
+---------------------------
+
+There are two types of sockets.
+	- IP Sockets.
+		- Commonly referred to as Sockets   
+		- Bound to a port (and address), we send TCP requests to, and get responses from IP Sockets.
+		- use the network - i.e. does RPC
+	- Unix Socket
+		- Used for IPC (Interprocess Communication). 
+		- Also called Unix Domain Sockets (UDS). Unix Sockets use the local filesystem for communication
+
+The Docker daemon can listen for Docker Engine API requests via three different types of Socket: 
+	- unix, 
+	- tcp, 
+	- fd.
+
+By default, a unix domain socket (or IPC socket) is created at 
+/var/run/docker.sock
+
+Let us see some live examples:
+
+Docker Server uses this socket to listen to the REST API, and the clients use the socket to send API requests to the server.
+
+curl can talk to a Unix Socket via the --unix-socket flag. Since Docker Server API is exposed as REST, we’d need to send commands over HTTP. Also, as this server is local (remember, the file system), we can pass any hostname in the URL (or stick to the localhost, that will work fine too!). The server does not care about the hostname, just the path.
+
+curl --unix-socket /var/run/docker.sock http://localhost/images/json | jq
+curl --unix-socket /var/run/docker.sock http://localhost/containers/json | jq
+curl -i -X POST --unix-socket /var/run/docker.sock "http://foo/images/a95fgf458dfd/tag?repo=redis&tag=foo"
+curl --no-buffer --unix-socket /var/run/docker.sock http://localhost/events
+
+Reference: https://stackoverflow.com/questions/35110146/can-anyone-explain-docker-sock
+
+More reference :
+https://lobster1234.github.io/2019/04/05/docker-socket-file-for-ipc/
+###################################
+
+###################################
+
+TCP/IP protocol
+Transmission control protocol/
+internet protocol
+	- multiple versions
+		- version 6 is lot different than version 4
+	
+	IP
+		- with in tcp/ip controls routing of information with in different computers and servers
+		- deals with 
+			- ip address
+			- subnet mask
+			- default gateway
+			- ect
+		- node discovery
+		- routable protocol
+		- divide network into multiple sub networks
+		(non routable - all computers can talk to the other)
+		- with in subnet computers can talk to each other. 
+		- outside subnet they can talk through routers.
+		- IP is in Layer 3 in OSI model.
+	TCP
+		- once the computers have found using IP, now how do you talk?
+		Following are decided by TCP
+		- which language?
+		- how fast?
+		
+		- created for a military.
+		- windowing 
+			- how data is transmitted from one comp. to another.
+			- data divided to packets.
+			- transmitted to other.
+			- since comp1 doesn't know the quality of network.
+			it sends 1 packet - comp2 sends a acknowledgement to comp1.
+			- now comp1 is confident - it sends 2 (say 2,3) packets
+			- comp2 acks.
+			- comp1 sends 4 packets (say 4,5,6,7)
+			- as long as the ack is received, comp1 keeps increasing (may be doubling the number of packets).
+			- at some point if comp2 gets only 3 packets in order, it will ack that it got only 3 packets in order.
+			- now comp1 starts sending only a single packet and keeps increasing.
+			
+			- This is why our downloads starts slow and then there is a sudden increase in our downloads.
+			So there are windows of packets.
+		- TCP is layer 4 of OSI - transport layer.	
+###################################
+How TCP/IP works or
+Components of TCP/IP
+
+	IP address
+		identifier and locator for every computer/device on the n/w working using TCP/IP protocol.
+	Subnet mask
+		way to segment a big network so that computers on a subnet mask cannot talk to devices on a different subnet mask unless the security priviles are validated.
+	Default Gateway
+		computer/device will look for a IP/domain on the local subnet. If it cannot find one, then it would go to the router which would go to default gateway.
+		Default gateway would find the domain connects your subnet to the domain.
+Computers are connected through IP address. How are domains resolved to IP address.
+DNS: Domain name server.
+	- Maps domain names to IP address.
+	- for e.g. hsbginfotech.com is resolved to 10.1.12.1
+	- DNS server tells my comp or router that 10.1.12.1 is the IP of hsbginfotech.
+		
+		
+####################################
+OSI model
+	7 logical layer which helps you to understand and solve the networking problem.
+	
+	Layer 7 : closest to user
+	Layer 1	: away from user. shooting something to the network.
+	
+	
+	Layer 7 : Application layer
+				ie, firefox, safari, chrome
+				- User interacts with this layer
+				- email : outlook.
+				- This talks to the presentation layer
+	Layer 6 : Presentation layer
+				o/s layer. Lot of configurable options. But end users generally don't use it much.
+				Device drivers are messed up, security is messed up.
+	Layer 5 : Session layer
+				- Deals with the communication that establishes a session between two computers (probably between client and server). initial handshake. cert. validation etc.
+				
+	Layer 4	: Transport layer
+				Decides - How much information should be transmitted between. Windowing happens here. basically the size of the packets keeps increasing untill a failure.
+	Layer 3	: Network Layer
+				routers, IP address ect. Anything with TCP/IP, it would be happening at this layer. Default gateway, subnet mask, DNS ect all happens here.
+	Layer 2 : Data link layer.
+				All computers in a network gets connected to a switch. This happens at the data link layer.
+				MAC (media access control) is layer2. 
+	Layer 1 : Physical layer
+				All physical connections that connects the network. Your network cable is not connected, then it is a Layer 1 problem.
+				All cable connections happens at this layer.
+				
