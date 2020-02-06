@@ -1,0 +1,28 @@
+Do the following on linux boxes
+-------------------------------
+sudo apt update
+sudo apt install openssh-server
+sudo systemctl status ssh
+
+########################
+CentOS
+------
+sudo yum –y install openssh-server openssh-clients
+sudo systemctl start sshd
+sudo systemctl status sshd
+sudo systemctl enable sshd
+
+systemctl stop sshd
+service sshd restart
+########################
+
+Open putty in windows (if not present install)
+	Enter host as user@ip
+		e.g. docker@192.168.56.128
+	Protocol should be ssh
+	Port can be 22
+	Click Open
+
+now we should be able to work from putty just like from local machine
+We can copy paste between these terminals too.
+
