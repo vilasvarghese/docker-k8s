@@ -1,0 +1,715 @@
+#################################################################
+
+
+Services, Load Balancing, and Networking
+
+Services
+#################################################################
+Issues 
+	1. Pods are ephimeral - they die. 
+	2. How does the front end Pod talk to back end Pod
+	3. How does external users connect to front end Pod's.
+	
+	Service is an 
+		abstraction to acess Pods. 
+		Determined by a selector. 
+	
+	In simple terms service represents the way any entity can access a group of Pods without worrying about what their IP address is.
+	
+	There are 3 types of Services
+	1. Cluster IP
+	2. NodePort
+	3. Load balancer.
+	
+	Services provide standard services like	
+		- Load balancing	
+		- Service discovery
+		- Feature to support ZDT app deployment
+		
+		
+	Node Port : Refer node-port.yaml - works with deploy-ng.yaml
+		Port should be between 30000 to 32767
+		Refer to the Good image. 
+		There are three sections.
+			Pod with ip/port
+			(Node Port) Service with ip/port : Spans multiple nodes if required.
+			Node with ip/port
+		The external ip is not updated. Instead we can access node ip/<Node Port>
+		
+	When you set a service’s type to NodePort, that service begins listening on a static port on every node in the cluster. So, you’ll be able to reach the service via any node’s IP and the assigned port. Internally, Kubernetes does this by using L4 routing rules and Linux IPTables.	
+	While this is the simplest solution, it can be inefficient and also doesn’t provide the benefits of L7 routing. It also requires downstream clients to have awareness of your nodes’ IP addresses, since they will need to connect to those addresses directly. In other words, they won’t be able to connect to a single, proxied IP address.
+	
+	
+	
+	Load Balancer
+		Even after defining NodePort, if your Pods are spread across 3 different nodes, then we cannot give the IP of all three nodes to the user.
+	
+		LB exposes the service externally. 
+		However, to use it, you need to have an external load balancer. 
+		The external load balancer needs to be connected to the internal Kubernetes network on one end and opened to public-facing traffic on the other in order to route incoming requests. Due to the dynamic nature of pod lifecycles, keeping an external load balancer configuration valid is a complex task, but this does allow L7 routing.
+########################################################
+Kubernetes ingress		
+	Oftentimes, when using Kubernetes with a platform-as-a-service, such as with AWS’s EKS, Google’s GKE, or Azure’s AKS, the load balancer you get is automatic. It’s the cloud provider’s load balancer solution. If you create multiple Service objects, which is common, you’ll be creating a hosted load balancer for each one. This can be expensive in terms of resources. You also lose the ability to choose your own preferred load balancer technology.
+
+	There needed to be a better way. The limited, and potentially costly, methods for exposing Kubernetes services to external traffic led to the invention of Ingress objects and Ingress Controllers.
+#######################################################	
+	
+	Exposes the Service on each Node’s IP at a static port (the NodePort).
+	
+	contact the NodePort Service, from outside the cluster, by requesting <NodeIP>:<NodePort>.
+	
+	kubectl apply -f deploy-ng.yaml
+	kubectl apply -f node-port.yaml
+	
+	kubectl apply -f deploy-ng.yaml
+	kubectl apply -f clusterip.yaml
+	
+	kubectl apply -f deploy-ng.yaml
+	kubectl apply -f loadbalancer.yaml
+	
+	kubectl get svc
+	kubectl get svc -o wide
+	kubectl describe svc <a service id>
+	
+	kubectl get svc -n kube-system
+
+
+
+#################################################################
+
+Jobs - Run to Completion
+
+#################################################################
+- Creates and tracks one or more Pods to completion
+- known "Run to completion jobs"
+- exit0 indicates  : exited successfully
+- Pods NOT automatically cleaned up
+- We should delete Pods
+- Delete the jobs – 
+	Pods are also deleted
+- If Pod fails
+	- Job will create a new Pod
+
+	- creates one or more Pods
+	- Ensures succesfully completed.
+	- Job fails : Job controller 
+		restart or 
+		rescheduled 
+	
+		- kubectl apply -f job.yaml
+		- kubectl get jobs
+		- kubectl get job
+		- kubectl logs <<pod-name>>		
+		
+		
+#################################################################
+
+CronJob
+
+#################################################################
+- Creates a job object once per execution. 
+- Job Creation not 100% guaranteed. 
+- Jobs should be idempotent.
+
+Scheduling 
+	- Min
+	- Hour
+	- Day of month
+	- Month
+	- Day of week
+	RUNS on UTC standard
+	
+	15 7 2 * * UTC
+
+kubectl apply -f cronjob.yaml
+kubectl get cronjobs
+kubectl get jobs --watch
+pods=$(kubectl get pods --selector=job-name=<<name from kubectl get jobs --watch>> --output=jsonpath={.items[*].metadata.name})
+kubectl logs $pods
+
+	
+#################################################################
+
+Storage Volume
+	
+Why Volumes?
+	- Pods are ephemeral
+	- Pods becoming more stateful
+
+Way more powerful than docker volumes
+	- Pods can be made of multiple containers. 
+	- All containers in the Pod has access to volume
+	- Associated with the lifecycle of a Pod
+	- Supports huge list of volumes out of box.
+
+	Volume Type
+		- Ephemeral
+			- Has same life as that of Pod
+		- Durable
+			- Beyond life of the Pod.
+			
+	k8s supports 
+		- cloud based volumes like
+			awsElasticBlockStore
+			gcePersisteDisk
+			azureDisk
+			azureFile
+			
+		- host based volumes like
+			emptyDir
+			HostPath
+		- network based volumes like
+			- NFS
+
+			
+	emptyDir
+		- Creates empty directory - Pod starts.
+		- Available till Pod runs
+		- Pod dies : removed, 
+		- Temporary storage of data.
+		- Multiple Pods can't refer	
+		- multiple containers in same Pod can refer.
+			
+		kubectl apply -f empty-dir.yaml
+		#####################
+		#kubectl exec <<pod name>> -c <container name> /bin/sh
+		kubectl exec -it <<pod name>> /bin/sh
+		#####################
+		- We can create emptyDir in RAM by doing the following
+		emptyDir:
+		  medium: Memory #instead of {}
+			
+	HostPath
+		- Mounts file or directory from the Host node's filesystem into your Pod.
+		- Data remains after Pod is removed.
+		- Similar to Docker volume.
+		- Use cautiously because there is no guarantee that Pod's would be created on the same Node.
+
+Persistent Volumes 
+#################################################################
+
+K8s supports integrating Pod's with several 
+	- (more than 30) different storage solutions. 
+	Types
+	`- NFS, 
+	 - cloud based storage solutions ect.
+	 - Widely differs 
+		- architecture, api, access 
+
+	k8s provides a common ways
+		- common API
+		
+For this K8s introduced two new API resources: PersistentVolume and PersistentVolumeClaim.
+
+PVs are resources in the cluster. PVCs are requests for those resources and also act as claim checks to the resource.
+
+A PersistentVolume (PV) is a piece of storage in the cluster that has been provisioned by an administrator or dynamically provisioned using Storage Classes. It is a resource in the cluster just like a node is a cluster resource. PVs are volume plugins like Volumes, but have a lifecycle independent of any individual Pod that uses the PV. This API object captures the details of the implementation of the storage, be that NFS, iSCSI, or a cloud-provider-specific storage system.
+
+
+A PersistentVolumeClaim (PVC) is a request for storage by a user. While PersistentVolumeClaims allow a user to consume abstract storage resources, it is common that users need PersistentVolumes with varying properties, such as performance, for different problems. Cluster administrators need to be able to offer a variety of PersistentVolumes that differ in more ways than just size and access modes, without exposing users to the details of how those volumes are implemented. For these needs, there is the StorageClass resource.
+
+Types of PV's
+
+Static
+A cluster administrator creates a number of PVs. They carry the details of the real storage, which is available for use by cluster users. They exist in the Kubernetes API and are available for consumption.
+
+Dynamic
+When none of the static PVs the administrator created match a user’s PersistentVolumeClaim, the cluster may try to dynamically provision a volume specially for the PVC. This provisioning is based on StorageClasses: the PVC must request a storage class and the administrator must have created and configured that class for dynamic provisioning to occur. Claims that request the class "" effectively disable dynamic provisioning for themselves.
+
+Lifecycle of a volume and claim
+--------------------------------
+The interaction between PVs and PVCs follows this lifecycle:
+
+Binding
+-------
+A user creates, or in the case of dynamic provisioning, has already created, a PersistentVolumeClaim with a specific amount of storage requested and with certain access modes. A control loop in the master watches for new PVCs, finds a matching PV (if possible), and binds them together. If a PV was dynamically provisioned for a new PVC, the loop will always bind that PV to the PVC. Otherwise, the user will always get at least what they asked for, but the volume may be in excess of what was requested. Once bound, PersistentVolumeClaim binds are exclusive, regardless of how they were bound. A PVC to PV binding is a one-to-one mapping.
+
+Claims will remain unbound indefinitely if a matching volume does not exist. Claims will be bound as matching volumes become available. For example, a cluster provisioned with many 50Gi PVs would not match a PVC requesting 100Gi. The PVC can be bound when a 100Gi PV is added to the cluster.
+
+Using
+-----
+Pods use claims as volumes. The cluster inspects the claim to find the bound volume and mounts that volume for a Pod. For volumes that support multiple access modes, the user specifies which mode is desired when using their claim as a volume in a Pod.
+
+Once a user has a claim and that claim is bound, the bound PV belongs to the user for as long as they need it. Users schedule Pods and access their claimed PVs by including a persistentVolumeClaim in their Pod’s volumes block. See below for syntax details.
+
+Storage Object in Use Protection
+--------------------------------
+The purpose of the "Storage Object in Use Protection" feature is to ensure that 
+PV's and PVC's in active use are not removed from the system as that may result in data loss.
+
+If a user deletes a PVC in active use by a Pod, the PVC is not removed immediately. PVC removal is postponed until the PVC is no longer actively used by any Pods. Also, if an admin deletes a PV that is bound to a PVC, the PV is not removed immediately. PV removal is postponed until the PV is no longer bound to a PVC.
+
+Reclaiming
+----------
+When a user is done with their volume, they can delete the PVC objects from the API that allows reclamation of the resource. The reclaim policy for a PersistentVolume tells the cluster what to do with the volume after it has been released of its claim. Currently, volumes can either be Retained, Recycled, or Deleted.
+
+	Retain
+The Retain reclaim policy allows for manual reclamation of the resource. When the PersistentVolumeClaim is deleted, the PersistentVolume still exists and the volume is considered “released”. But it is not yet available for another claim because the previous claimant’s data remains on the volume.
+An administrator can manually reclaim the volume by following the defined process.
+
+	Delete
+For volume plugins that support the Delete reclaim policy, deletion removes both the PersistentVolume object from Kubernetes, as well as the associated storage asset in the external infrastructure.
+
+Dynamically provisioned PVC's inherit their reclaim policy from the storage class - which defaults to "Delete".
+This can be patched (modified) latter if required as follows
+	kubectl get pv
+	kubectl patch pv <your-pv-name> -p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}'
+
+	Recycle
+If supported by the underlying volume plugin, the Recycle reclaim policy performs a basic scrub (rm -rf /thevolume/*) on the volume and makes it available again for a new claim.
+
+
+Access Modes
+A PersistentVolume can be mounted on a host in any way supported by the resource provider. As shown in the table below, providers will have different capabilities and each PV’s access modes are set to the specific modes supported by that particular volume. For example, NFS can support multiple read/write clients, but a specific NFS PV might be exported on the server as read-only. Each PV gets its own set of access modes describing that specific PV’s capabilities.
+
+The access modes are:
+
+ReadWriteOnce – the volume can be mounted as read-write by a single node
+ReadOnlyMany – the volume can be mounted read-only by many nodes
+ReadWriteMany – the volume can be mounted as read-write by many nodes
+In the CLI, the access modes are abbreviated to:
+
+RWO - ReadWriteOnce
+ROX - ReadOnlyMany
+RWX - ReadWriteMany
+Important! A volume can only be mounted using one access mode at a time, even if it supports many. For example, a GCEPersistentDisk can be mounted as ReadWriteOnce by a single node or ReadOnlyMany by many nodes, but not at the same time.
+
+
+Class
+A PV can have a class, which is specified by setting the storageClassName attribute to the name of a StorageClass. A PV of a particular class can only be bound to PVCs requesting that class.
+
+#################################################################
+PersistentVolumeClaim
+#################################################################
+https://www.alibabacloud.com/blog/kubernetes-volume-basics-emptydir-and-persistentvolume_594834
+Access Modes
+Claims use the same conventions as volumes when requesting storage with specific access modes.
+
+Volume Modes
+Claims use the same convention as volumes to indicate the consumption of the volume as either a filesystem or block device.
+
+Resources
+Claims, like Pods, can request specific quantities of a resource. In this case, the request is for storage. The same resource model applies to both volumes and claims.
+
+Selector
+Claims can specify a label selector to further filter the set of volumes. Only the volumes whose labels match the selector can be bound to the claim. The selector can consist of two fields:
+
+matchLabels - the volume must have a label with this value
+matchExpressions - a list of requirements made by specifying key, list of values, and operator that relates the key and values. Valid operators include In, NotIn, Exists, and DoesNotExist.
+
+Class
+A claim can request a particular class by specifying the name of a StorageClass using the attribute storageClassName. Only PVs of the requested class, ones with the same storageClassName as the PVC, can be bound to the PVC.
+
+Pods access storage by using the claim as a volume. Claims must exist in the same namespace as the Pod using the claim. The cluster finds the claim in the Pod’s namespace and uses it to get the PersistentVolume backing the claim. The volume is then mounted to the host and into the Pod.
+
+kubectl apply -f persistent-volume.yaml
+kubectl apply -f persistent-volume-claim.yaml
+kubectl apply -f persistent-volume-pod.yaml
+kubectl get svc 
+kubectl get svc -o wide
+kubectl describe svc <service name>
+
+N.B : The persistent volume mount would be created on the machine where the pod is running.
+#################################################################
+
+To resolve the pod not acccessible from other cluster issue
+http://alesnosek.com/blog/2017/02/14/accessing-kubernetes-pods-from-outside-of-the-cluster/
+
+
+##########################################
+Using nfs
+	kubectl create -f pvwithnfs.yaml
+	kubectl create -f pvcwithnfs.yaml
+		showmount -e
+	kubectl create -f nginx.yaml
+
+Nginx root directory : /usr/share/nginx/html
+
+Secrets
+##########################################
+#######################
+Small amount of sensitive data
+	e.g. Passwords, tokens, keys ect
+Reduce risk of exposing sensitive data
+Created outside pods/containers.
+	Can be used any number of times on Pod's 
+Stored inside ETCD database on K8s master
+There is a limit to each secret size
+	limit is 1MB
+Loaded as tempfs and is available at a well defined location
+
+How do we inject secrets into Pod'sa
+		1. As Env. variables
+		2. Volumes
+
+Sent only to targetted nodes.		
+Each secret is stored in TempFS.
+	An application running in another container cannot access it.
+
+There are two ways to create secrets
+	1. using kubectl
+		- echo -n 'admin' > ./username.txt
+		- echo -n 'mypassword' > ./password.txt
+		
+		- kubectl create secret <type> <name> --from-file=<user name filename> --from-file=<password file name>
+		e.g. kubectl create secret generic user-pass --from-file=./username.txt --from-file=./password.txt
+		
+		- kubectl get secrets
+		- kubectl describe secret user-pass
+			- username and password is not displayed.
+	2. using manifest file (manually)
+		This will also cover injecting secrets through volume.
+		- echo -n 'admin' | base64
+		- echo -n 'password123' | base64
+		- refer secrets.yaml and apply it
+		- kubectl get secrets
+		#For injecting secrets through volume
+		- refer secret-use.yaml and apply it 
+		- kubectl get pods
+		- kubectl exec <pod> -it /bin/sh
+		- cd /etc/foo
+		- cat user
+		- cat password
+		- Username and password were passed in encrypted format is available in plain text.
+		
+Types of secret can be any of the following
+  generic
+	1. File #most used
+	2. Directory
+	3. Literal value
+  docker-registry
+  tls
+  
+		- Injecting secrets through environment variable.
+		- ensure that mysecret was not deleted
+		- kubectl apply -f secrets-env-pod.yaml
+		- kubectl exec <pod name> -it /bin/sh
+		- printenv
+		- verify that SECRET_USERNAME AND SECRET_PASSWORD are both available as env. variables.
+		
+		
+N.B : Secrets with certificates. https://software.danielwatrous.com/generate-tls-secret-for-kubernetes/		
+
+Resource Quotas and Limits
+--------------------------
+Try everything - because this is based on Micrko8s.
+
+Resource quotas are a tool for administrators to put quota limit at namespace level on various cluster resources.
+A resource quota, defined by a ResourceQuota object, provides constraints that limit aggregate resource consumption per namespace. It can limit the quantity of objects that can be created in a namespace by type, as well as the total amount of compute resources that may be consumed by resources in that project.
+
+Resource quotas work like this:
+
+- Different teams work in different namespaces. Currently this is voluntary, but support for making this mandatory via ACLs is planned.
+- The administrator creates one ResourceQuota for each namespace.
+- Users create resources (pods, services, etc.) in the namespace, and the quota system tracks usage to ensure it does not exceed hard resource limits defined in a ResourceQuota.
+- If creating or updating a resource violates a quota constraint, the request will fail with HTTP status code 403 FORBIDDEN with a message explaining the constraint that would have been violated.
+- If quota is enabled in a namespace for compute resources like cpu and memory, users must specify requests or limits for those values; otherwise, the quota system may reject pod creation. Hint: Use the LimitRanger admission controller to force defaults for pods that make no compute resource requirements. See the walkthrough for an example of how to avoid this problem.
+
+
+	Dividing the resources into namespaces. Dev. namespace, QA namespace and apply the rules.
+	
+	kubectl create namespace quota-demo-ns
+	kubectl cluster-info
+	kubectl get nodes
+	kubectl version --short
+	kubectl get ns
+	
+Enabling Resource Quotas
+Resource Quota support is enabled by default for many Kubernetes distributions. It is enabled when the apiserver --enable-admission-plugins= flag has ResourceQuota as one of its arguments.
+	
+Resource Quotas
+	- For e.g
+		- this ns, i don't need more than 100 PoD's
+		- more than 2 jobs to be created
+	- You can limit almost any resource - Jobs, CronJobs, ReplicaSet, ReplicationController, Services - almost everything
+	
+	- kubectl apply -f 7-quota-count.yaml
+	- kubectl -n quaota-demo-ns describe quota quota-demo1
+	
+	create a configmap
+	-kubectl -n quota-demo-ns create configmap cm1 --from-literal=name=vilas 
+	- kubectl -n quoata-demo-ns get cm
+	
+	- kubectl create -f 7-pod-quota-mem.yaml #this has resource limit. So this will fail
+	
+	Put a memory limit of 100 MB
+	- kubectl create -f 7-pod-quota-mem.yaml
+	
+	Putting a limit to all resources
+	- Remove the 100MG limit
+	- kubectl create -f 7-pod-quota-mem.yaml #this would fail.
+	- kubectl create -f 7-quota-limitrange.yaml
+	- kubectl -n quota-demo-ns describe limitrange mem-limitrange
+	
+	Now try the same pod creation and it should succeed.
+	- kubectl create -f 7-pod-quota-mem.yaml
+	
+	We can also put a limit on the request that can be made.
+	Refer 7-quota-mem.yaml
+	
+####################################
+Kubernetes user account management
+
+I have a java project. I need to create a user who has CRUD privilege on this namespace
+
+kubectl create namespace javaproject
+kubectl get ns
+mkdir developer && cd developer
+
+#create a private key
+openssl genrsa -out developer.key 2048
+vi developer.key
+#create a csr for the user account
+openssl req -new -key developer.key -out developer.csr -subj "/CN=developer/o=javadeveloper"
+#CN - Cname should be equal to your user account
+#CN - common name, o - organization
+ls
+vi developer.csr
+#sign the certificate with 
+#go to the kubernetes signed certificate location
+#for kubeadm it's /etc/kubernetes/pki
+ls -tlh /etc/kubernetes/pki
+openssl x509 -req -in developer.csr -CA /etc/kubernetes/pki/ca.crt -CAKey /etc/kubernetes/pki/ca.key -CAcreateserial -out developer.crt -day 500
+
+################################################################
+
+
+Pod
+---
+	- Containers have network and CGroups
+	- Things can be done if some containers can share.
+	- Containers with in PoD can share the same namespace.
+		- Same IP
+	- PoD	
+		- Small group of tightly grouped containers
+		- Every PoD has a unique IP address
+		- Share same namespace and volume
+		- Share same lifecycle
+		- Usecases
+			- Sidecars
+			- Proxies and adapters
+		- Small construct where you deploy.
+		
+		- Pause container
+			- One container to manage the networking. 
+			- Started in an infinte loop.
+			- If any container dies, network namespace remains intact.
+			
+	CNI - Container Networking Inteface
+		- Standard interface which allows any networking technology to work with kubernetes.
+	
+	L2 approach
+		- Uses broadcasting to communicate.
+		- With docker every container gets an IP. 
+		- But that IP is not visible to containers outside the node.
+		- k8s allocates an IP that can be visible from other nodes too - with n/w adapters.
+	L3 approach
+		- Uses routing.
+		- Pod1 to use Pod3 go through routing table via 192.168.1.101...
+	Overlay
+		- Talks using tunnel. 
+		- It has it's own IP address.
+	
+	
+	
+Services
+	- Group of endpoints grouped by selectors.
+	- Provide a stable VIP (virtual IP)
+	- VIP automatically routes to backend Pods
+	- VIP to backend pod mapping is  managed by Kube-proxy and implemented using IP tables.
+		
+	Group of Pods that are selected by common label and exposed using the
+
+###########################################################	
+Following is my personal understanding and needs clarification based on more reading.
+	k8s networking works based on two api's
+		- CNI
+		- Network policy
+###########################################################	
+	
+	CNI : Container network interface.
+		- intially when people started desinging automated networking, they were trying to mimic the physical network.
+		- Like have switches, routers ect...
+		- Some people suggested that a basic connectivity would be good enough.
+		- CNI is the entity to which an Orchestrator can say that I can connect this entity (may be a Pod) to the network.
+	- CNI was picked by k8s as it's networking system. Mesos, Rockt and many more uses it now.
+	- Security policy and network policy is a separate process. 
+	- This way keep CNI simple and responsible for only one job.
+	
+	Containers
+		- Namespace (n/w namespace)
+		- CGroups
+		- Layered AUFS filesystem.
+		
+	CNI
+	http://github.com/containernetworking
+		/cni
+			/Spec
+			/APILibrary
+		- CNI Plugin should implement CNI spec.
+		- Orchestrator should be able to call any CNI plugin.
+		- Just like USB. As long as it's comptible with USB, it can connect irrespective of it is whether they are storage or charging or any other device.
+		
+	- 
+	
+	
+	Ingress controller
+	------------------
+	Ref: https://www.haproxy.com/blog/dissecting-the-haproxy-kubernetes-ingress-controller/
+	The official definition of a controller, not specific to ingress controllers, is:
+
+	a control loop that watches the shared state of the cluster through the apiserver and makes changes attempting to move the current state towards the desired state.
+
+	For example, a Deployment is a type of controller used to manage a set of pods. It is responsible for replicating and scaling of applications. It watches the state of the cluster in a continuous loop. If you manually kill a pod, the Deployment object will take notice and immediately spin up a new one so that it keeps the configured number of pods active and stable.
+
+	Other types of controllers manage functions related to persistent storage, service accounts, resource quotas, and cronjobs. So, in general, controllers are the watchers, ensuring that the system remains consistent. An Ingress Controller fits right in. It watches for new services within the cluster and is able to dynamically create routing rules for them.
+	
+	An Ingress object is an independent resource, apart from Service objects, that configures external access to a service’s pods. This means you can define the Ingress later, after the Service has been deployed, to hook it up to external traffic. That is convenient because you can isolate service definitions from the logic of how clients connect to them. This approach gives you the most flexibility.
+
+	L7 routing is one of the core features of Ingress, allowing incoming requests to be routed to the exact pods that can serve them based on HTTP characteristics such as the requested URL path. Other features include terminating TLS, using multiple domains, and, most importantly, load balancing traffic.
+	
+	In order for Ingress objects to be usable, you must have an Ingress Controller deployed within your cluster that implements the Ingress rules as they are detected. An Ingress Controller, like other types of controllers, continuously watches for changes. Since pods in Kubernetes have arbitrary IPs and ports, it is the responsibility of an Ingress Controller to hide all internal networking from you, the operator. You only need to define which route is designated to a service and the system will handle making the changes happen.
+
+	It’s important to note that Ingress Controllers still need a way to receive external traffic. This can be done by exposing the Ingress Controller as a Kubernetes service with either type NodePort or LoadBalancer. However, this time, when you add an external load balancer, it will only be for the one service and the external load balancer’s configuration can be more static.
+	
+	Most used ingress - Nginx and HAProxy
+	HAProxy
+	-------
+	Using HAProxy, there is no real difference in how requests are load balanced from a traditional standpoint. Configuration is a matter of using the ability of a controller to fetch all the required data from the Kubernetes API and filling it into HAProxy. The most demanding part is syncing the status of pods, since the environment is highly dynamic and pods can be created or destroyed at any time. The controller feeds those changes directly to HAProxy via the HAProxy Data Plane API, which reloads HAProxy as needed.
+
+	You can fine tune the Ingress Controller with a ConfigMap resource and/or annotations on the Ingress object. This allows you to decouple proxy configuration from services and keep everything more portable.
+
+	Refer https://www.haproxy.com/blog/dissecting-the-haproxy-kubernetes-ingress-controller/
+	for installation and details of haproxy.
+	
+	
+12. Labels
+#########################################################
+	- key/value pairs that are attached to objects
+	- Not unique
+	- Used to organize and select subsets of objects
+#########################################################
+
+13. Selectors
+#########################################################
+
+	label selector, the client/user can identify a set of objects.
+	core grouping primitive in Kubernetes.
+	equality-based and set-based
+Equality-based requirement
+	Matching objects must satisfy 
+		all of the specified label constraints
+		They may have additional labels as well.
+	Operators admitted 
+		=,==, 	#equality
+		!=		#in equality
+	e.g.
+	environment = production
+	tier != frontend
+	
+	multiple values can be provided using comma.
+		environment=production,tier!=frontend
+
+Set-based requirement
+	
+	filtering keys according to a set of values. 
+	Three operators supported: in,notin and exists 
+e.g. 
+	environment in (production, qa) 
+	#key = environment and value equal to production or qa
+	#Here comma acts like or
+	
+	tier notin (frontend, backend)
+	#key = tier and value neither frontend nor backend and
+	#key!= tier. Here comma acts like and
+	
+	partition
+	#key = partition. no value is checked.
+	
+	!partition
+	#key != partition. no value is checked.
+	
+Set-based requirements can be mixed with equality-based requirements. For example: partition in (customerA, customerB),environment!=qa.
+
+Equality based
+kubectl get pods -l environment=production,tier=frontend
+
+Set based
+kubectl get pods -l 'environment in (production),tier in (frontend)'
+kubectl get pods -l 'environment in (production, qa)'
+kubectl get pods -l 'environment,environment notin (frontend)'
+
+in yaml
+selector:
+  matchLabels:
+    component: redis
+  matchExpressions:
+    - {key: tier, operator: In, values: [cache]}
+    - {key: environment, operator: NotIn, values: [dev]}
+	
+#########################################################
+Network Policy
+	- Kubernetes resource
+	- Process
+		- Deny all traffic by default
+		- All traffic based on labels
+		
+
+Deny all traffic policy
+
+Allow traffic to web from everywhere and restrict traffic to api from only web
+
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata: 
+  name: default-deny
+spec:
+  podSelector: {}
+  
+e.g. of Allow policies
+	white list whom to allow.
+
+	
+kind: NetworkPolicy
+apiVersion: extensions/v1beta1
+metadata:
+  name: access-return-hostname-web
+spec:
+  podSelector:
+    matchLabels:
+	  app: return-hostname-web
+  ingress:
+    - from: []
+	
+---
+yaml for accepting traffic only from web
+
+kind: NetworkPolicy
+apiVersion: extensions/v1beta1
+metadata:
+  name: access-return-hostname-api
+spec:
+  podSelector:
+    matchLabels:
+	  app: return-hostname-api
+  ingress:
+    - from:
+	  - podSelector:
+	    matchLabels:
+		  app: return-hostname-web
+#########################################################
+		
+run command
+kubectl run nginx --image=nginx:latest #creates a deployment
+kubectl run nginx --image=nginx --dry-run -o yaml
+
+########################################
+Remove the taints on master so that you can schedule pods
+kubectl taint nodes --all node-role.kubernetes.io/master-
+#master- could be the kmaster name
+node/<kmaster> untainted
+
+#######################################
+Steps to deploy calico
+kubectl apply -f https://docs.projectcalico.org/v3.9/manifests/calico.yaml
+watch kubectl get pods --all-namespaces
