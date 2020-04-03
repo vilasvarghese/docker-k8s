@@ -1,0 +1,1758 @@
+What is kubernetes?
+
+	Kubernetes (K8s) is an 
+		open-source system for 
+		automating deployment, 
+		scaling, and 
+		management of containerized applications.
+
+################################################
+Refer linux notes before you start with this.
+#########################################################	
+	
+adv
+---
+1. 	Orchestrate containers across multiple hosts
+2. 	Deploy and update your applications quickly and predictably
+3. 	Automatically or manually scale out or scale in containers
+4. 	Seamlessly deploy new features/containers.
+5. 	Optimally utilize your h/w resources
+6. 	Health check and self-repair	
+7. 	Auto binpacking
+	Kubernetes places containers automatically based on the required resources and other restrictions without impairing availability.
+8. Service discovery and load balancing
+	Generate i/p for containers and binds name/labels to it. 
+	Don't worry about i/p address when server goes down or is brought up.
+9. Storage orchestration
+	can store anywhere including on aws cloud ect
+	or locally or in NFS.
+10. Self healing
+	if a node is down, then automatically it creates another node.
+	Restarts the container on it's own. If node fails, new node is brought up and container is deployed.
+11. Secret & configuration management
+	Without re-deploying entire application, just the secrets and config management can be redeployed. 
+12. Batch execution
+	Restart and restore original store as a part of batch process.	
+13. Horizontal scaling
+	Scale application out and in easily with single command. (Covered in point 3)
+14. Automatic rollbacks and rollouts.
+	Progressively rollsout the update.. this ensures HA.
+	If something goes wrong it can easily rollback
+15. Rolling update
+16. k8 cluster is robust - node fails, containers would run on a different node,
+	k8 - best soln. for auto scaling containers
+	k8 - backed by huge community
+	k8 - container orchestration platform
+
+
+Scale up or scale down refers to vertical scaling and 
+Scale out and scale in refers to horizontal scaling.
+	
+Compare k8s with Docker
+	- Not apple to apple comparison.
+	- Don't compare
+
+Compare that with Docker Swarm. [refer below for summary]
+	- K8s Feature rich 
+	- K8s Setup and config is relatively complex.
+	- [Docker swarm is available by default - we can start from init]
+	- k8s uses its own commands.
+	- [Docker swarm is a continuation to docker.]
+	- k8s is truely open sourced. Maintained by a open source community. At every point you can contribute. 
+	- [Docker is maintained by Docker Inc]
+	- k8s is slower but more robust (it works) than Docker.
+	- With k8s we need to create load balancers. 
+	- [Docker has automated internal load balancing]
+
+Difference between k8s and Docker swarm
+Docker 							Kubernetes
+1. Easy and fast setup			1. Slow but robust
+2. Work with oth Docker tools	2. Runs well on any O/s 
+3. Lightweight installation		3. Complex installation
+4. Open source					4. Truely open sourced.
+5. Localized dev. and support	5. Global dev. and suprt
+6. Developed in Docker inc		6. Dev. by Google with years of exp.
+7. Limited Vs Docker api		7. Feature rich
+8. Compatible with Docker api	8. Incompatible with Docker api
+9. Works only with Docker		9. Works with other containers
+10. Limited fault tolerance		10. Excellent fault tolerance
+
+What is Container Orchastration
+
+PokemonG
+
+Kubernetes Architecture
+-----------------------
+
+When you deploy Kubernetes, you get a "default" (namespace) cluster.
+
+A cluster 
+	- Has nodes, that run containerized applications 
+	- Managed by Kubernetes. 
+	- at least 1 worker node and at least 1 master node.
+The worker node(s) 
+	- host the pods 
+	
+The master node(s) 
+	- manages nodes and the pods 
+	- Multiple master nodes 
+		- failover and high availability.
+
+Kubernetes - Master Machine Components
+
+Control Plane: 
+	Kube-api server, 
+	scheduler 
+	controller  
+
+Data Plane: 
+	etcd 
+
+Following are the components of Kubernetes Master Machine.
+
+etcd
+-----
+	stores the 
+		- configuration information 
+	
+	Highly availabe key value store 
+	Distributed among multiple nodes. 
+	Accessible only by Kubernetes API server 
+	Has sensitive information. 
+		
+	Back up
+	Only service to backup.
+	
+For others you just need to have HA strategy.
+
+kubectl get pod -n kube-system
+kubectl exec etcd-master -n kube-system etcdctl get / --prefix -keys-only
+
+
+
+API Server
+----------
+	- provides all the operation 
+	- on cluster using the API. 
+	API server implements an interface, 
+		clients can readily communicate with it. 
+		Kubeconfig is a package along with the server side tools that can be used for communication. It exposes Kubernetes API.
+
+- Performs all the administrative.
+- REST 
+- After request: update state in etcd.
+
+kube-apiserver
+	- The main k8s implementation of api-server. 
+	- (Designed) Scale horizontally (Scale out and scale in)
+	- balance traffic between those instances.
+
+####################################
+Main responsibility of API server
+1. Authenticate User
+2. Validate Request
+3. Retrieve data (from ETCD)
+4. Update ETCD, Scheduler, Kubelet
+
+controller?
+
+N.B : API server is the only component interacting with ETCD directly.
+Scheduler, Kubelet and kubectl all works with API server for CRUD to ETCD.
+####################################
+
+Controller Manager
+------------------
+	- Watches the desired state 
+		Tries to match the current state.
+
+Runs different kind of controllers to handle nodes, endpoints, etc.
+Logically, each controller is a separate process
+To reduce complexity, 
+	Compiled into a single binary 
+	Run in a single process.
+
+Responsible for most of the collectors that regulates the state of cluster and performs a task. 
+
+Considered as a daemon 
+	- Collect and send information to API server. 
+	- It works towards 
+		- get shared state of cluster 
+		- Make changes to bring the current status of the server to the desired state. The key controllers are 
+
+	- Node Controller
+		- Responsible for noticing and responding when nodes go down.
+	- Replication Controller
+		- Responsible for maintaining the correct number of pods for every replication controller object in the system.
+	- Endpoint Controller
+		- Populates the Endpoints object (that is, joins Services & Pods)
+	- and Service Account and Token Controller. 
+		- Create default accounts and API access tokens for new namespaces.
+
+	- It is a daemon which 
+		regulates Kubernetes cluster.
+	- Controller also manages lifecycle functions 
+		- namespace creation and lifecycle, 
+		- event garbage collection, 
+		- terminated-pod garbage collection, 
+		- cascading-deletion garbage collection, 
+		- node garbage collection, etc.
+
+
+######################################################
+Additional information on Controllers
+https://engineering.bitnami.com/articles/a-deep-dive-into-kubernetes-controllers.html
+Skip this if you are not interested in Controller in such detail now.
+Controller components
+---------------------
+Two main components of a controller: 			
+	- Informer/SharedInformer 
+		- Watches for changes on the current state of Kubernetes objects and sends events to Workqueue
+	- Workqueue. 
+		- Receive events from Informer/SharedInformer
+		- Pop up events 
+		- Process.
+
+Informer
+	Watch objects for 
+		- desired state 
+		- actual state, 
+		- send instructions match
+			- make the actual state be more like the desired state.
+
+	
+Cache
+-----	
+- Controller retrieves information about an object from API server.
+- Repeatedly retrieving information from the API server can become expensive. 
+- Thus it uses cache 
+	already been provided by the client-go library. 
+
+Watcher
+-------
+- Controller cares about information only when something changes. i.e.
+	- created
+	- modified 
+	- deleted. 
+	- client-go library provides the Listwatcher interface that performs an initial list and starts a watch on a particular resource:
+
+lw := cache.NewListWatchFromClient(
+      client,
+      &v1.Pod{},
+      api.NamespaceAll,
+      fieldSelector)
+All of these things are consumed in Informer. A general structure of an Informer is described below:
+
+store, controller := cache.NewInformer {
+	&cache.ListWatch{},
+	&v1.Pod{},
+	resyncPeriod,
+	cache.ResourceEventHandlerFuncs{},
+
+K8sInformer uses SharedInformer more than Informer
+Shared Informer = Informer + Sharing (explained latter)
+
+Three patterns used to construct the Informer:
+	- LISTWATCHER
+	- RESOURCE EVENT HANDLER
+	- RESYNCPERIOD
+	
+LISTWATCHER
+-----------
+	Combination 
+		- list function 
+		- watch function 
+	- It is  
+		- for a specific resource 
+		- in a specific namespace. 
+		- This controller focus only on the particular resource that it wants to look at. 
+
+The structure of a Listwatcher is described below:
+cache.ListWatch {
+	listFunc := func(options metav1.ListOptions) (runtime.Object, error) {
+		return client.Get().
+			Namespace(namespace).
+			Resource(resource).
+			VersionedParams(&options, metav1.ParameterCodec).
+			FieldsSelectorParam(fieldSelector).
+			Do().
+			Get()
+	}
+	watchFunc := func(options metav1.ListOptions) (watch.Interface, error) {
+		options.Watch = true
+		return client.Get().
+			Namespace(namespace).
+			Resource(resource).
+			VersionedParams(&options, metav1.ParameterCodec).
+			FieldsSelectorParam(fieldSelector).
+			Watch()
+	}
+}
+
+RESOURCE EVENT HANDLER
+----------------------
+	Controller can get notified of changes.
+	Handles notifications for changes on a particular resource:
+
+type ResourceEventHandlerFuncs struct {
+	AddFunc    func(obj interface{})
+	UpdateFunc func(oldObj, newObj interface{})
+	DeleteFunc func(obj interface{})
+}
+Each of these functions are called/executed as below.
+	- AddFunc:
+		new resource is created.
+	- UpdateFunc: 
+		- Existing resource is modified. 
+			The oldObj is the last known state of the resource. 
+		- Re-synchronization happens
+		- Even if nothing changes.
+DeleteFunc:
+	- Existing resource is deleted. 
+	- Gets final state if it is known
+	- Else, gets an object of type DeletedFinalStateUnknown. 
+	This can happen if the watch is closed and misses the delete event and the controller doesn't notice the deletion until the subsequent re-list.
+
+RESYNCPERIOD
+------------
+ResyncPeriod 
+	defines how often the controller goes through all items remaining in the cache and fires the UpdateFunc again. This provides a kind of configuration to periodically verify the current state and make it like the desired state.
+
+SharedInformer
+	- Informer creates a local cache 
+		for a set of resources only used by itself. 
+	- In K8s, 
+		there is a bundle of controllers 
+		There will be an overlap - 
+			a resource is being cared by more than one controller.
+
+	- Helps to create a single shared cache among controllers. 
+	- This means cached resources won't be duplicated 
+	- The memory overhead of the system is reduced. 
+	- Creates a single watch on the upstream server, regardless of how many downstream consumers are reading events from the informer. 
+	- Reduces the load on the upstream server.
+
+Again SharedInformer
+	- Provides hooks to receive notifications for
+		adding, 
+		updating and 
+		deleting a particular resource. 
+	- Provides convenience functions for accessing shared caches and determining when a cache is primed. 
+		- Saves us 
+			- Connections against the API server, 
+			- Duplicate serialization costs server-side, 
+			- Duplicate deserialization costs controller-side, 
+			- Duplicate caching costs controller-side.
+
+lw := cache.NewListWatchFromClient(…)
+sharedInformer := cache.NewSharedInformer(lw, &api.Pod{}, resyncPeriod)
+Workqueue
+The SharedInformer can't track where each controller is up to (because it's shared), so the controller must provide its own queuing and retrying mechanism (if required). Hence, most Resource Event Handlers simply place items onto a per-consumer workqueue.
+
+Whenever a resource changes, the Resource Event Handler puts a key to the Workqueue. A key uses the format <resource_namespace>/<resource_name> unless <resource_namespace> is empty, then it's just <resource_name>. By doing that, events are collapsed by key so each consumer can use worker(s) to pop key up and this work is done sequentially. This will guarantee that no two workers will work on the same key at the same time.
+
+Workqueue is provided in the client-go library at client-go/util/workqueue. There are several kinds of queues supported including the delayed queue, timed queue and rate limiting queue.
+
+The following is an example for creating a rate limiting queue:
+
+queue :=
+workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter())
+Workqueue provides convenience functions to manage keys. The following figure describes the key's life-cycle in Workqueue:
+
+Key's life-cycle in Workqueue
+
+In the case of failure when processing an event, the controller calls the AddRateLimited() function to push it's key back to the workqueue to work on later with a predefined number of retries. Otherwise, if the process is successful, the key can be removed from the workqueue by calling the Forget() function. However, that function only stops the workqueue from tracking the history of the event. In order to remove the event completely from the workqueue, the controller must trigger the Done() function.
+
+So the workqueue can handle notifications from cache, but the question is, when should the controller start workers processing the workqueue? There are two reasons that the controller should wait until the cache is completely synchronized in order to achieve the latest states:
+
+Listing all the resources will be inaccurate until the cache has finished synchronising.
+
+Multiple rapid updates to a single resource will be collapsed into the latest version by the cache/queue. Therefore, it must wait until the cache becomes idle before actually processing items to avoid wasted work on intermediate states.
+
+The pseudo-code below describes that practice:
+
+controller.informer = cache.NewSharedInformer(...)
+controller.queue = workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter())
+
+controller.informer.Run(stopCh)
+
+if !cache.WaitForCacheSync(stopCh, controller.HasSynched)
+{
+	log.Errorf("Timed out waiting for caches to sync"))
+}
+
+// Now start processing
+controller.runWorker()
+
+######################################################
+
+Scheduler
+---------
+	watches newly created pods 
+		selects a node.
+
+	- Schedules the tasks to slave nodes. 
+	- Stores resource usage infor
+		- for each slave node.
+	- Considers
+		quality of the service requirements, 
+		data locality, 
+		affinity, 
+		anti-affinity, etc. 
+
+
+		
+
+Kubernetes - Worker Node Components
+-----------------------------------
+	What is worker node.
+		- can be VM or machine.
+		- container runtime 
+		- has kubelet, kube-proxy and pod(s)
+
+kubectl get nodes
+kubectl describe node <<node name>>
+#expl
+#################################################################
+
+Master-Node Communication
+#################################################################
+This document catalogs the communication paths between the master (really the apiserver) and the Kubernetes cluster. Understanding this can help users to customize their installation to harden the network configuration such that the cluster can be run on an untrusted network.
+
+Cluster to Master
+-----------------
+All communication to the master. 
+Listen on secure HTTPS port (443) 
+
+Master to Cluster
+-----------------
+Master to Cluster communication happens between
+- Master (api-server) and kubelet
+- Master (api-server) and node/pod/service through Kube-proxy.
+
+apiserver to kubelet
+The connections from the apiserver to the kubelet are used for:
+---------------------------------------------------------------
+- Fetching logs for pods.
+- Attaching (through kubectl) to running pods.
+- Providing the kubelet’s port-forwarding functionality.
+
+
+apiserver to nodes, pods, and services
+--------------------------------------
+from apiserver to a node, pod, or service 
+	default to plain HTTP connections 
+	neither authenticated nor encrypted. 
+	
+	Can be moved to https and secured.
+
+
+Kubelet Service
+---------------
+	Not inside a container. 
+	Service in each node 
+	Relay information to and from control plane service. 
+	
+	Communicates master component 
+		- receive commands and work. 
+		- assumes responsibility 
+		- manages network rules, port forwarding, etc.
+
+Kubernetes Proxy Service
+-------------------------	
+	- Proxy++ now. Proxy POD, services ect.
+	- Can do primitive load balancing
+	- networking is 
+		- predictable 
+		- accessible 
+		- isolated as well.
+		- manages pods, volumes, secrets, health checkup, etc.
+
+- Kube-proxy 
+	- check on host sub-netting 
+	- Ensure that the services are available.
+	- sets routes so POD ect is reachable.
+
+
+#########################
+Network namespaces in linux 
+	- Containers use it to bring network isolation.
+	- In a home you have rooms. 
+	- Children staying in each room. May be they don't have access to see what is happening in other rooms.
+	- But parents have access to what is happening in all rooms.
+	
+	Command to create network namespace in linux
+	- ip netns add <name> # namespace1 #Lets create two namespace namespace1 and namespace2 to connect them latter.
+	- ip netns #list the network namespaces
+	- ip link # see links on host
+
+To see links in a network
+	ip netns exec <network name> ip link
+	or
+	ip -n <name> link
+	# we can see only the loopback and cannot see the veth. i.e. we are able to see only the network of the container and cannot see the network of the host. ie. we got network isolation.
+	
+There are two Tables 
+	- Routing tables
+	- ARP tables
+
+	arp # arp entries in host
+	#inside a container
+	ip netns exec <n/w name> arp
+	#generally we don't see anything in the container
+	
+	To see routing tables
+	route #routing table on host
+	#routing table on container
+	ip netns exec <n/w name> route # generally no entry.
+	
+	Just like how we can connect two computers using a ethernet cable, we can connect two container using as virtual ethernet cable called veth. 
+	Command for that is 
+	
+	#creating a virtual ethernet cable
+	ip link add <veth end point name1> type veth peer name <veth end point name 2> #say veth1, veth2
+	
+	#attaching veth end points to appropriate namespace.
+	ip link set veth1 netns namespace1 #namespace1 - first namespace
+	
+	ip link set veth2 netns namespace2
+	
+	# we can assign IP address with in each namespace (kind of like there is a IP at the endpoint)
+	
+	ip -n namespace1 addr add 192.168.15.1 dev veth-name1
+	
+	ip -n namespace2 addr add 192.168.15.2 dev veth-name2
+	
+#########################	
+
+
+
+Pods
+----
+
+
+
+##################################################################
+
+Kubernetes Objects
+##################################################################
+Kubernetes Objects 
+	persistent entities. 
+	entities represent the state of your cluster.
+
+##################################################################
+Kubernetes Object Management
+##################################################################
+
+All K8s objects 
+	kubectl api-resources
+
+Important K8s objects can be found below
+
+	nodes
+	pods
+	replicationcontrollers
+	secrets
+	services
+	deployments
+	replicasets
+	cronjobs
+	events
+	volumes	
+##################################################################
+
+Names
+
+#################################################################
+
+Name
+	Each object on cluster has a Name 
+	unique for resource type. 
+
+UID	
+	unique across your whole cluster.
+#################################################################
+
+Namespaces
+
+#################################################################
+	- It is virtual clusters backed by the same physical cluster. 
+	
+	- Names of resources : unique within a namespace, 
+	- Namespaces can not be nested 
+	- Kubernetes resource can only be in one namespace.
+
+
+kubectl get namespaces
+
+default: default namespace for objects with no other namespace
+
+kube-system: The namespace for objects created by the Kubernetes system
+
+kube-public: 
+	reserved for cluster usage
+
+
+We can create our own namespace as follows
+kubectl create namespace <insert-namespace-name-here>
+
+We can delete the namespace with below command
+kubectl delete namespaces <insert-some-namespace-name>
+
+kubectl run nginx --image=nginx --namespace=<insert-namespace-name-here>
+
+We can see object belonging to a namespace by giving -n <namespace>
+kubectl get svc -n kube-system
+kubectl describe svc kube-dns -n kube-system
+	# Endpoints:         172.17.0.5:53          --------> ip same as the dns ip of kube-dns 
+kubectl get pods -o wide -n kube-system
+kubectl config get-contexts #get the current user/context details.
+
+kubectl config get-contexts
+kubectl config use-context  kubernetes-admin@kubernetes
+#################################################################
+There are various ways to deploy an application in k8s. Following
+are the imp. once among them.
+	1. Pod's: create Pod.
+	2. ReplicationControllers 
+	3. ReplicaSet
+	4. Deployment
+	5. DaemonSet: Only a single instance should run on a node and an instance should run on all nodes. e.g. for monitoring.
+	6. StatefulSet: Can work only along with a service. If an instance dies, it would be created back on the same node. If the node is not available then it would be kept on pending state.
+
+#################################################################
+
+kubectl get cs # Component status.
+	#display component status
+	# default displays the status of following components.
+		Controller Manager - manage all controllers
+		etc
+		scheduler
+kubectl explain <object> # explains the details of the object and it's fields.
+e.g. kubectl explain pods
+kubectl get events# lists all events that was executed
+watch -n 1 <command> # repeatedly execute a command.
+e.g. watch -n 1 kubectl get nodes
+scp root@192.168.x.y cp /blah /abc #set up ssh before this.
+#################################################################
+
+kubectl apply
+#################################################################
+
+kubectl apply -f <<meta file.yaml>>
+
+	kind 						version
+	Pod							v1
+	ReplicationController		v1
+	Service						v1
+	ReplicaSet					apps/v1
+	Deployment					apps/v1
+	DaemonSet					apps/v1
+	Job							batch/v1	
+	
+In case of no changes, the same can be deleted as below
+kubectl delete -f <<meta file.yaml>>
+#################################################################
+
+Labels [and Selectors]
+#################################################################
+Refer nginx-pod.yaml # note how 3 replicas are represented by single label and selector.
+
+Equality-based and set-based. 
+
+environment = production
+tier != frontend
+
+
+
+kubectl apply -f label-selector.yaml
+kubectl get pods -l environment=development #-l represents the label we passed.
+
+kubectl delete -f deploy-nginx.yaml
+
+Desired State Vs Current State
+------------------------------
+Containers are ephimeral. There can be many reasons why the current state of 
+of the system can be different from desired state. 
+Orchastrators takes corrective action to fix this.
+
+#################################################################
+Yaml
+#################################################################
+
+
+basic discussion on yaml.
+What is yaml?
+4 basic contructs of a manifest yaml. General syntax is camel case.
+Never use tab in yaml.
+	": " is important.
+	Simple data definition and 
+	list of dictionaries and dictionaries of lists.
+	
+	1. apiVersion: 
+	2. kind: 
+	3. metadata: 
+	4. spec: 
+	
+	
+	metadata: 
+		name: 
+		labels: 
+	spec: 
+		defines the desired state of the object.
+		if you have replicas, we generally define a template.
+		template defines an object. You can generally have a metadata and spec under it.POD metadata
+	Most of the K8s objects consists of 4 top level fields.
+	POD also has 4 top level fields
+		#nginx-pod.xml
+		apiversion: v1
+		kind: Pod
+		metadata
+			name: <name of the pod>
+			labels: (optional fields. Almost always we should use)
+				e.g. app: nginx
+				tier: dev
+		spec
+			containers:
+				-name: nginx-container
+				image: nginx
+	
+	kind 						version
+	Pod							v1
+	ReplicationController		v1
+	Service						v1
+	ReplicaSet					apps/v1
+	Deployment					apps/v1
+	DaemonSet					apps/v1
+	Job							batch/v1
+		
+		
+#################################################################
+The default pull policy is IfNotPresent which causes the Kubelet to skip pulling an image if it already exists. If you would like to always force a pull, you can do one of the following:
+
+- set the imagePullPolicy of the container to Always.
+	in the metadata file include
+	imagePullPolicy: Always
+- omit the imagePullPolicy and use :latest as the tag for the image to use.
+- omit the imagePullPolicy and the tag for the image to use.
+- enable the AlwaysPullImages admission controller.
+
+kubectl apply -f pull-always.yaml
+#################################################################
+
+Pods
+#################################################################
+
+Pod Creation
+------------
+Steps in POD Creation
+	CLI talks to (-) API manager.
+	API Manager
+		- authenticates user
+		- validate request
+		- Creates and entry in ETCD and returns the message "Pod created!".
+	[API Manager - Controller]
+	- Scheduler is continously monitoring the changes in ETCD, realizes that a POD has to be created. Scheduler identifies the node where Pod has to be created and informs (call api) API server about it.
+	- API server updates the ETCD about the node where Pod would be created.
+	
+	API server - kubelet
+	kubelet - Docker
+	Docker - create POD container.
+	POD creates (say nginx container)
+	Docker - creates nginx container.
+	- Kubelet watches over the container creation.
+	- Kubelet intimates the API server about Pod creation status
+	- API server updates the ETCD.
+
+A Pod (as in a pod of whales or pea pod) is a 
+	- group of 1 or more containers 
+	- shared storage/network, 
+	- co-located and co-scheduled, 
+	- run in a shared context. 
+	
+	Containers in a Pod share  
+		same network namespace (same IP and port space)
+			IP address and 
+			port space, 
+		and can find each other via localhost. 
+		They can also communicate with each other using standard inter-process communications. 
+	
+	Containers in different Pods have 
+		distinct IP addresses and 
+		can not communicate by IPC without special configuration. These containers usually communicate with each other via Pod IP addresses.
+		
+		ephemeral (rather than durable) entities.
+		If a Node dies, 
+			the Pods scheduled to that node are scheduled for deletion, after a timeout period. 
+		
+		Pods serve as unit of 
+			deployment, 
+			horizontal scaling, and 
+			replication. 
+		Pods enable 
+			data sharing and communication among their constituents.
+Uses of Pods
+------------
+
+Support co-located, co-managed helper programs, such as:
+
+- content management systems, file and data loaders, local cache managers, etc.
+- log and checkpoint backup, compression, rotation, snapshotting, etc.
+- data change watchers, log tailers, logging and monitoring adapters, event publishers, etc.
+- proxies, bridges, and adapters
+- controllers, managers, configurators, and updaters
+
+kubectl apply -f nginx-pod.yaml
+kubectl get pod
+kubectl get pod -o wide
+kubectl describe pod <pod id>
+
+		
+PODs
+	The basic scheduling unit in k8s.
+	In docker, container is the smallest scheduling unit.
+	
+Lifecycle of POD
+	Create a manifest file (yaml or json) 
+	Submit the manifest file to api server using kebectl
+	(Refer edureka presentation)
+	
+	It gets scheduled on to a worker node inside the K8s cluster.
+	Once scheduled the POD would go into pending state. During pending state, it will start downloading all container images and setting up containers appropriately. POD will remain in pending state until all containers are up and running. After all containers are running the state of the POD changes to "Running".
+	After the main purpose of the POD is complete, then 
+	it succeds and it's state changes to "Shutdown".
+		If a POD can't start properly for any reason even after remaining in "Pending" state for considerable period of time, the POD moves to "Failed" state. 
+		If a POD dies, it is dead. We cannot make it alive again. We can replace it with a new one but we cannot bring it up.
+
+#############################################################
+ReplicationController (rc or rcs)
+	What is ReplicationController?
+	Why do you need to replicate? 
+	How it helps in a microservices world.
+	 
+	
+	Ensures that configured number of pods 
+		- if excesss, kill. 
+		- if less create.
+		
+	replicationCount = 1 makes sense 
+	Adv.
+		1. HA.
+			Let's say same container is deployed on two pod on two different nodes.
+			If one node (node2) dies, then ControlManager on master detects it,
+			it attempts to create a new pod with new container on node1.
+			
+			
+		2. Load Balancing	
+			It's a way of distributing incoming traffic among various services.
+			Let's assume we want to equally distribute the traffic, rc 
+			when a pod dies rc will create pod's. This indirectly helps in 
+			distributing the load equally (or according to the need/logic).
+		
+		But Replication Controller's and ReplicaSet cannot update a deployment.
+		We can delete and re-create. But not update a running deployment.
+	kubectl apply -f replication-controller.yaml
+    kubectl get rc
+	kubectl get rc -o wide
+    kubectl describe rc <object>
+
+
+##############################################################
+ReplicaSet 
+	Advanced version of ReplicationController.
+	Replacement for ReplicationController.
+	
+	Exactly same as RS
+	
+	Difference between ReplicaSet and ReplicationController
+	Set based selectors while ReplicationController supports equality based selectors. 
+	
+	
+	
+Criteria	Equality based selectors 	Vs 		Set based selectors
+Operator	=, ==, !=							in, notin
+
+e.g 		environment = production			enviornment in 
+												(production, qa)
+			tier != frontend					tier notin 
+												(frontend, backend)
+command-	kubectl get pods -l 				kubectl get pods -l 
+line		environment=production				environment in (production)
+
+manifest	selector:
+				environment:production			selector:
+				tier: frontend				      matchExpressions:
+												    - {key:environment,operator:In, values:[prod, qa]}
+													- {key:tier, operator:Notin, values[frontend, backend]}
+
+Supports	Services,							Jobs, Deployment,
+												ReplicaSet,
+			ReplicationControllers				DaemonSet
+															
+
+	In general you may see two types of selectors. One with matchLabels and
+	one without matchLabels as can be seen below.
+	
+	selector:				and				selector:
+	  app: nginx							  matchLabels:
+	  tier: frontend							app: nginx
+												tier: frontend
+												
+	So we see some of the entries with matchLabels and some without them. We should be using the one with matchLabels for newer objects like ReplicaSets, DaemonSet, Jobs and Deployment and we use the one without matchLabels for older objects like ReplicationControllers and Services.
+
+https://www.oreilly.com/library/view/kubernetes-cookbook-2nd/9781788837606/cb3bec7c-915e-4ba6-b7b2-eaa0bdd0f853.xhtml
+kubectl get pods -l "project in (pilot), tier in (frontend)"NAME READY STATUS RESTARTS AGEpilot.dev.nginx 1/1 Running 0 37mpilot.prod.nginx 1/1 Running 0 37m
+
+	kubectl apply -f replica-set.yaml
+	kubectl get rs
+	kubectl get rs -o wide
+	kubectl describe rs <<rs id>>
+	
+###############################################################	
+
+Deployments
+#################################################################
+You describe a desired state in a Deployment, and the Deployment Controller changes the actual state to the desired state at a controlled rate. You can define Deployments to create new ReplicaSets, or to remove existing Deployments and adopt all their resources with new Deployments.
+
+Use Case
+The following are typical use cases for Deployments:
+
+- Create a Deployment to rollout a ReplicaSet. The ReplicaSet creates Pods in the background. Check the status of the rollout to see if it succeeds or not.
+- Declare the new state of the Pods by updating the PodTemplateSpec of the Deployment. A new ReplicaSet is created and the Deployment manages moving the Pods from the old ReplicaSet to the new one at a controlled rate. Each new ReplicaSet updates the revision of the Deployment.
+- Rollback to an earlier Deployment revision if the current state of the Deployment is not stable. Each rollback updates the revision of the Deployment.
+- Scale out the Deployment to facilitate more load.
+- Pause the Deployment to apply multiple fixes to its PodTemplateSpec and then resume it to start a new rollout.
+- Use the status of the Deployment as an indicator that a rollout has stuck.
+- Clean up older ReplicaSets that you don’t need anymore.
+
+kubectl apply -f deploy-ng.yaml
+kubectl get deploy
+kubectl describe deploy <id>
+
+#See the deployment rollout status	
+	kubectl rollout status deployment.v1.apps/nginx-deployment
+
+	kubectl get pods
+	
+	kubectl --record deployment.v1.apps/nginx-deployment set image deployment.v1.apps/nginx-deployment nginx=nginx:1.9.1
+		or
+	kubectl set image deployment/nginx-deployment nginx=nginx:1.9.1 --record
+	
+	kubectl rollout history deployment.v1.apps/nginx-deployment
+	
+	kubectl rollout undo deployment.v1.apps/nginx-deployment
+
+
+#################################################################
+
+
+Services, Load Balancing, and Networking
+
+Services
+#################################################################
+Issues 
+	1. Pods are ephimeral - they die. 
+	2. How does the front end Pod talk to back end Pod
+	3. How does external users connect to front end Pod's.
+	
+	Service is an 
+		abstraction to acess Pods. 
+		Determined by a selector. 
+	
+	In simple terms service represents the way any entity can access a group of Pods without worrying about what their IP address is.
+	
+	There are 3 types of Services
+	1. Cluster IP
+	2. NodePort
+	3. Load balancer.
+	
+	Services provide standard services like	
+		- Load balancing	
+		- Service discovery
+		- Feature to support ZDT app deployment
+		
+		
+	Node Port : Refer node-port.yaml - works with deploy-ng.yaml
+		Port should be between 30000 to 32767
+		Refer to the Good image. 
+		There are three sections.
+			Pod with ip/port
+			(Node Port) Service with ip/port : Spans multiple nodes if required.
+			Node with ip/port
+		The external ip is not updated. Instead we can access node ip/<Node Port>
+		
+	When you set a service’s type to NodePort, that service begins listening on a static port on every node in the cluster. So, you’ll be able to reach the service via any node’s IP and the assigned port. Internally, Kubernetes does this by using L4 routing rules and Linux IPTables.	
+	While this is the simplest solution, it can be inefficient and also doesn’t provide the benefits of L7 routing. It also requires downstream clients to have awareness of your nodes’ IP addresses, since they will need to connect to those addresses directly. In other words, they won’t be able to connect to a single, proxied IP address.
+	
+	
+	
+	Load Balancer
+		Even after defining NodePort, if your Pods are spread across 3 different nodes, then we cannot give the IP of all three nodes to the user.
+	
+		LB exposes the service externally. 
+		However, to use it, you need to have an external load balancer. 
+		The external load balancer needs to be connected to the internal Kubernetes network on one end and opened to public-facing traffic on the other in order to route incoming requests. Due to the dynamic nature of pod lifecycles, keeping an external load balancer configuration valid is a complex task, but this does allow L7 routing.
+########################################################
+Kubernetes ingress		
+	Oftentimes, when using Kubernetes with a platform-as-a-service, such as with AWS’s EKS, Google’s GKE, or Azure’s AKS, the load balancer you get is automatic. It’s the cloud provider’s load balancer solution. If you create multiple Service objects, which is common, you’ll be creating a hosted load balancer for each one. This can be expensive in terms of resources. You also lose the ability to choose your own preferred load balancer technology.
+
+	There needed to be a better way. The limited, and potentially costly, methods for exposing Kubernetes services to external traffic led to the invention of Ingress objects and Ingress Controllers.
+#######################################################	
+	
+	Exposes the Service on each Node’s IP at a static port (the NodePort).
+	
+	contact the NodePort Service, from outside the cluster, by requesting <NodeIP>:<NodePort>.
+	
+	kubectl apply -f deploy-ng.yaml
+	kubectl apply -f node-port.yaml
+	
+	kubectl apply -f deploy-ng.yaml
+	kubectl apply -f clusterip.yaml
+	
+	kubectl apply -f deploy-ng.yaml
+	kubectl apply -f loadbalancer.yaml
+	
+	kubectl get svc
+	kubectl get svc -o wide
+	kubectl describe svc <a service id>
+	
+	kubectl get svc -n kube-system
+
+
+
+#################################################################
+
+Jobs - Run to Completion
+
+#################################################################
+- Creates and tracks one or more Pods to completion
+- known "Run to completion jobs"
+- exit0 indicates  : exited successfully
+- Pods NOT automatically cleaned up
+- We should delete Pods
+- Delete the jobs – 
+	Pods are also deleted
+- If Pod fails
+	- Job will create a new Pod
+
+	- creates one or more Pods
+	- Ensures succesfully completed.
+	- Job fails : Job controller 
+		restart or 
+		rescheduled 
+	
+		- kubectl apply -f job.yaml
+		- kubectl get jobs
+		- kubectl get job
+		- kubectl logs <<pod-name>>		
+		
+		
+#################################################################
+
+CronJob
+
+#################################################################
+- Creates a job object once per execution. 
+- Job Creation not 100% guaranteed. 
+- Jobs should be idempotent.
+
+Scheduling 
+	- Min
+	- Hour
+	- Day of month
+	- Month
+	- Day of week
+	RUNS on UTC standard
+	
+	15 7 2 * * UTC
+
+kubectl apply -f cronjob.yaml
+kubectl get cronjobs
+kubectl get jobs --watch
+pods=$(kubectl get pods --selector=job-name=<<name from kubectl get jobs --watch>> --output=jsonpath={.items[*].metadata.name})
+kubectl logs $pods
+
+	
+#################################################################
+
+Storage Volume
+	
+Why Volumes?
+	- Pods are ephemeral
+	- Pods becoming more stateful
+
+Way more powerful than docker volumes
+	- Pods can be made of multiple containers. 
+	- All containers in the Pod has access to volume
+	- Associated with the lifecycle of a Pod
+	- Supports huge list of volumes out of box.
+
+	Volume Type
+		- Ephemeral
+			- Has same life as that of Pod
+		- Durable
+			- Beyond life of the Pod.
+			
+	k8s supports 
+		- cloud based volumes like
+			awsElasticBlockStore
+			gcePersisteDisk
+			azureDisk
+			azureFile
+			
+		- host based volumes like
+			emptyDir
+			HostPath
+		- network based volumes like
+			- NFS
+
+			
+	emptyDir
+		- Creates empty directory - Pod starts.
+		- Available till Pod runs
+		- Pod dies : removed, 
+		- Temporary storage of data.
+		- Multiple Pods can't refer	
+		- multiple containers in same Pod can refer.
+			
+		kubectl apply -f empty-dir.yaml
+		#####################
+		#kubectl exec <<pod name>> -c <container name> /bin/sh
+		kubectl exec -it <<pod name>> /bin/sh
+		#####################
+		- We can create emptyDir in RAM by doing the following
+		emptyDir:
+		  medium: Memory #instead of {}
+			
+	HostPath
+		- Mounts file or directory from the Host node's filesystem into your Pod.
+		- Data remains after Pod is removed.
+		- Similar to Docker volume.
+		- Use cautiously because there is no guarantee that Pod's would be created on the same Node.
+
+Persistent Volumes 
+#################################################################
+
+K8s supports integrating Pod's with several 
+	- (more than 30) different storage solutions. 
+	Types
+	`- NFS, 
+	 - cloud based storage solutions ect.
+	 - Widely differs 
+		- architecture, api, access 
+
+	k8s provides a common ways
+		- common API
+		
+For this K8s introduced two new API resources: PersistentVolume and PersistentVolumeClaim.
+
+PVs are resources in the cluster. PVCs are requests for those resources and also act as claim checks to the resource.
+
+A PersistentVolume (PV) is a piece of storage in the cluster that has been provisioned by an administrator or dynamically provisioned using Storage Classes. It is a resource in the cluster just like a node is a cluster resource. PVs are volume plugins like Volumes, but have a lifecycle independent of any individual Pod that uses the PV. This API object captures the details of the implementation of the storage, be that NFS, iSCSI, or a cloud-provider-specific storage system.
+
+
+A PersistentVolumeClaim (PVC) is a request for storage by a user. While PersistentVolumeClaims allow a user to consume abstract storage resources, it is common that users need PersistentVolumes with varying properties, such as performance, for different problems. Cluster administrators need to be able to offer a variety of PersistentVolumes that differ in more ways than just size and access modes, without exposing users to the details of how those volumes are implemented. For these needs, there is the StorageClass resource.
+
+Types of PV's
+
+Static
+A cluster administrator creates a number of PVs. They carry the details of the real storage, which is available for use by cluster users. They exist in the Kubernetes API and are available for consumption.
+
+Dynamic
+When none of the static PVs the administrator created match a user’s PersistentVolumeClaim, the cluster may try to dynamically provision a volume specially for the PVC. This provisioning is based on StorageClasses: the PVC must request a storage class and the administrator must have created and configured that class for dynamic provisioning to occur. Claims that request the class "" effectively disable dynamic provisioning for themselves.
+
+Lifecycle of a volume and claim
+--------------------------------
+The interaction between PVs and PVCs follows this lifecycle:
+
+Binding
+-------
+A user creates, or in the case of dynamic provisioning, has already created, a PersistentVolumeClaim with a specific amount of storage requested and with certain access modes. A control loop in the master watches for new PVCs, finds a matching PV (if possible), and binds them together. If a PV was dynamically provisioned for a new PVC, the loop will always bind that PV to the PVC. Otherwise, the user will always get at least what they asked for, but the volume may be in excess of what was requested. Once bound, PersistentVolumeClaim binds are exclusive, regardless of how they were bound. A PVC to PV binding is a one-to-one mapping.
+
+Claims will remain unbound indefinitely if a matching volume does not exist. Claims will be bound as matching volumes become available. For example, a cluster provisioned with many 50Gi PVs would not match a PVC requesting 100Gi. The PVC can be bound when a 100Gi PV is added to the cluster.
+
+Using
+-----
+Pods use claims as volumes. The cluster inspects the claim to find the bound volume and mounts that volume for a Pod. For volumes that support multiple access modes, the user specifies which mode is desired when using their claim as a volume in a Pod.
+
+Once a user has a claim and that claim is bound, the bound PV belongs to the user for as long as they need it. Users schedule Pods and access their claimed PVs by including a persistentVolumeClaim in their Pod’s volumes block. See below for syntax details.
+
+Storage Object in Use Protection
+--------------------------------
+The purpose of the "Storage Object in Use Protection" feature is to ensure that 
+PV's and PVC's in active use are not removed from the system as that may result in data loss.
+
+If a user deletes a PVC in active use by a Pod, the PVC is not removed immediately. PVC removal is postponed until the PVC is no longer actively used by any Pods. Also, if an admin deletes a PV that is bound to a PVC, the PV is not removed immediately. PV removal is postponed until the PV is no longer bound to a PVC.
+
+Reclaiming
+----------
+When a user is done with their volume, they can delete the PVC objects from the API that allows reclamation of the resource. The reclaim policy for a PersistentVolume tells the cluster what to do with the volume after it has been released of its claim. Currently, volumes can either be Retained, Recycled, or Deleted.
+
+	Retain
+The Retain reclaim policy allows for manual reclamation of the resource. When the PersistentVolumeClaim is deleted, the PersistentVolume still exists and the volume is considered “released”. But it is not yet available for another claim because the previous claimant’s data remains on the volume.
+An administrator can manually reclaim the volume by following the defined process.
+
+	Delete
+For volume plugins that support the Delete reclaim policy, deletion removes both the PersistentVolume object from Kubernetes, as well as the associated storage asset in the external infrastructure.
+
+Dynamically provisioned PVC's inherit their reclaim policy from the storage class - which defaults to "Delete".
+This can be patched (modified) latter if required as follows
+	kubectl get pv
+	kubectl patch pv <your-pv-name> -p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}'
+
+	Recycle
+If supported by the underlying volume plugin, the Recycle reclaim policy performs a basic scrub (rm -rf /thevolume/*) on the volume and makes it available again for a new claim.
+
+
+Access Modes
+A PersistentVolume can be mounted on a host in any way supported by the resource provider. As shown in the table below, providers will have different capabilities and each PV’s access modes are set to the specific modes supported by that particular volume. For example, NFS can support multiple read/write clients, but a specific NFS PV might be exported on the server as read-only. Each PV gets its own set of access modes describing that specific PV’s capabilities.
+
+The access modes are:
+
+ReadWriteOnce – the volume can be mounted as read-write by a single node
+ReadOnlyMany – the volume can be mounted read-only by many nodes
+ReadWriteMany – the volume can be mounted as read-write by many nodes
+In the CLI, the access modes are abbreviated to:
+
+RWO - ReadWriteOnce
+ROX - ReadOnlyMany
+RWX - ReadWriteMany
+Important! A volume can only be mounted using one access mode at a time, even if it supports many. For example, a GCEPersistentDisk can be mounted as ReadWriteOnce by a single node or ReadOnlyMany by many nodes, but not at the same time.
+
+
+Class
+A PV can have a class, which is specified by setting the storageClassName attribute to the name of a StorageClass. A PV of a particular class can only be bound to PVCs requesting that class.
+
+#################################################################
+PersistentVolumeClaim
+#################################################################
+https://www.alibabacloud.com/blog/kubernetes-volume-basics-emptydir-and-persistentvolume_594834
+Access Modes
+Claims use the same conventions as volumes when requesting storage with specific access modes.
+
+Volume Modes
+Claims use the same convention as volumes to indicate the consumption of the volume as either a filesystem or block device.
+
+Resources
+Claims, like Pods, can request specific quantities of a resource. In this case, the request is for storage. The same resource model applies to both volumes and claims.
+
+Selector
+Claims can specify a label selector to further filter the set of volumes. Only the volumes whose labels match the selector can be bound to the claim. The selector can consist of two fields:
+
+matchLabels - the volume must have a label with this value
+matchExpressions - a list of requirements made by specifying key, list of values, and operator that relates the key and values. Valid operators include In, NotIn, Exists, and DoesNotExist.
+
+Class
+A claim can request a particular class by specifying the name of a StorageClass using the attribute storageClassName. Only PVs of the requested class, ones with the same storageClassName as the PVC, can be bound to the PVC.
+
+Pods access storage by using the claim as a volume. Claims must exist in the same namespace as the Pod using the claim. The cluster finds the claim in the Pod’s namespace and uses it to get the PersistentVolume backing the claim. The volume is then mounted to the host and into the Pod.
+
+kubectl apply -f persistent-volume.yaml
+kubectl apply -f persistent-volume-claim.yaml
+kubectl apply -f persistent-volume-pod.yaml
+kubectl get svc 
+kubectl get svc -o wide
+kubectl describe svc <service name>
+
+N.B : The persistent volume mount would be created on the machine where the pod is running.
+#################################################################
+
+To resolve the pod not acccessible from other cluster issue
+http://alesnosek.com/blog/2017/02/14/accessing-kubernetes-pods-from-outside-of-the-cluster/
+
+
+##########################################
+Using nfs
+	kubectl create -f pvwithnfs.yaml
+	kubectl create -f pvcwithnfs.yaml
+		showmount -e
+	kubectl create -f nginx.yaml
+
+Nginx root directory : /usr/share/nginx/html
+
+Secrets
+##########################################
+#######################
+Small amount of sensitive data
+	e.g. Passwords, tokens, keys ect
+Reduce risk of exposing sensitive data
+Created outside pods/containers.
+	Can be used any number of times on Pod's 
+Stored inside ETCD database on K8s master
+There is a limit to each secret size
+	limit is 1MB
+Loaded as tempfs and is available at a well defined location
+
+How do we inject secrets into Pod'sa
+		1. As Env. variables
+		2. Volumes
+
+Sent only to targetted nodes.		
+Each secret is stored in TempFS.
+	An application running in another container cannot access it.
+
+There are two ways to create secrets
+	1. using kubectl
+		- echo -n 'admin' > ./username.txt
+		- echo -n 'mypassword' > ./password.txt
+		
+		- kubectl create secret <type> <name> --from-file=<user name filename> --from-file=<password file name>
+		e.g. kubectl create secret generic user-pass --from-file=./username.txt --from-file=./password.txt
+		
+		- kubectl get secrets
+		- kubectl describe secret user-pass
+			- username and password is not displayed.
+	2. using manifest file (manually)
+		This will also cover injecting secrets through volume.
+		- echo -n 'admin' | base64
+		- echo -n 'password123' | base64
+		- refer secrets.yaml and apply it
+		- kubectl get secrets
+		#For injecting secrets through volume
+		- refer secret-use.yaml and apply it 
+		- kubectl get pods
+		- kubectl exec <pod> -it /bin/sh
+		- cd /etc/foo
+		- cat user
+		- cat password
+		- Username and password were passed in encrypted format is available in plain text.
+		
+Types of secret can be any of the following
+  generic
+	1. File #most used
+	2. Directory
+	3. Literal value
+  docker-registry
+  tls
+  
+		- Injecting secrets through environment variable.
+		- ensure that mysecret was not deleted
+		- kubectl apply -f secrets-env-pod.yaml
+		- kubectl exec <pod name> -it /bin/sh
+		- printenv
+		- verify that SECRET_USERNAME AND SECRET_PASSWORD are both available as env. variables.
+		
+		
+N.B : Secrets with certificates. https://software.danielwatrous.com/generate-tls-secret-for-kubernetes/		
+##########################################
+k8s ingress
+https://www.youtube.com/watch?v=VicH6KojwCI&t=385s
+
+Added fresh
+#############################################
+https://www.youtube.com/watch?v=4C-0idGOi2A
+Resource Quotas and Limits
+--------------------------
+Try everything - because this is based on Micrko8s.
+
+Resource quotas are a tool for administrators to put quota limit at namespace level on various cluster resources.
+A resource quota, defined by a ResourceQuota object, provides constraints that limit aggregate resource consumption per namespace. It can limit the quantity of objects that can be created in a namespace by type, as well as the total amount of compute resources that may be consumed by resources in that project.
+
+Resource quotas work like this:
+
+- Different teams work in different namespaces. Currently this is voluntary, but support for making this mandatory via ACLs is planned.
+- The administrator creates one ResourceQuota for each namespace.
+- Users create resources (pods, services, etc.) in the namespace, and the quota system tracks usage to ensure it does not exceed hard resource limits defined in a ResourceQuota.
+- If creating or updating a resource violates a quota constraint, the request will fail with HTTP status code 403 FORBIDDEN with a message explaining the constraint that would have been violated.
+- If quota is enabled in a namespace for compute resources like cpu and memory, users must specify requests or limits for those values; otherwise, the quota system may reject pod creation. Hint: Use the LimitRanger admission controller to force defaults for pods that make no compute resource requirements. See the walkthrough for an example of how to avoid this problem.
+
+
+	Dividing the resources into namespaces. Dev. namespace, QA namespace and apply the rules.
+	
+	kubectl create namespace quota-demo-ns
+	kubectl cluster-info
+	kubectl get nodes
+	kubectl version --short
+	kubectl get ns
+	
+Enabling Resource Quotas
+Resource Quota support is enabled by default for many Kubernetes distributions. It is enabled when the apiserver --enable-admission-plugins= flag has ResourceQuota as one of its arguments.
+	
+Resource Quotas
+	- For e.g
+		- this ns, i don't need more than 100 PoD's
+		- more than 2 jobs to be created
+	- You can limit almost any resource - Jobs, CronJobs, ReplicaSet, ReplicationController, Services - almost everything
+	
+	- kubectl apply -f 7-quota-count.yaml
+	- kubectl -n quaota-demo-ns describe quota quota-demo1
+	
+	create a configmap
+	-kubectl -n quota-demo-ns create configmap cm1 --from-literal=name=vilas #venkatn
+	- kubectl -n quoata-demo-ns get cm
+	
+	- kubectl create -f 7-pod-quota-mem.yaml #this has resource limit. So this will fail
+	
+	Put a memory limit of 100 MB
+	- kubectl create -f 7-pod-quota-mem.yaml
+	
+	Putting a limit to all resources
+	- Remove the 100MG limit
+	- kubectl create -f 7-pod-quota-mem.yaml #this would fail.
+	- kubectl create -f 7-quota-limitrange.yaml
+	- kubectl -n quota-demo-ns describe limitrange mem-limitrange
+	
+	Now try the same pod creation and it should succeed.
+	- kubectl create -f 7-pod-quota-mem.yaml
+	
+	We can also put a limit on the request that can be made.
+	Refer 7-quota-mem.yaml
+	
+####################################
+https://www.youtube.com/watch?v=_vVdSaPi7e0
+Kubernetes user account management
+
+I have a java project. I need to create a user who has CRUD privilege on this namespace
+
+kubectl create namespace javaproject
+kubectl get ns
+mkdir developer && cd developer
+
+#create a private key
+openssl genrsa -out developer.key 2048
+vi developer.key
+#create a csr for the user account
+openssl req -new -key developer.key -out developer.csr -subj "/CN=developer/o=javadeveloper"
+#CN - Cname should be equal to your user account
+#CN - common name, o - organization
+ls
+vi developer.csr
+#sign the certificate with 
+#go to the kubernetes signed certificate location
+#for kubeadm it's /etc/kubernetes/pki
+ls -tlh /etc/kubernetes/pki
+openssl x509 -req -in developer.csr -CA /etc/kubernetes/pki/ca.crt -CAKey /etc/kubernetes/pki/ca.key -CAcreateserial -out developer.crt -day 500
+
+k8s auth
+https://www.youtube.com/watch?v=WvnXemaYQ50
+################################################################
+Kubernetes networking
+---------------------
+https://www.youtube.com/watch?v=OaXWwBLqugk
+https://www.youtube.com/watch?v=NUt9VVG_gac
+
+Pod
+---
+	- Containers have network and CGroups
+	- Things can be done if some containers can share.
+	- Containers with in PoD can share the same namespace.
+		- Same IP
+	- PoD	
+		- Small group of tightly grouped containers
+		- Every PoD has a unique IP address
+		- Share same namespace and volume
+		- Share same lifecycle
+		- Usecases
+			- Sidecars
+			- Proxies and adapters
+		- Small construct where you deploy.
+		
+		- Pause container
+			- One container to manage the networking. 
+			- Started in an infinte loop.
+			- If any container dies, network namespace remains intact.
+			
+	CNI - Container Networking Inteface
+		- Standard interface which allows any networking technology to work with kubernetes.
+	
+	L2 approach
+		- Uses broadcasting to communicate.
+		- With docker every container gets an IP. 
+		- But that IP is not visible to containers outside the node.
+		- k8s allocates an IP that can be visible from other nodes too - with n/w adapters.
+	L3 approach
+		- Uses routing.
+		- Pod1 to use Pod3 go through routing table via 192.168.1.101...
+	Overlay
+		- Talks using tunnel. 
+		- It has it's own IP address.
+	
+	
+	
+Services
+	- Group of endpoints grouped by selectors.
+	- Provide a stable VIP (virtual IP)
+	- VIP automatically routes to backend Pods
+	- VIP to backend pod mapping is  managed by Kube-proxy and implemented using IP tables.
+		
+	Group of Pods that are selected by common label and exposed using the
+
+###########################################################	
+Following is my personal understanding and needs clarification based on more reading.
+	k8s networking works based on two api's
+		- CNI
+		- Network policy
+###########################################################	
+	
+	CNI : Container network interface.
+		- intially when people started desinging automated networking, they were trying to mimic the physical network.
+		- Like have switches, routers ect...
+		- Some people suggested that a basic connectivity would be good enough.
+		- CNI is the entity to which an Orchestrator can say that I can connect this entity (may be a Pod) to the network.
+	- CNI was picked by k8s as it's networking system. Mesos, Rockt and many more uses it now.
+	- Security policy and network policy is a separate process. 
+	- This way keep CNI simple and responsible for only one job.
+	
+	Containers
+		- Namespace (n/w namespace)
+		- CGroups
+		- Layered AUFS filesystem.
+		
+	CNI
+	http://github.com/containernetworking
+		/cni
+			/Spec
+			/APILibrary
+		- CNI Plugin should implement CNI spec.
+		- Orchestrator should be able to call any CNI plugin.
+		- Just like USB. As long as it's comptible with USB, it can connect irrespective of it is whether they are storage or charging or any other device.
+		
+	- 
+	
+	
+	Ingress controller
+	------------------
+	Ref: https://www.haproxy.com/blog/dissecting-the-haproxy-kubernetes-ingress-controller/
+	The official definition of a controller, not specific to ingress controllers, is:
+
+	a control loop that watches the shared state of the cluster through the apiserver and makes changes attempting to move the current state towards the desired state.
+
+	For example, a Deployment is a type of controller used to manage a set of pods. It is responsible for replicating and scaling of applications. It watches the state of the cluster in a continuous loop. If you manually kill a pod, the Deployment object will take notice and immediately spin up a new one so that it keeps the configured number of pods active and stable.
+
+	Other types of controllers manage functions related to persistent storage, service accounts, resource quotas, and cronjobs. So, in general, controllers are the watchers, ensuring that the system remains consistent. An Ingress Controller fits right in. It watches for new services within the cluster and is able to dynamically create routing rules for them.
+	
+	An Ingress object is an independent resource, apart from Service objects, that configures external access to a service’s pods. This means you can define the Ingress later, after the Service has been deployed, to hook it up to external traffic. That is convenient because you can isolate service definitions from the logic of how clients connect to them. This approach gives you the most flexibility.
+
+	L7 routing is one of the core features of Ingress, allowing incoming requests to be routed to the exact pods that can serve them based on HTTP characteristics such as the requested URL path. Other features include terminating TLS, using multiple domains, and, most importantly, load balancing traffic.
+	
+	In order for Ingress objects to be usable, you must have an Ingress Controller deployed within your cluster that implements the Ingress rules as they are detected. An Ingress Controller, like other types of controllers, continuously watches for changes. Since pods in Kubernetes have arbitrary IPs and ports, it is the responsibility of an Ingress Controller to hide all internal networking from you, the operator. You only need to define which route is designated to a service and the system will handle making the changes happen.
+
+	It’s important to note that Ingress Controllers still need a way to receive external traffic. This can be done by exposing the Ingress Controller as a Kubernetes service with either type NodePort or LoadBalancer. However, this time, when you add an external load balancer, it will only be for the one service and the external load balancer’s configuration can be more static.
+	
+	Most used ingress - Nginx and HAProxy
+	HAProxy
+	-------
+	Using HAProxy, there is no real difference in how requests are load balanced from a traditional standpoint. Configuration is a matter of using the ability of a controller to fetch all the required data from the Kubernetes API and filling it into HAProxy. The most demanding part is syncing the status of pods, since the environment is highly dynamic and pods can be created or destroyed at any time. The controller feeds those changes directly to HAProxy via the HAProxy Data Plane API, which reloads HAProxy as needed.
+
+	You can fine tune the Ingress Controller with a ConfigMap resource and/or annotations on the Ingress object. This allows you to decouple proxy configuration from services and keep everything more portable.
+
+	Refer https://www.haproxy.com/blog/dissecting-the-haproxy-kubernetes-ingress-controller/
+	for installation and details of haproxy.
+	
+	
+12. Labels
+#########################################################
+	- key/value pairs that are attached to objects
+	- Not unique
+	- Used to organize and select subsets of objects
+#########################################################
+
+13. Selectors
+#########################################################
+
+	label selector, the client/user can identify a set of objects.
+	core grouping primitive in Kubernetes.
+	equality-based and set-based
+Equality-based requirement
+	Matching objects must satisfy 
+		all of the specified label constraints
+		They may have additional labels as well.
+	Operators admitted 
+		=,==, 	#equality
+		!=		#in equality
+	e.g.
+	environment = production
+	tier != frontend
+	
+	multiple values can be provided using comma.
+		environment=production,tier!=frontend
+
+Set-based requirement
+	
+	filtering keys according to a set of values. 
+	Three operators supported: in,notin and exists 
+e.g. 
+	environment in (production, qa) 
+	#key = environment and value equal to production or qa
+	#Here comma acts like or
+	
+	tier notin (frontend, backend)
+	#key = tier and value neither frontend nor backend and
+	#key!= tier. Here comma acts like and
+	
+	partition
+	#key = partition. no value is checked.
+	
+	!partition
+	#key != partition. no value is checked.
+	
+Set-based requirements can be mixed with equality-based requirements. For example: partition in (customerA, customerB),environment!=qa.
+
+Equality based
+kubectl get pods -l environment=production,tier=frontend
+
+Set based
+kubectl get pods -l 'environment in (production),tier in (frontend)'
+kubectl get pods -l 'environment in (production, qa)'
+kubectl get pods -l 'environment,environment notin (frontend)'
+
+in yaml
+selector:
+  matchLabels:
+    component: redis
+  matchExpressions:
+    - {key: tier, operator: In, values: [cache]}
+    - {key: environment, operator: NotIn, values: [dev]}
+	
+Refer Ashish's (repo.) e.g too
+#########################################################
+Network Policy
+	- Kubernetes resource
+	- Process
+		- Deny all traffic by default
+		- All traffic based on labels
+		
+
+Deny all traffic policy
+
+Allow traffic to web from everywhere and restrict traffic to api from only web
+
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata: 
+  name: default-deny
+spec:
+  podSelector: {}
+  
+e.g. of Allow policies
+	white list whom to allow.
+
+	
+kind: NetworkPolicy
+apiVersion: extensions/v1beta1
+metadata:
+  name: access-return-hostname-web
+spec:
+  podSelector:
+    matchLabels:
+	  app: return-hostname-web
+  ingress:
+    - from: []
+	
+---
+yaml for accepting traffic only from web
+
+kind: NetworkPolicy
+apiVersion: extensions/v1beta1
+metadata:
+  name: access-return-hostname-api
+spec:
+  podSelector:
+    matchLabels:
+	  app: return-hostname-api
+  ingress:
+    - from:
+	  - podSelector:
+	    matchLabels:
+		  app: return-hostname-web
+#########################################################
+		
+run command
+kubectl run nginx --image=nginx:latest #creates a deployment
+kubectl run nginx --image=nginx --dry-run -o yaml
+
+########################################
+Remove the taints on master so that you can schedule pods
+kubectl taint nodes --all node-role.kubernetes.io/master-
+#master- could be the kmaster name
+node/<kmaster> untainted
+
+#######################################
+Steps to deploy calico
+kubectl apply -f https://docs.projectcalico.org/v3.9/manifests/calico.yaml
+watch kubectl get pods --all-namespaces
+
+#######################################
+Kubernetes objects categories
+Kuberenetes objects can be categorized as follows
+	Workloads
+		Used to manage and run containers
+		e.g. Pod, ReplicationControllers, Deployment 
+	Discover & LB
+		"Stick" workloads together into an externally accessible, load-balanced services (service, ingress)
+	Config & Storage
+		Objects we can use to injecct intialization data into applications, and to persist data that is external to the containers (Volume, secrets ect)
+	Metadata
+		OBjects used to configure the behavior of other resources within the cluster (LimitRange)
+	Cluster
+		Objects responsible for defining the configuration of the cluster itself.
+		(Namespace, Binding)
+		
+Controlling access to API
+	A normal request flow
+	
+	Request -> Authentication -> Authorization -> Admission Control -> Resource
+	
+	Authentication: Ensure that the user is a valid user
+	Kubernetes has 2 categories of users
+		- Service Accounts: Managed by k8s
+		- Normal users: managed by independent service
+	API requests 
+		Can be treated as anonymous if they are not tied to a user or service account.
+	K8 uses client certificates, bearer tokens, an authenticating proxy, or HTTP basic auth to authenticate API requests through authentication plugins.
+
+
+Authorization
+	After the user authentication step the request will have to pass the authorization step.
+	All parts of an API request must be allowed by some policy - permissions are defined by default.
+	Authorization modules.
+		Nodes
+		ABAC - Attribute based access control
+		RBAC - Role based access control
+		Webhook.
+	
+Role Based Access Control
+	RBAC allows fine grained rules for accessing the cluster
+	- Allows dynamic configuration of policies through the Kubernetes API.
+	- Uses the rbac.authorization.k8s.io API group.
+	- It defines Roles and RoleBindings in order to assign permissons to subjects.
+	These permissions can be set
+		- Clusterwide - can be used for cluster scoped resources, non-resource endpoints, namespaced resources across all namespaces
+		Within a namespace
+		For a single resource
+	Subjects can be users, groups, and service accounts
+	
+Roles and ClusterRoles	
+	RBAC roles contains the rules that represent the permissions
+	Permissions are purely additive
+	Role can be defined within a namespace, or cluster wide (ClusterRole)
+			kind:Role
+			apiVersion: rbac.authorization.k8s.io/v1beta1
+			metadata:
+			  namespace: default
+			  name: pod-reader
+			rules:
+			  - apiGroups: [""]
+			    resources: ["pods"]
+				verbs: ["get", "watch", "list"]
+	ClusterRoles are not namespaced.
+
+RoleBindings
+	Role binding grants the permissons defined in a role to a subject.
+
+
+------------------------------------
+Debug
+https://kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-token/
+
+then do a systemctl restart kube-apiserver
+
+/etc/kubernetes
+
+https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/
+
+sudo swapon -s
+sudo systemctl status kubelet
+systemctl restart kubelet
+sudo swapoff /dev/sda6
+sudo systemctl status kubelet
+kubectl get nodes

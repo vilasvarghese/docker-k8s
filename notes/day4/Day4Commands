@@ -1,0 +1,46 @@
+All K8s objects 
+	kubectl api-resources
+	
+We can create our own namespace as follows
+kubectl create namespace <insert-namespace-name-here>
+
+We can delete the namespace with below command
+kubectl delete namespaces <insert-some-namespace-name>
+
+kubectl run nginx --image=nginx --namespace=<insert-namespace-name-here>
+
+kubectl get pod -n abc
+
+We can see object belonging to a namespace by giving -n <namespace>
+kubectl get svc -n kube-system
+kubectl describe svc kube-dns -n kube-system
+	# Endpoints:         172.17.0.5:53          --------> ip same as the dns ip of kube-dns 
+kubectl get pods -o wide -n kube-system
+kubectl config get-contexts #get the current user/context details.
+
+
+	kind 						version
+	Pod							v1
+	ReplicationController		v1
+	Service						v1
+	ReplicaSet					apps/v1
+	Deployment					apps/v1
+	DaemonSet					apps/v1
+	Job							batch/v1
+	
+	kubectl apply -f <file>
+	kubectl delete -f <file>
+	kubectl delete <object> --all
+	
+	
+Status: 
+	- kubectl rollout status deployment.v1.apps/nginx-deployment
+
+Update deployment: 
+	- kubectl --record deployment.v1.apps/nginx-deployment set image deployment.v1.apps/nginx-deployment nginx=nginx:1.9.1
+
+Rollout history: 
+	- kubectl rollout history deployment.v1.apps/nginx-deployment
+
+Rollback:
+	- kubectl rollout undo deployment.v1.apps/nginx-deployment

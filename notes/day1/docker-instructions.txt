@@ -1,0 +1,84 @@
+Information that may help you to solve these lab sessions
+---------------------------------------------------------
+1. The basic objects with in Docker are
+	Containers
+	Images
+	Volume
+	Network
+
+The standard docker command follows
+docker <object> <command>
+To see the help of commands
+docker <object> --help
+
+
+
+1. How do you run a simple hello-world container?
+
+2. List the image it created
+
+3. List the container it created
+
+4. You don't see the container created just now? How do you solve this?
+
+5. Create an nginx container without port mapping
+
+6. Access the nginx container on a browser by hitting container ip
+
+7. List the nginx container
+
+8. Stop the nginx container? Are the files gone?
+
+9. Can you list a stoped container? How?
+
+10. I don't want this container anymore. So want to save space. How do I do that?
+
+11. Are the images also removed? How do I remove that?
+
+12. How do I execute a nginx container in detached mode?
+
+13. How do I attach myself to a detached container?
+
+
+14. How do I search for an image on dockerHub?
+
+15. I just want to get that image so that I can start any number of containers latter. How do I do that?
+
+16. How do I find the details of an image?
+
+17. How do you create an ubuntu image?
+
+18. How do create an ubuntu instance and bash into it?
+
+19. Install ping (apt-get update & apt-get install iputil-ping)
+
+20. Create a folder inside this container with your name or favorate word?
+
+21. Create a file Hello-World with content Hello-World in it.
+
+22. Stop this container and start it again
+
+23. Pauce this container and Unpause it.
+
+24. Restart the container.
+
+25. Install java on this container
+	su
+	apt-get update
+	apt-get install openjdk-8-jdk
+
+
+26. Now this instance has some additions. How do you persist it?
+	git commit -m "message" <container-id> docker-hub-user/container-name
+
+27. I want to persist this outside my machine. How do I do that?  
+	docker login -u <username>
+	docker push docker-hub-user/container
+
+28. I want to remove all containers which are leying around without being used?
+
+29. How do I see the details of a container?
+
+30. How do I see the image history?
+
+31.  
