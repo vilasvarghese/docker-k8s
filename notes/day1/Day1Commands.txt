@@ -149,10 +149,10 @@ Vilas : Attach tries to attach to process 1 where as exec executes a new process
 	docker images 
 	this will show two different images.
 
-12. docker login -u docker-registry-username
+12. docker login -u docker-hub-username
 
 13. docker tag <image name or rep name> docker-registry-username/image-name
-	or docker tag <image id> docker-registry-username/image-name
+	or docker tag <image id> docker-hub-username/image-name
 
 14. docker push docker-registry-username/image-name
 
@@ -193,7 +193,7 @@ Differentiate container and image
 25. docker exec -it container_id /bin/bash
 	docker exec -d container_id
 	
-26. Execution options in docker
+26. Execution options in dockersa
 	Various run options
 
 	a. -p 

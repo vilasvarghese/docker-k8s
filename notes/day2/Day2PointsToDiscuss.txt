@@ -562,7 +562,7 @@ tmpfs
 	1. While creating container - create a named volume
 		a. Using --mount
 		
-		docker run -d  --name devtest  --mount source=<vol name>,target=/app nginx:latest
+		docker run -d --name devtest --mount source=<vol name>,target=/app nginx:latest
 	
 		docker volume inspect <vol name>
 		find the path on host

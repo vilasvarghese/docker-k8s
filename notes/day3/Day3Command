@@ -27,7 +27,7 @@ bridge:
     	
 	Host network
 
-		docker run --network host --name my_nginx nginx 
+		docker run --network host --name my_nginx1 nginx 
 		docker run --net=host ubuntu bash
 		docker network create host
 		

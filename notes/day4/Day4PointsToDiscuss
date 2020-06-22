@@ -597,7 +597,7 @@ kubectl create namespace <insert-namespace-name-here>
 
 We can delete the namespace with below command
 kubectl delete namespaces <insert-some-namespace-name>
-
+`
 kubectl run nginx --image=nginx --namespace=<insert-namespace-name-here>
 
 We can see object belonging to a namespace by giving -n <namespace>
@@ -665,7 +665,7 @@ tier != frontend
 
 
 kubectl apply -f label-selector.yaml
-kubectl get pods -l environment=development #-l represents the label we passed.
+kubectl get pods -l env=development #-l represents the label we passed.
 
 kubectl delete -f deploy-nginx.yaml
 
@@ -1042,7 +1042,7 @@ Jobs - Run to Completion
 	
 		- kubectl apply -f job.yaml
 		- kubectl get jobs
-		- kubectl get job
+		- kubectl get pod
 		- kubectl logs <<pod-name>>		
 		
 		
@@ -1076,6 +1076,8 @@ kubectl logs $pods
 
 Storage Volume
 	
+https://kubernetes.io/docs/concepts/storage/	
+	
 Why Volumes?
 	- Pods are ephemeral
 	- Pods becoming more stateful
@@ -1094,6 +1096,7 @@ Way more powerful than docker volumes
 			
 	k8s supports 
 		- cloud based volumes like
+			S3
 			awsElasticBlockStore
 			gcePersisteDisk
 			azureDisk
@@ -1116,7 +1119,7 @@ Way more powerful than docker volumes
 			
 		kubectl apply -f empty-dir.yaml
 		#####################
-		#kubectl exec <<pod name>> -c <container name> /bin/sh
+		#kubectl exec -it <<pod name>> -c <container name> /bin/sh
 		kubectl exec -it <<pod name>> /bin/sh
 		#####################
 		- We can create emptyDir in RAM by doing the following
@@ -1249,6 +1252,8 @@ Pods access storage by using the claim as a volume. Claims must exist in the sam
 kubectl apply -f persistent-volume.yaml
 kubectl apply -f persistent-volume-claim.yaml
 kubectl apply -f persistent-volume-pod.yaml
+
+
 kubectl get svc 
 kubectl get svc -o wide
 kubectl describe svc <service name>
@@ -1258,6 +1263,87 @@ N.B : The persistent volume mount would be created on the machine where the pod 
 
 To resolve the pod not acccessible from other cluster issue
 http://alesnosek.com/blog/2017/02/14/accessing-kubernetes-pods-from-outside-of-the-cluster/
+#########################################################################################
+Summary from Vilas: Static provisioning and dynamic provisioning.
+Refer k8s documentation for details.
+Refer https://kubernetes.io/docs/concepts/storage/persistent-volumes/#csi-volume-expansion
+
+A request to volume can be provided in 2 ways.
+
+1. Static provisioning
+2. Dynamic provisioning
+
+Static
+	While creating a PVC 
+	If the parameters match, (size, type, label, selector and storage class - not mandatory).
+		PV and PVC would be bound.
+	Parameters used are
+		Access Modes : RWO etc.
+		Volume Modes: Filesystem or Block
+		Resources: Quantity of resource - e.g. 100Mi
+		PVC Selector: 
+			Only the volumes whose labels match the selector can be bound to the claim.
+			Can be done using two fields
+				matchLabels:  volume with same label 
+				matchExpressions:  
+					key, list of values
+					Valid operators include In, NotIn, Exists, and DoesNotExist
+		Class:
+			Optionally PVC can request a particular class 
+			Specify StorageClass using attribute storageClassName. 
+			Bound only if PVs storageClassName = PVC's storageClassName.
+
+			PVCs storageClassName is optional. 
+				No storageClassName != ""
+				"" and no value in storageClassName 
+					are treated differently based on DefaultStorageClass admission plugin is turned on or not.
+			
+			
+			If PVC's storageClassName is "" 
+				means requesting a PV with no class
+				So it can only be bound to PVs with no class (no annotation or set equal to ""). 
+			
+		Admission Plugin
+			Can be turned on/off
+
+		Admission Plugin turned on
+		--------------------------
+		Admission Plugin can enabled by
+			kube-apiserver --enable-admission-plugins=NamespaceLifecycle,LimitRanger ...
+			More details https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/
+		Admission Plugin can be disabled by
+			kube-apiserver --disable-admission-plugins=PodNodeSelector,AlwaysDeny ...
+		
+		A default Storage class should be created.
+			If no default is created, there is no diff. between Admin plugin turned on/off.
+			
+		Administrator can set default StorageClass. 
+			All PVCs with no storageClassName can be bound only to PVs of default. 
+		Default StorageClass can be set by
+			annotation storageclass.kubernetes.io/is-default-class equal to true in a StorageClass object. 
+		If more than one default is specified, 
+			the admission plugin forbids the creation of all PVCs.
+
+		Admission plugin is turned off
+		------------------------------
+		No notion of a default StorageClass. 
+		PVCs with no storageClassName can be bound only to PVs with no class. 
+		In this case, 
+			PVCs with no storageClassName are treated 
+				same way as PVCs that have storageClassName set to "".
+
+
+
+		When a PVC specifies 
+			selector and StorageClass
+				Requirements are ANDed
+
+		N.B: 
+			1. Currently, PVC with non-empty selector can't have a PV dynamically provisioned for it.
+			2. Earlier annotation volume.beta.kubernetes.io/storage-class was used instead of storageClassName attribute. 	
+				This still works but is deprecated.
+##########################################################################################
+
 
 
 ##########################################
@@ -1282,7 +1368,7 @@ There is a limit to each secret size
 	limit is 1MB
 Loaded as tempfs and is available at a well defined location
 
-How do we inject secrets into Pod'sa
+How do we inject secrets into Pod's
 		1. As Env. variables
 		2. Volumes
 

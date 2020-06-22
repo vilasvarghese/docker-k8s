@@ -58,11 +58,12 @@ Kubernetes ingress
 	
 	contact the NodePort Service, from outside the cluster, by requesting <NodeIP>:<NodePort>.
 	
-	kubectl apply -f deploy-ng.yaml
-	kubectl apply -f node-port.yaml
 	
 	kubectl apply -f deploy-ng.yaml
 	kubectl apply -f clusterip.yaml
+
+	kubectl apply -f deploy-ng.yaml
+	kubectl apply -f node-port.yaml
 	
 	kubectl apply -f deploy-ng.yaml
 	kubectl apply -f loadbalancer.yaml

@@ -26,3 +26,14 @@ Open putty in windows (if not present install)
 now we should be able to work from putty just like from local machine
 We can copy paste between these terminals too.
 
+
+##################################################
+Download vagrant from the following location only
+https://www.vagrantup.com/downloads.html
+
+For VBox - 6+ Vagrant 2.0.3+ is mandatory
+
+
+
+
+##################################################

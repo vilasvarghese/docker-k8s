@@ -1,0 +1,19 @@
+Install ubuntu
+
+	https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-18-04
+
+
+Install Kubernetes
+	https://linuxconfig.org/how-to-install-kubernetes-on-ubuntu-18-04-bionic-beaver-linux
+	
+	Add - --ignore-preflight-errors=NumCPU to init
+	
+	3.12.166.213 /172.31.7.109		- kmaster
+	52.14.195.98 /172.31.8.20		- kwroker1					
+	3.15.17.173 /172.31.13.104		- kworker2
+	
+	
+	kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+	
+e.g. of join command
+kubeadm join 172.31.7.109:6443 --token 2kw97g.1nwh56i5s67trju6 --discovery-token-ca-cert-hash sha256:a139c46d5228f7ab2c4ef08c52bee036d1ef2a873ac10a163073d503796fe23b

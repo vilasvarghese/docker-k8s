@@ -1,0 +1,12 @@
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  namespace: test
+  name: pod-reader
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+#The role pod-reader has access only to namespace test
+#pod-reader can list and get pods    

@@ -29,7 +29,7 @@ Create the user of your choise.
 Execute the below instructions
 1. sudo gropuadd docker
 2. sudo usermod -aG docker jenkins
-3. chmod root:docker /var/run/docker.sock
+3. chown root:docker /var/run/docker.sock
 
 reboot
 

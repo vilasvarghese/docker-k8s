@@ -1,0 +1,304 @@
+git clone https://github.com/reselbob/k8sassets.git
+Courtesy: https://www.katacoda.com/reselbob
+
+
+Step 1 - Understanding the Theory Behind RBAC and Secure Access to Kubernetes
+	
+	clear && kubectl config view
+	
+		There is only a single context in the configuration. 
+		Name, kubernetes-admin@kubernetes.
+
+		The context 
+			declares a user, kubernetes-admin 
+			user (kubernetes-admin) is bound to the cluster "kubernetes"		
+		
+		We can add to this context.
+		Large organization may prefer to have multiple contexts.
+			Or probably integrate with LDAP.
+		
+		possible to have a configuration 
+			many clusters and defines contexts that describe many different binds of users to clusters.
+
+------------------------------------------------
+This lab works in a single context.
+------------------------------------------------
+	Steps we follow
+	1. 	Create a new user, dicktracy
+	2.	Bind that user to the default cluster, kubernetes.
+			Default created by kubeadm
+	3. 	Configure
+			Add dicktracy to two groups, 
+				devs and 
+				tech-leads. 
+	4. 	Useing Kubernetes Role and RoleBindings give only list pod privilege on test namespace to dicktracy
+	5. 	Change context to dicktracy and confirm that dicktracy 
+			cannot list pod in default ns
+			cannot create pod in default ns
+			cannot create pod in test ns
+			can list pod in test ns
+	
+	6. 	Change context back to k8s and using Role and RoleBinding 
+			Give create and list pod privilege to devs ns through Group. 
+			N.B: dicktracy was already a part of devs group.
+			
+	7. 	Change the context back to dicktracy and confirm that dicktracy can 
+			create pod in devs ns, 
+			list pod in devs ns
+			list pod in test ns 
+			but not create pod in test ns.
+			
+--------------------------------------------------------------------------------------------------
+Step 2 - Understanding Subjects, Resources, and Operations in Kubernetes
+	
+		Every sentense we talk is like
+			Subject verb resource (object)
+			
+			Vilas list pod
+				Vilas: Subject
+				list: verb
+				pod: resource
+
+		Subject
+			User
+			Group
+			Application or Service
+
+		Role
+			Association of operations (verb e.g. list) to resources (e.g. pod)
+		
+		RoleBinding
+			Association of Role to a subject 
+
+		Refer k8sassets/rbac/images/RBAC-items.jpeg
+		
+
+Step 3 - Understanding Kubernetes Roles
+	
+		Refer RBAC-Role.jpeg
+		
+		Role 
+			The association of operations to resources.
+
+		Refer to the image
+			Kubernetes Role, pds-viewer. 
+			The Role, pds-viewer is able to 
+				list and get the Kubernetes resources, 
+					pod, deployment and service.
+
+	Role, pds-viewer can do the following:
+
+		kubectl get pods
+		kubectl get services
+		kubectl get deployments
+
+	Role, pds-viewer cannot do the following:
+
+		kubectl delete pods
+		kubectl expose deployment mydeployment --type=NodePort
+		kubectl delete service myservice
+		
+
+Step 4 - Understanding Kubernetes RoleBindings
+
+	RoleBinding
+		assignment of a Role to a subject 
+			Subject
+				a user, 
+				group or 
+				even a services (process)
+
+	Refer image: RBAC-RoleBinding.jpeg
+	
+
+Step 5 - Configuring Role and RoleBindings Manifests
+	Refer: pod-reader.yaml
+	Role's 
+		name: pod-reader and 
+		namespace:test
+	
+	
+	i.e. The role pod-reader has access only to namespace test
+		pod-reader can list and get pods
+		
+
+Step 6 - Reviewing the Certificate Creation Process
+
+
+	we'll create a set of security credentials for a user, dicktracy. 
+	We'll make it so that dicktracy belongs to two groups, devs and tech-leads. 
+	Then, we'll use manifests to create Roles and RoleBindings that will restrict access that dicktracy (and the groups to which that user belongs) to the cluster according to the permissions defined in the manifests.
+
+	The process for creating security certificates for a Kubernetes cluster at the enterprise level involves two groups, users (in blue callout dots) who want access to the cluster according to particular permissions and admins (in purple callout dots) who create the actual access rights.
+
+	A user will do the tasks of creating a key file and a certificate signing request file (csr).
+
+	An admin will create a certificate (.crt) based on the information provided in the key file and a certificate signing request (csr). Once the .crt is created, the admin will embed the security artifacts into the cluster's configuration file.
+
+	Please be advised that for the purpose of educational demonstration, the following tasks will make it so the cluster's administrative user, kubernetes-admin and the new user we create, dicktracy are in the same Kubernetes config file. In the real world, the new user, dicktracy would be given a .config file that contains only access information that is particular to the permissions granted to, dicktracy.
+
+
+Step 7 - Creating the Security Certificates
+
+	Step a: Declare the name of the Kubernetes user we're going to support by setting it to an environment variable
+	export MAGIC_USER=dicktracy
+	
+	Step b: Generate an RSA key using openssl
+		openssl genrsa -out dicktracy.key 2048
+		This will generate and dicktracy.key.
+
+	Step c: Create the certificate signing request file, dicktracy.csr.
+		
+		N.B: We are adding user dicktracy to the groups devs and tech-leads.
+		openssl req -new -key dicktracy.key -out dicktracy.csr -subj "/CN=${MAGIC_USER}/O=devs/O=tech-leads"
+
+	Step d: take a look at the contents of /etc/kubernetes/pki
+
+		ls -ltr /etc/kubernetes/pki
+		Here ca.crt and ca.key are the certificates of the Signing Authority of Kubernetes
+		We are signing this certificate using the certificates of the "Kubernetes Certificate signing authority"
+	
+	Step e: Create the dicktracy.crt file.
+		sudo openssl x509 -req -in dicktracy.csr -CA /etc/kubernetes/pki/ca.crt -CAkey /etc/kubernetes/pki/ca.key -CAcreateserial -out dicktracy.crt -days 500
+
+	Step f: Make a directory, $HOME/.certs and move the files, dicktracy.crt and dicktracy.key into the directory $HOME/.certs.
+		mkdir -p $HOME/.certs && mv dicktracy.crt dicktracy.key $HOME/.certs
+
+	Step g: Take a look to make sure the certificates got copied in:
+		ls -lh $HOME/.certs
+
+
+Step 8 - Creating the Required Namespaces
+	kubectl apply -f namespaces.yaml
+	kubectl get ns
+
+Step 9 - Creating a Cluster Context for the New User
+	Step a: Set the security credentials of ${MAGIC_USER} (a.k.a dicktracy) to the Kubernetes configuration
+		This will add user dicktracy to the context #Earlier we only had kube-admin there.
+
+		kubectl config set-credentials ${MAGIC_USER}@kubernetes --client-certificate=$HOME/.certs/${MAGIC_USER}.crt --client-key=$HOME/.certs/${MAGIC_USER}.key --embed-certs=true
+
+		You'll get output similar to the following:
+		User "dicktracy@kubernetes" set.
+
+	Step b: Create a new Kubernetes context
+
+		kubectl config set-context ${MAGIC_USER}@kubernetes --cluster=kubernetes --user=${MAGIC_USER}@kubernetes
+		You'll get output similar to the following:
+		Context "dicktracy@kubernetes" created.
+
+	Step c: Let's revisit the configuration to see the addition of the new context containing the new user.
+
+		kubectl config view
+
+	Also, notice that the user, dicktracy@kubernetes now is bound to the cluster in the on the context named, dicktracy@kubernetes like so:
+
+
+Step 10 - Creating Roles and RoleBindings for a User
+	kubectl apply -f pod-reader.yaml
+	kubectl apply -f user-pod-reader-rolebinding.yaml
+
+Step 11 - Verifying RBAC
+	Step a: Move into the context that supports dicktracy
+		kubectl config use-context ${MAGIC_USER}@kubernetes
+		You'll get output as follows"
+		Switched to context "dicktracy@kubernetes".
+
+	Step b: Try to create a pod in the namespace, test
+
+		kubectl apply -f pod.yaml 
+
+		You'll fail with following error messsage:
+
+		Error from server (Forbidden): pods is forbidden: User "dicktracy" cannot create resource "pods"
+		in API group "" in the namespace "test": RBAC: role.rbac.authorization.k8s.io "pod-reader" not found
+
+		Why? Because the user dicktracy does not have permission to create a pod.
+
+	Step c: But try to view pods in the namespace, test
+
+		kubectl get pods -n test
+
+		You'll get output as follows:
+
+		No resources found.
+
+		This is good news because although there happens to be no pods found, you are not being denied permission to view pods. Earlier on you were.
+
+	Step d: Let's switch back to the context, kubernetes-admin@kubernetes and see what we can accomplish.
+
+		kubectl config use-context kubernetes-admin@kubernetes
+
+		You'll get output as follows:
+
+		Switched to context "kubernetes-admin@kubernetes".
+
+	Step e: Now try to create the deployment:
+
+		kubectl run --generator=run-pod/v1 pinger-dk --image=reselbob/pinger:v2.3 -n test
+
+		You'll output as follows:
+
+		pod/pinger-dk created
+
+		Why can we do this? Because we switched back to the context, kubernetes-admin@kubernetes and the user in this context, kubernetes-admin has permission to create pods.
+
+		Step f: Let's verify that the newly created pod is indeed there:
+
+		kubectl get pods -n test
+
+		You'll get output similar to the following:
+
+		NAME        READY   STATUS    RESTARTS   AGE
+		pinger-dk   1/1     Running   0          54s
+		Next Up: Creating Roles and RoleBindings for Groups
+
+
+
+Step 12 - Creating Roles and RoleBindings for Groups
+	Step a: Switch back to being the admin in the context kubernetes.
+		kubectl config use-context kubernetes-admin@kubernetes
+		
+		kubectl delete pod --all -n test
+		
+------------------------------------------------------------------------------------------------------------------
+Reminder		
+		We assigned the user dicktracy to the group devs when we created dicktracy's security certificates back in Step 8, in this command:
+
+		openssl req -new -key dicktracy.key -out dicktracy.csr -subj "/CN=${MAGIC_USER}/O=devs/O=tech-leads"
+		In the option, -subj, like so:
+		-subj "/CN=${MAGIC_USER}/O=devs/O=tech-leads
+		
+		here 
+			/CN=${MAGIC_USER} is the name of the user
+			/O=devs/ declares a group, devs
+			/O=tech-leads/ declares a group, tech-leads
+
+------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------
+	Refer to the simple-dev-role.yaml and simple-dev-rolebinding.yaml
+------------------------------------------------------------------------------------------------------------------
+	
+	Step b: 
+		kubectl apply -f simple-dev-role.yaml		
+		
+	Step c: 
+		kubectl apply -f simple-dev-rolebinding.yaml
+
+	Step d:
+		Now, switch back to be dicktracy
+		kubectl config use-context ${MAGIC_USER}@kubernetes
+
+	Step e:
+		kubectl apply -f devpod.yaml
+	
+	Step f:
+		Verify 
+		kubectl get pods -n devs
+	
+	Step g:
+		Switch back to be kubernetes-admin by changing the context.
+		kubectl config use-context kubernetes-admin@kubernetes
+		
+		kubectl get pods  --all-namespaces 
+		

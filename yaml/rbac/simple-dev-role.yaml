@@ -1,0 +1,9 @@
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  namespace: devs
+  name: simple-pod-developer
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["create","get", "list"]

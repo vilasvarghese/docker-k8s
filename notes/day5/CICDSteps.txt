@@ -1,0 +1,42 @@
+Prerequisite
+	1. You should have a github and dockerhub account
+	2. Your code (app along with test cases) should be there in your github account
+
+CI/CD
+	1. You setup a jenkins job.
+		Install jenkins
+		Install maven
+		Install docker
+		Install kubernetes
+		Setup a jenkins job
+		
+	
+	2. A developer is making a change to the code in github (i.e. commit and push)
+	3. Automatically the jenkins job should get triggered.
+		This will not happen for you because your jenkins is not hosted on a machine with public ip
+		I will show this (only on 19th June, 2020)
+		For you, you will trigger the job.
+	4. 	Your job
+			Download the code from github (jenkins)
+			Build the code using maven - generate a war.
+			Create a docker image with tomcat and the above war deployed in it.
+				You can refer to my dockerfile 
+					You would need to make small changes - i will tell you
+				Result: You have a docker image
+			You will create docker container.
+				if already a container with name is running - then delete it.
+			Run test cases using maven
+				Result: test passes
+			Commit and create a new image.
+				Result: New image on your machine.
+			Push this image to your docker hub.
+				Result: New image in dockerhub.
+			Deploy it in a kubernetes environment on prodution
+				production: your environment.
+				
+	5. Manually verify
+	6. Again make a change to github
+	7. Automatically everything should happen
+		In our case: you have to trigger and everything should automatically happen.
+		
+		
