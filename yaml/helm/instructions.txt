@@ -1,0 +1,243 @@
+	To find available charts use the search command.
+		helm search hub redis
+		#This would search in in the helm hub (similar to docker hub)
+	
+	To find list of repo's added
+		helm repo list
+	
+	Search Redis in the repo already added.
+		helm search repo redis
+		You may find more than one chart provider for the common applications.
+	
+	Find more details of the chart by
+		helm show chart stable/redis
+			
+			and further details can be found by
+		helm show readme stable/redis
+		#Above commands are like inspect of image	
+-------------------------------------------------------------------------------------------------		
+how to install and uninstall applications
+	
+	Create a namespace for the installation target.
+		kubectl create namespace redis
+		
+	Deploy a chart to a cluster if you know the name
+		helm install my-redis stable/redis --namespace redis
+		
+	With the install command Helm will launch the required 
+		deployments, 
+		ReplicaSets, 
+		Pods, 
+		Services, 
+		ConfigMaps, 
+		or any other Kubernetes resource the chart defines. 
+	
+	List all installed charts.
+		helm list --all-namespaces #in all ns
+			or
+		helm ls -n redis #in redis ns
+		
+	
+	Helm deploys all the pods, replication controllers and services. 
+	The pod will be in a pending state until 
+		the container image is downloaded and 
+		a Persistent Volume is available. 
+
+	Let's find what was deployed.
+	Once complete it will move into a running state.
+		watch kubectl get deployments,pods,services -n redis
+		
+		Control/Command + C
+-----------------------------------------------------------------------------------	
+	
+	
+	This requires a peristent volume. So let's create it.
+		kubectl apply -f pv.yaml
+
+	Let's give Redis write permissions to these mount points.
+	#This should be done on worker nodes.
+		mkdir /mnt/data1 /mnt/data2 /mnt/data3 --mode=777
+		
+	Now Redis should change to running
+		watch kubectl get deployments,pods,services -n redis
+		
+	Now we have successfully installed Redis cluster.
+		Note that this is not a single service or object.
+		A group of objects were all deployed using a single command.
+		
+	
+	Now we can delete this installation by
+		helm delete my-redis -n redis
+
+
+		
+-------------------------------------------------------------------------------------------------
+what a chart provides,
+	Within repo's there may be many charts. 
+	
+	The current count of charts can be found by
+		echo "The number of charts is: $(helm search repo | wc -l)."
+		
+	Following are a bunch of charts you may want to leverage
+		helm search repo postgres
+		helm search repo sonarqube
+		helm search repo rabbitmq
+		helm search repo kafka
+		helm search repo prometheus-operator
+		helm search repo tensorflow
+		helm search repo stable/redis
+
+	Search for charts on the Helm Hub by changing the above repo to hub.
+		echo "The number of charts is: $(helm search hub | wc -l)."
+
+
+	Charts in Google's repo can be seen by doing
+		helm search repo stable | sed -E "s/(.{27}).*$/\1/"
+
+	Charts in Helm Hub can be listed using.
+		helm search hub --max-col-width=80 | sed -E "s/(.{70}).*$/\1/"
+
+
+	Many other repositories are available that can be added to Helm. 
+	If your chart is in a Github account, 
+		the location can be registered to Helm so it can pull the chart from that source.
+
+	If you search Helm for fabric8, nothing will be listed.
+		helm search repo fabric8
+
+	This is because fabric8 maintains its own chart repository. Their repository can be added to Helm.
+		helm repo add fabric8 https://fabric8.io/helm
+		
+	With this the repo will appear in the repo list.
+		helm repo list
+
+	Now, fabric8 charts can be listed.
+		helm search repo fabric8
+
+	Incubator Charts
+		There are also dozens of public incubator charts. Add the incubator repo.
+
+		helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
+
+		Explore the incubating charts. 
+
+			helm search repo | grep -c 'incubator/'
+
+-------------------------------------------------------------------------------------------------
+how to create a custom chart,
+
+	Charts are helpful when creating your unique solutions. 
+	Application charts could be a combination on 
+		3rd party public charts 
+		and our own charts.
+
+	Let's create our own chart
+		helm create app-chart
+
+		ls 
+			to see the new folder app-chart
+		
+		cd to each folder
+
+Package Structure
+------------------------------------------------
+	pkg-name
+		charts/
+			- Manually managed chart dependencies
+		templates/ 
+			- Template files like deployment, service and others.
+			- Combined with config values from values.yml and command line i/p.
+			- Rendered into kubernetes manifest file.
+			
+		chart.yaml 
+			- Metadata data of charts like	
+				Chart name
+				Maintainer ect.
+		values.yaml
+			- Default configuration values.
+		requirements.yaml
+			- List charts dependencies.
+			- Dynamically down while executing helm instructions.
+		
+			
+		.helmignore
+		LICENSE
+------------------------------------------------
+	templates/
+		_helpers.tpl
+		
+------------------------------------------------		
+			
+		
+
+	All of your Kubernetes resource definitions in YAML files are located in the templates directory. 
+	vi  app-chart/templates/deployments.yaml.
+
+
+	Normal deployment YAML with the kind: Deployment defined. 
+		There is new syntax of double braces {{ .. }}. 
+		This is the templating mechanism that Helm uses to inject values into this template. 
+		
+		N.B: The templating language has many features by leveraging the Go templating API.
+
+
+	The image name can be injected into the deployment.yaml
+		cat app-chart/templates/deployment.yaml | grep 'image:' -n -B3 -A3
+			#grep's for image with 3 lines before and after
+
+		{{ .Values.image.repository }}: container name gets injected here. 
+		These values have defaults typically found in the values.yaml file in the chart directory.
+
+		Templating key uses the dot ('.') notation to navigate and extract the values from the hierarchy in the values.yaml.
+
+
+		cat app-chart/values.yaml | grep 'repository' -n -B3 -A3
+		Helm image is defaulted to nginx
+		
+		This is a self sufficient chart with all values having some defaults.
+
+		A complete set of sensible defaults is a good practice for any chart you author. 
+		Ideally you shoudl have a README for your chart 
+			with a table to reflect these defaults, options, and descriptions.
+
+		Before deploying to Kubernetes, 
+			Use the dry-run feature will list out the resources to the console. 
+			This allows you to inspect the injection of the values into the template without committing an installation, 
+				a helpful development technique. 
+				
+			helm install my-app ./app-chart --dry-run --debug | grep 'image: "' -n -B3 -A3
+			helm install my-app ./app-chart --dry-run --debug | grep 'repository' -n -B3 -A3
+	
+	
+
+
+		Notice the ImagePullPolicy is set to the default of IfNotPreset. 
+		Before we deploy the chart we could modify the values.yaml file and change the policy value in there, 
+
+		For saving time, let's modify the ImagePullPolicy from IfNotPreset to Always using the command.
+
+		helm install my-app ./app-chart --dry-run --debug --set image.pullPolicy=Always | grep 'image: "' -n -B3 -A3
+
+		Let's install with version injecting correctly.
+
+		helm install my-app ./app-chart --set image.pullPolicy=Always
+
+	Verify the installation
+
+		helm list
+		watch kubectl get deployments,service
+
+
+
+	Notice the service type is ClusterIP. 
+	To see the Nginx default page we would like to instead expose it as a NodePort. 
+	Let's modify this in the values.yaml
+	Use the Helm upgrade command to modify the deployment.
+
+	helm upgrade my-app ./app-chart --install --reuse-values --set service.type=NodePort
+	
+	Instead you can modify the values.yaml and do 
+	helm upgrade my-app ./app-chart --install 
+
+	kubectl get svc 
+	#access it now.
