@@ -241,3 +241,9 @@ Package Structure
 
 	kubectl get svc 
 	#access it now.
+	
+	
+	helm uninstall my-app
+	
+	#Delete all chart
+	helm ls --all --short | xargs -L1 helm delete

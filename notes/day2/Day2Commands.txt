@@ -80,6 +80,8 @@
 		Usage:
 		    WORKDIR </path/to/workdir>
 
+		Makes the specified directory as the working directory INSIDE the container.
+
 	13. ARG
 
 		Usage:
@@ -164,7 +166,7 @@ Mysql example
 	1. While creating container - create a named volume
 		a. Using --mount
 		
-		docker run -d  --name devtest  --mount source=<vol name>,target=/app nginx:latest
+		docker run -d  --name devtest --mount source=<vol name>,target=/app nginx:latest
 	
 		docker volume inspect <vol name>
 		find the path on host

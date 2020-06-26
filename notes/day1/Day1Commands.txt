@@ -31,13 +31,16 @@ Ensure
 4. Internet should be working without restrictions.
 5. There should not be any firewall installed.
 
-
+su - ${USER}
+id -nG
 
 Docker container last only till the program you started in it lasts. It will stop immediately after the program exits.
 
 portainer/portainer can be used to monitor and manage what is happening on the docker
 
 1. docker run hello-world
+
+	Create DockerHub account
 
 2. docker images #docker image ls
 
@@ -383,3 +386,10 @@ Portable: You can build locally, deploy to the cloud, and run anywhere.
 Loosely coupled: Containers are highly self sufficient and encapsulated, allowing you to replace or upgrade one without disrupting others.
 Scalable: You can increase and automatically distribute container replicas across a datacenter.
 Secure: Containers apply aggressive constraints and isolations to processes without any configuration required on the part of the user.
+
+
+########################################################
+
+Doker 
+
+https://docs.mirantis.com/docker-enterprise/v3.0/dockeree-products/dtr/dtr-user/access-dtr/configure-your-docker-engine.html
