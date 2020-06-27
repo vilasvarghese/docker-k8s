@@ -1,30 +1,112 @@
+	Install helm
+	Reference:
+		https://helm.sh/docs/intro/install/
+		
+		$ curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+		$ chmod 700 get_helm.sh
+		$ ./get_helm.sh
+
+
+----------------------------------------------------------------------------------------
+Helm
+	Package manager for Kubernetes
+	
+
+Helm package 
+	contains all of the resource definitions necessary to run an application, tool, or service inside of a Kubernetes cluster. 
+	streamlines installing and managing Kubernetes applications. 
+	Think of it like apt/yum/homebrew for Kubernetes.
+
+Charts 
+	Help define, install and upgrade complex kuberetes application.
+	Helm packages that contain at least two things:
+		Chart.yaml
+		templates folder with Kubernetes manifest files
+		values.yaml
+	Can be stored on disk, or fetched from remote chart repositories (like Debian or RedHat packages)
+	Can be versioned, shared and published.
+	Can accept input parameters
+	Popular packages are available as helm charts already.
+	
+	
+Repository
+	Place where charts can be collected and shared
+	
+Release
+	is an instance of a chart running in a Kubernetes cluster
+
+Helm Hub
+	public repository of charts for popular software
+
+	We can also retrieve charts from third-party repositories, author and contribute your own charts to someone else’s repository, or run your own chart repository.
+
+Helm 
+	Find new charts
+		search Helm chart repositories.
+	installs charts into Kubernetes
+		creating a new release for each installation. 
+----------------------------------------------------------------------------------------
+	
+	
+	Helm version
+		-> helm version
+	
 	To find available charts use the search command.
-		helm search hub redis
-		#This would search in in the helm hub (similar to docker hub)
+	
+----------------------------------------------------------------------------------------	
+	helm search hub
+		Searches in https://hub.helm.sh/
+	helm search repo 
+		searches the repositories that you have added to your local helm client
+		
+	helm search
+		uses a fuzzy string matching algorithm
+		can mention parts of words or phrases
+----------------------------------------------------------------------------------------		
+		
+		-> helm search hub wordpress
+		#This would search it in the helm hub (similar to docker hub)
+	
+		helm repo add stable https://kubernetes-charts.storage.googleapis.com/		
+		
 	
 	To find list of repo's added
 		helm repo list
 	
 	Search Redis in the repo already added.
-		helm search repo redis
-		You may find more than one chart provider for the common applications.
+		helm search repo wordpress
+		helm search repo redis		
+		Sometimes you may find more than one chart provider for the common applications.
+		helm search repo stable/kubernetes-dashboard
+	
 	
 	Find more details of the chart by
-		helm show chart stable/redis
+		helm show chart stable/kubernetes-dashboard
 			
 			and further details can be found by
-		helm show readme stable/redis
+		helm show readme stable/kubernetes-dashboard
 		#Above commands are like inspect of image	
 -------------------------------------------------------------------------------------------------		
-how to install and uninstall applications
+
+	helm repo add stable https://kubernetes-charts.storage.googleapis.com/	
+	
+	Update the repo to ensure you get the latest chart version:
+		helm repo update
 	
 	Create a namespace for the installation target.
-		kubectl create namespace redis
+		kubectl create namespace helm
+		
+	List installed charts in the repo.
+		helm list
 		
 	Deploy a chart to a cluster if you know the name
-		helm install my-redis stable/redis --namespace redis
+		helm install dashboard-demo stable/kubernetes-dashboard --set rbac.clusterAdminRole=true -n helm 
 		
-	With the install command Helm will launch the required 
+		helm install myhelm bitnami/nginx
+		
+		Helm will return before the command is done.
+		
+	With the install command Helm can launch the required 
 		deployments, 
 		ReplicaSets, 
 		Pods, 
@@ -35,7 +117,7 @@ how to install and uninstall applications
 	List all installed charts.
 		helm list --all-namespaces #in all ns
 			or
-		helm ls -n redis #in redis ns
+		helm ls -n helm #in redis ns
 		
 	
 	Helm deploys all the pods, replication controllers and services. 
@@ -45,21 +127,13 @@ how to install and uninstall applications
 
 	Let's find what was deployed.
 	Once complete it will move into a running state.
-		watch kubectl get deployments,pods,services -n redis
+		watch kubectl get deployments,pods,services -n helm
+		watch kubectl get all -n helm
 		
 		Control/Command + C
 -----------------------------------------------------------------------------------	
-	
-	
-	This requires a peristent volume. So let's create it.
-		kubectl apply -f pv.yaml
-
-	Let's give Redis write permissions to these mount points.
-	#This should be done on worker nodes.
-		mkdir /mnt/data1 /mnt/data2 /mnt/data3 --mode=777
-		
-	Now Redis should change to running
-		watch kubectl get deployments,pods,services -n redis
+	Now Dashboard should change to running
+		watch kubectl get deployments,pods,services -n helm
 		
 	Now we have successfully installed Redis cluster.
 		Note that this is not a single service or object.
@@ -67,7 +141,7 @@ how to install and uninstall applications
 		
 	
 	Now we can delete this installation by
-		helm delete my-redis -n redis
+		helm delete dashboard-demo -n helm
 
 
 		
@@ -104,15 +178,23 @@ what a chart provides,
 
 	If you search Helm for fabric8, nothing will be listed.
 		helm search repo fabric8
+		helm search repo nginx	#not our nginx until you add bitnami
 
 	This is because fabric8 maintains its own chart repository. Their repository can be added to Helm.
 		helm repo add fabric8 https://fabric8.io/helm
+		helm repo add bitnami https://charts.bitnami.com/bitnami
+		
 		
 	With this the repo will appear in the repo list.
 		helm repo list
 
 	Now, fabric8 charts can be listed.
 		helm search repo fabric8
+		helm search repo nginx #bitnami/nginx
+
+	N.B: repo is not on your local machine. It is just a metadata with a link to the real repo.
+	To get helm on your local machine.
+	helm pull bitnami/nginx --untar=true
 
 	Incubator Charts
 		There are also dozens of public incubator charts. Add the incubator repo.
@@ -173,6 +255,8 @@ Package Structure
 	All of your Kubernetes resource definitions in YAML files are located in the templates directory. 
 	vi  app-chart/templates/deployments.yaml.
 
+	Charts can be validated before we release using
+	helm lint ./app-chart/	#app-chart should be in your current directory.
 
 	Normal deployment YAML with the kind: Deployment defined. 
 		There is new syntax of double braces {{ .. }}. 
@@ -205,7 +289,7 @@ Package Structure
 			This allows you to inspect the injection of the values into the template without committing an installation, 
 				a helpful development technique. 
 				
-			helm install my-app ./app-chart --dry-run --debug | grep 'image: "' -n -B3 -A3
+			helm install my-app ./app-chart --dry-run --debug | grep 'image	: "' -n -B3 -A3
 			helm install my-app ./app-chart --dry-run --debug | grep 'repository' -n -B3 -A3
 	
 	
@@ -245,5 +329,3 @@ Package Structure
 	
 	helm uninstall my-app
 	
-	#Delete all chart
-	helm ls --all --short | xargs -L1 helm delete
