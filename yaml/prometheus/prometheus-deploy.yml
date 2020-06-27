@@ -33,7 +33,7 @@ spec:
       volumes:
         - name: prometheus-config-volume
           configMap:
-            defaultMode: 420
+            defaultMode: 420 #linux permission
             name: prometheus-server-conf
 
         - name: prometheus-storage-volume
@@ -58,7 +58,3 @@ spec:
     - port: 8080
       targetPort: 9090
       nodePort: 30000
-
-
-
-

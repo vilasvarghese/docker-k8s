@@ -1,0 +1,227 @@
+https://kubernetes.io/docs/concepts/security/overview/
+
+Kubernetes security
+
+	The 4C’s of Cloud Native Security
+	Cloud
+	Cluster
+	Container
+	Code
+	Robust automation
+	What's next	
+	
+	
+	
+4C's
+	Layered approach augments the defense in depth approach to security
+	Widely regarded as a best practice for securing software systems. 
+	The 4C’s are 
+		Cloud, 
+		Clusters, 
+		Containers 
+		Code.
+		
+		Pick image from documentation.
+		
+		
+		The 4C's of Cloud Native Security
+	As you can see from the above figure, each one of the 4C’s depend on the security of the squares in which they fit. It is nearly impossibly to safeguard against poor security standards in Cloud, Containers, and Code by only addressing security at the code level. However, when these areas are dealt with appropriately, then adding security to your code augments an already strong base. These areas of concern will now be described in more detail below.
+
+1. Cloud
+	In many ways, the Cloud (or co-located servers, or the corporate datacenter) is the trusted computing base of a Kubernetes cluster. If these components themselves are vulnerable (or configured in a vulnerable way) then there’s no real way to guarantee the security of any components built on top of this base. Each cloud provider has extensive security recommendations they make to their customers on how to run workloads securely in their environment. It is out of the scope of this guide to give recommendations on cloud security since every cloud provider and workload is different. Here are some links to some of the popular cloud providers’ documentation for security as well as give general guidance for securing the infrastructure that makes up a Kubernetes cluster.
+
+	Cloud Provider Security Table
+
+	Copy table from the link 
+	https://kubernetes.io/docs/concepts/security/overview/
+
+		Let's not bother about the cloud security since we are in-premises
+		
+		
+		General Infrastructure Guidance Table
+		-------------------------------------
+		Area of Concern for Kubernetes Infrastructure
+		---------------------------------------------
+		Network access to API Server (Masters)	
+			All access to the Kubernetes Masters should not allowed publicly on the internet/intranet.
+			Controlled by network access control lists 
+				Only from a certain IP you would be able to connect.
+				In-bound
+				Out-bound.
+				
+
+
+		Network access to Nodes (Worker Servers)	
+			Nodes should be configured to 
+				From master
+					Accept connections (via network access control lists) 
+					on the specified ports
+				Accept connections for services in Kubernetes of type NodePort and LoadBalancer. 
+				While LB can be exposed to internet.
+				NodePort and ClusterIP needs to be exposed based on business requirements.
+				
+
+		Kubernetes access to Cloud Provider API	
+			--Ignore this.
+			Each cloud provider will need to grant a different set of permissions to the Kubernetes Masters and Nodes, so this recommendation will be more generic. It is best to provide the cluster with cloud provider access that follows the principle of least privilege for the resources it needs to administer. An example for Kops in AWS can be found here: https://github.com/kubernetes/kops/blob/master/docs/iam_roles.md#iam-roles
+
+		Access to etcd	
+			Access to etcd should be limited to the masters only. 
+			You may attempt to use etcd over TLS. 
+			More info at: https://github.com/etcd-io/etcd/tree/master/Documentation#security
+
+		etcd Encryption	
+			Encrypt all drives at rest
+		
+		
+		
+		
+2. Cluster
+	Need to secure workloads in Kubernetes. 
+	There are two areas of concern for securing Kubernetes:
+
+	Securing the (Kubernetes services)
+		components that are configurable 
+		which make up the cluster
+	
+	Securing the components (Our services)
+		which run in the cluster
+
+	Components of the Cluster
+		If you want to protect your cluster from accidental or malicious access
+		Adopt good information practices
+--------------------------------------------------------------------------------------------------------------		
+	
+	Controlling access to the Kubernetes API
+	----------------------------------------
+	
+	Kubernetes is entirely API driven, 
+	First line of defense
+		controlling and limiting who can access the cluster (Authentication)
+		what actions they are allowed to perform is the (Authorization).
+
+		Use Transport Layer Security (TLS) for all API traffic
+		------------------------------------------------------
+		Kubernetes expects that all 
+			API communication in the cluster is encrypted by default with TLS
+		Most of the installation creates necessary certificates 
+			to be created and distributed to the cluster components. 
+		Some components and installation methods may enable local ports over HTTP
+		Administrators should familiarize themselves with the settings of each component 
+			to identify potentially unsecured traffic.
+
+		API Authentication
+		------------------
+		While installing cluster choose an authentication mechanism 
+			for the API servers to use that matches the common access patterns.
+		For instance small single user clusters may 
+			wish to use a simple certificate or static Bearer token approach. 
+		Larger clusters may wish to integrate an existing 
+			OIDC or LDAP server 
+			that allow users to be subdivided into groups.
+
+		All API clients must be authenticated, even those that are part of the infrastructure like nodes, proxies, the scheduler, and volume plugins. These clients are typically service accounts or use x509 client certificates, and they are created automatically at cluster startup or are setup as part of the cluster installation.
+
+		Consult the authentication reference document for more information.
+
+		API Authorization
+		Once authenticated, every API call is also expected to pass an authorization check. Kubernetes ships an integrated Role-Based Access Control (RBAC) component that matches an incoming user or group to a set of permissions bundled into roles. These permissions combine verbs (get, create, delete) with resources (pods, services, nodes) and can be namespace or cluster scoped. A set of out of the box roles are provided that offer reasonable default separation of responsibility depending on what actions a client might want to perform. 
+		It is recommended that you use the Node and RBAC authorizers together, 
+			in combination with the NodeRestriction admission plugin.
+
+		As with authentication, simple and broad roles may be appropriate for smaller clusters, but as more users interact with the cluster, it may become necessary to separate teams into separate namespaces with more limited roles.
+
+		With authorization, it is important to understand how updates on one object may cause actions in other places. 
+		For instance, a user may not be able to create pods directly, but allowing them to create a deployment, which creates pods on their behalf, will let them create those pods indirectly. Likewise, deleting a node from the API will result in the pods scheduled to that node being terminated and recreated on other nodes. The out of the box roles represent a balance between flexibility and the common use cases, but more limited roles should be carefully reviewed to prevent accidental escalation.
+		You can make roles specific to your use case if the out-of-box ones don’t meet your needs.
+
+		Consult the authorization reference section for more information.
+
+		Controlling access to the Kubelet
+		Kubelets expose HTTPS endpoints which grant powerful control over the node and containers. By default Kubelets allow unauthenticated access to this API.
+
+		Production clusters should enable Kubelet authentication and authorization.
+
+		Consult the Kubelet authentication/authorization reference for more information.
+
+		Controlling the capabilities of a workload or user at runtime
+		Authorization in Kubernetes is intentionally high level, focused on coarse actions on resources. More powerful controls exist as policies to limit by use case how those objects act on the cluster, themselves, and other resources.
+
+		Limiting resource usage on a cluster
+		Resource quota limits the number or capacity of resources granted to a namespace. This is most often used to limit the amount of CPU, memory, or persistent disk a namespace can allocate, but can also control how many pods, services, or volumes exist in each namespace.
+
+		Limit ranges restrict the maximum or minimum size of some of the resources above, to prevent users from requesting unreasonably high or low values for commonly reserved resources like memory, or to provide default limits when none are specified.
+
+		Controlling what privileges containers run with
+		A pod definition contains a security context that allows it to request access to running as a specific Linux user on a node (like root), access to run privileged or access the host network, and other controls that would otherwise allow it to run unfettered on a hosting node. Pod security policies can limit which users or service accounts can provide dangerous security context settings. For example, pod security policies can limit volume mounts, especially hostPath, which are aspects of a pod that should be controlled.
+
+		Generally, most application workloads need limited access to host resources so they can successfully run as a root process (uid 0) without access to host information. However, considering the privileges associated with the root user, you should write application containers to run as a non-root user. Similarly, administrators who wish to prevent client applications from escaping their containers should use a restrictive pod security policy.
+
+		Preventing containers from loading unwanted kernel modules
+		The Linux kernel automatically loads kernel modules from disk if needed in certain circumstances, such as when a piece of hardware is attached or a filesystem is mounted. Of particular relevance to Kubernetes, even unprivileged processes can cause certain network-protocol-related kernel modules to be loaded, just by creating a socket of the appropriate type. This may allow an attacker to exploit a security hole in a kernel module that the administrator assumed was not in use.
+
+		To prevent specific modules from being automatically loaded, you can uninstall them from the node, or add rules to block them. On most Linux distributions, you can do that by creating a file such as /etc/modprobe.d/kubernetes-blacklist.conf with contents like:
+
+		# DCCP is unlikely to be needed, has had multiple serious
+		# vulnerabilities, and is not well-maintained.
+		blacklist dccp
+
+		# SCTP is not used in most Kubernetes clusters, and has also had
+		# vulnerabilities in the past.
+		blacklist sctp
+		To block module loading more generically, you can use a Linux Security Module (such as SELinux) to completely deny the module_request permission to containers, preventing the kernel from loading modules for containers under any circumstances. (Pods would still be able to use modules that had been loaded manually, or modules that were loaded by the kernel on behalf of some more-privileged process.)
+
+		Restricting network access
+		The network policies for a namespace allows application authors to restrict which pods in other namespaces may access pods and ports within their namespaces. Many of the supported Kubernetes networking providers now respect network policy.
+
+		Quota and limit ranges can also be used to control whether users may request node ports or load balanced services, which on many clusters can control whether those users applications are visible outside of the cluster.
+
+		Additional protections may be available that control network rules on a per plugin or per environment basis, such as per-node firewalls, physically separating cluster nodes to prevent cross talk, or advanced networking policy.
+
+		Restricting cloud metadata API access
+		Cloud platforms (AWS, Azure, GCE, etc.) often expose metadata services locally to instances. By default these APIs are accessible by pods running on an instance and can contain cloud credentials for that node, or provisioning data such as kubelet credentials. These credentials can be used to escalate within the cluster or to other cloud services under the same account.
+
+		When running Kubernetes on a cloud platform limit permissions given to instance credentials, use network policies to restrict pod access to the metadata API, and avoid using provisioning data to deliver secrets.
+
+		Controlling which nodes pods may access
+		By default, there are no restrictions on which nodes may run a pod. Kubernetes offers a rich set of policies for controlling placement of pods onto nodes and the taint based pod placement and eviction that are available to end users. For many clusters use of these policies to separate workloads can be a convention that authors adopt or enforce via tooling.
+
+		As an administrator, a beta admission plugin PodNodeSelector can be used to force pods within a namespace to default or require a specific node selector, and if end users cannot alter namespaces, this can strongly limit the placement of all of the pods in a specific workload.
+
+		Protecting cluster components from compromise
+		This section describes some common patterns for protecting clusters from compromise.
+
+		Restrict access to etcd
+		Write access to the etcd backend for the API is equivalent to gaining root on the entire cluster, and read access can be used to escalate fairly quickly. Administrators should always use strong credentials from the API servers to their etcd server, such as mutual auth via TLS client certificates, and it is often recommended to isolate the etcd servers behind a firewall that only the API servers may access.
+
+		Caution: Allowing other components within the cluster to access the master etcd instance with read or write access to the full keyspace is equivalent to granting cluster-admin access. Using separate etcd instances for non-master components or using etcd ACLs to restrict read and write access to a subset of the keyspace is strongly recommended.
+		Enable audit logging
+		The audit logger is a beta feature that records actions taken by the API for later analysis in the event of a compromise. It is recommended to enable audit logging and archive the audit file on a secure server.
+
+		Restrict access to alpha or beta features
+		Alpha and beta Kubernetes features are in active development and may have limitations or bugs that result in security vulnerabilities. Always assess the value an alpha or beta feature may provide against the possible risk to your security posture. When in doubt, disable features you do not use.
+
+		Rotate infrastructure credentials frequently
+		The shorter the lifetime of a secret or credential the harder it is for an attacker to make use of that credential. Set short lifetimes on certificates and automate their rotation. Use an authentication provider that can control how long issued tokens are available and use short lifetimes where possible. If you use service account tokens in external integrations, plan to rotate those tokens frequently. For example, once the bootstrap phase is complete, a bootstrap token used for setting up nodes should be revoked or its authorization removed.
+
+		Review third party integrations before enabling them
+		Many third party integrations to Kubernetes may alter the security profile of your cluster. When enabling an integration, always review the permissions that an extension requests before granting it access. For example, many security integrations may request access to view all secrets on your cluster which is effectively making that component a cluster admin. When in doubt, restrict the integration to functioning in a single namespace if possible.
+
+		Components that create pods may also be unexpectedly powerful if they can do so inside namespaces like the kube-system namespace, because those pods can gain access to service account secrets or run with elevated permissions if those service accounts are granted access to permissive pod security policies.
+
+		Encrypt secrets at rest
+		In general, the etcd database will contain any information accessible via the Kubernetes API and may grant an attacker significant visibility into the state of your cluster. Always encrypt your backups using a well reviewed backup and encryption solution, and consider using full disk encryption where possible.
+
+		Kubernetes supports encryption at rest, a feature introduced in 1.7, and beta since 1.13. This will encrypt Secret resources in etcd, preventing parties that gain access to your etcd backups from viewing the content of those secrets. While this feature is currently beta, it offers an additional level of defense when backups are not encrypted or an attacker gains read access to etcd.
+
+		Receiving alerts for security updates and reporting vulnerabilities
+		Join the kubernetes-announce group for emails about security announcements. See the security reporting page for more on how to report vulnerabilities.
+	
+	Controlling access to the Kubelet
+	Controlling the capabilities of a workload or user at runtime
+	Protecting cluster components from compromise
+	
+--------------------------------------------------------------------------------------------------------------
+	Components in the Cluster (your application)
+		Depending on the attack surface of your application, you may want to focus on specific aspects of security. For example, if you are running a service (Service A) that is critical in a chain of other resources and a separate workload (Service B) which is vulnerable to a resource exhaustion attack, by not putting resource limits on Service B you run the risk of also compromising Service A. Below is a table of links of things to consider when securing workloads running in Kubernetes.
+
