@@ -88,7 +88,6 @@ Helm
 		#Above commands are like inspect of image	
 -------------------------------------------------------------------------------------------------		
 
-	helm repo add stable https://kubernetes-charts.storage.googleapis.com/	
 	
 	Update the repo to ensure you get the latest chart version:
 		helm repo update
@@ -102,7 +101,7 @@ Helm
 	Deploy a chart to a cluster if you know the name
 		helm install dashboard-demo stable/kubernetes-dashboard --set rbac.clusterAdminRole=true -n helm 
 		
-		helm install myhelm bitnami/nginx
+		helm install myhelm bitnami/nginx -n helm
 		
 		Helm will return before the command is done.
 		
@@ -153,7 +152,7 @@ what a chart provides,
 		echo "The number of charts is: $(helm search repo | wc -l)."
 		
 	Following are a bunch of charts you may want to leverage
-		helm search repo postgres
+			
 		helm search repo sonarqube
 		helm search repo rabbitmq
 		helm search repo kafka
@@ -165,7 +164,7 @@ what a chart provides,
 		echo "The number of charts is: $(helm search hub | wc -l)."
 
 
-	Charts in Google's repo can be seen by doing
+	Charts in stable repo can be seen by doing
 		helm search repo stable | sed -E "s/(.{27}).*$/\1/"
 
 	Charts in Helm Hub can be listed using.

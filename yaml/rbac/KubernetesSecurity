@@ -215,7 +215,12 @@ Kubernetes security
 		Kubernetes supports encryption at rest, a feature introduced in 1.7, and beta since 1.13. This will encrypt Secret resources in etcd, preventing parties that gain access to your etcd backups from viewing the content of those secrets. While this feature is currently beta, it offers an additional level of defense when backups are not encrypted or an attacker gains read access to etcd.
 
 		Receiving alerts for security updates and reporting vulnerabilities
-		Join the kubernetes-announce group for emails about security announcements. See the security reporting page for more on how to report vulnerabilities.
+		Join the 
+			
+			kubernetes-announce 
+			
+			group for emails about security announcements. 
+		See the security reporting page for more on how to report vulnerabilities.
 	
 	Controlling access to the Kubelet
 	Controlling the capabilities of a workload or user at runtime
@@ -225,3 +230,32 @@ Kubernetes security
 	Components in the Cluster (your application)
 		Depending on the attack surface of your application, you may want to focus on specific aspects of security. For example, if you are running a service (Service A) that is critical in a chain of other resources and a separate workload (Service B) which is vulnerable to a resource exhaustion attack, by not putting resource limits on Service B you run the risk of also compromising Service A. Below is a table of links of things to consider when securing workloads running in Kubernetes.
 
+
+
+Subjects
+	Users
+	Groups
+	APIs
+				
+Actions (Verbs)
+	list
+	get
+	watch
+
+Resources
+	Pods
+	Jobs
+	Services
+	Secrets
+	
+	
+Roles
+	Resources
+	Action
+	
+RoleBinding
+	Roles
+	Subjects
+	
+ClusterRole
+ClusterRoleBindings	

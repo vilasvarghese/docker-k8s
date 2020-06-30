@@ -4,7 +4,7 @@ Courtesy: https://www.katacoda.com/reselbob
 
 Step 1 - Understanding the Theory Behind RBAC and Secure Access to Kubernetes
 	
-	clear && kubectl config view
+	kubectl config view
 	
 		There is only a single context in the configuration. 
 		Name, kubernetes-admin@kubernetes.
@@ -38,7 +38,7 @@ This lab works in a single context.
 			cannot create pod in test ns
 			can list pod in test ns
 	
-	6. 	Change context back to k8s and using Role and RoleBinding 
+	6. 	Change context back to kubernetes-admin and using Role and RoleBinding 
 			Give create and list pod privilege to devs ns through Group. 
 			N.B: dicktracy was already a part of devs group.
 			
