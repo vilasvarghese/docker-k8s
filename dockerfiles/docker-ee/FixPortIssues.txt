@@ -1,0 +1,110 @@
+
+Define seperate shell for the following.
+Reference: https://success.docker.com/article/install-of-ucp-on-rhel-or-centos-results-in-error-regarding-ports-are-already-in-use-on-your-host
+
+#############################################################
+Even the below wasn't consistently working
+So for training, please disable firewall
+systemctl stop firewalld
+
+#############################################################
+
+
+for i in 4789 7946; do
+  echo adding $i to the firewall
+  firewall-cmd --add-port=$i/udp --permanent
+done
+
+for i in 443 2376 2377 12376 12379 12380 12381 12382 12383 12384 12385 12386 12387; do
+  echo adding $i to the firewall
+  firewall-cmd --add-port=$i/tcp --permanent
+done
+
+for i in 179 6443 6444 10250; do
+  echo adding $i to the firewall
+  firewall-cmd --add-port=$i/tcp --permanent
+done
+
+
+for i in 2377 12378 12379 12380 12381 12382 12383 12384 12385 12386 12387 12388; do
+  echo adding $i to the firewall
+  firewall-cmd --add-port=$i/tcp --permanent
+done
+
+
+
+sudo sh ./ucp1.sh
+sudo sh ./ucp2.sh
+sudo sh ./ucp3.sh
+sudo sh ./ucp4.sh
+
+
+sudo firewall-cmd –-reload #remove reload and type again
+sudo systemctl reload firewalld
+sudo systemctl restart firewalld
+
+sudo systemctl restart docker
+sudo iptables -F && sudo systemctl restart docker.service
+
+
+sudo docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock --name ucp docker/ucp uninstall-ucp -i
+
+	
+
+--host-address 52.255.135.25
+-i --host-address 52.255.135.25 -D
+
+
+docker container run --rm -it --name ucp -v /var/run/docker.sock:/var/run/docker.sock docker/ucp:3.0.7 install --host-address  10.0.0.5  --pod-cidr 10.0.0.0/16 --cloud-provider Azure --interactive
+
+docker container run --rm -it --name ucp -v /var/run/docker.sock:/var/run/docker.sock docker/ucp install --host-address <ip address> -i -D
+
+
+10.0.0.6
+--pod-cidr 10.0.0.0/24 
+--------------------
+{
+    "cloud":"AzurePublicCloud", 
+    "tenantId": "382420a3-2462-4a85-80ff-bd1bc1dce791",
+    "subscriptionId": "bf0fee71-b3a9-485b-8a97-a37b93c2d1e5",
+    "aadClientId": "***@gmail.com",
+    "aadClientSecret": "***mypwd",
+    "resourceGroup": "SijiRG",
+    "location": "EastUS",
+    "subnetName": "default",
+    "securityGroupName": "",
+    "vnetName": "SijiRG-vnet",
+    "cloudProviderBackoff": false,
+    "cloudProviderBackoffRetries": 0,
+    "cloudProviderBackoffExponent": 0,
+    "cloudProviderBackoffDuration": 0,
+    "cloudProviderBackoffJitter": 0,
+    "cloudProviderRatelimit": false,
+    "cloudProviderRateLimitQPS": 0,
+    "cloudProviderRateLimitBucket": 0,
+    "useManagedIdentityExtension": false,
+    "useInstanceMetadata": true
+}
+
+--------------------------------
+
+docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock --name ucp docker/ucp uninstall-ucp -i
+
+	sudo docker swarm leave --force
+	sudo docker stop $(sudo docker ps -aq)
+	sudo docker rm $(sudo docker ps -aq) --force
+	sudo docker rmi $(sudo docker images -aq) --force
+	sudo docker network prune
+	sudo docker system prune -a --force	
+	sudo iptables -F && sudo systemctl restart docker.service
+	
+	
+-------------------------------
+Docker EE is buggy
+https://forums.docker.com/t/unable-to-reconcile-state-of-kubernetes-addons-component/64957/18	
+
+References
+https://forums.docker.com/t/unable-to-reconcile-state-of-kubernetes-addons-component/64957/21
+https://forums.docker.com/t/kubernetes-compose-plugin-context-deadline-exceeded/75877/3
+https://success.docker.com/article/ucp-install-fails-on-step-28
+https://github.com/Azure/acs-engine/issues/2845

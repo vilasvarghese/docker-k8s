@@ -1,0 +1,32 @@
+#curl -O -L https://github.com/vilasvarghese/docker-k8s/HelloWorld-0.0.1-SNAPSHOT.war
+
+FROM centos
+
+RUN mkdir /opt/tomcat/ && yum -y update && yum -y upgrade
+
+WORKDIR /opt/tomcat
+RUN curl -O https://mirrors.estointernet.in/apache/tomcat/tomcat-8/v8.5.57/src/apache-tomcat-8.5.57-src.tar.gz
+#https://downloads.apache.org/tomcat/tomcat-8/v8.5.53/bin/apache-tomcat-8.5.53.tar.gz
+RUN tar xvfz apache*.tar.gz
+RUN mv apache-tomcat-8.5.40/* /opt/tomcat/.
+RUN yum -y install java
+RUN 
+
+WORKDIR /opt/tomcat/webapps
+RUN curl -O -L https://github.com/AKSarav/SampleWebApp/raw/master/dist/SampleWebApp.war
+
+EXPOSE 8080
+
+CMD ["/opt/tomcat/bin/catalina.sh", "run"]
+
+
+
+RUN 
+RUN apt-get -y install openjdk-8-jdk wget
+RUN mkdir /usr/local/tomcat
+RUN wget  -O /tmp/tomcat.tar.gz
+RUN cd /tmp && tar xvfz tomcat.tar.gz
+RUN cp -Rv /tmp/apache-tomcat-8.5.53/* /usr/local/tomcat/
+COPY target/HelloWorld-0.0.1-SNAPSHOT.war /usr/local/tomcat/webapps/
+EXPOSE 8080
+CMD /usr/local/tomcat/bin/catalina.sh run

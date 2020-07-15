@@ -1,0 +1,2 @@
+FROM centos
+ADD abc.txt /var/vilas/

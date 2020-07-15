@@ -1,0 +1,164 @@
+Docker is a daemon-based container engine which allows us to deploy applications inside containers. With the release of RHEL 8 and CentOS 8, docker package has been removed from their default package repositories, docker has been replaced with podman and buildah.
+
+https://docs.mirantis.com/docker-enterprise/v3.0/dockeree-products/index.html
+https://github.com/clemenko/EE_Cheat_sheet
+https://www.mirantis.com/software/docker/download/
+Docker installation works on RHEL 8 - CE installation.
+https://www.linuxtechi.com/install-docker-ce-centos-8-rhel-8/
+
+-------------------------------
+Checking
+scp -rp -i /root/.ssh/server /home/user-data/* ec2-user@111.111.111.111:/home/user-data
+
+
+Mirantis Launchpad.
+https://www.mirantis.com/blog/mirantis-launchpad-quick-start/
+
+
+
+
+
+Installation steps
+http://docs.docker.oeynet.com/engine/installation/linux/docker-ee/rhel/#prerequisites
+
+
+
+
+
+
+
+
+
+##############
+Revert the change done to 
+/etc/kubernetes/manifests folder.
+
+
+#####################
+Install docker ee with k8s.
+https://docs.portworx.com/install-with-other/docker/docker-ee-k8s/
+
+http://docs.docker.oeynet.com/engine/installation/linux/docker-ee/rhel/#install-using-the-repository
+
+Steps to install docker on RHEL 8
+---------------------------------
+	Uninstall docker 
+		sudo yum remove docker docker-common docker-selinux docker-engine-selinux docker-engine
+
+	ls /etc/yum.repos.d/docker*
+	rm -rf /etc/yum.repos.d/docker*
+
+	Setup repository
+	export DOCKERURL='https://storebits.docker.com/ee/m/sub-833738a0-4f74-4257-a91b-8ab406449295'
+	
+	
+	sudo -E sh -c 'echo "$DOCKERURL/rhel" > /etc/yum/vars/dockerurl'
+	
+	cat /etc/yum/vars/dockerurl
+	
+	sudo sh -c 'echo "8" > /etc/yum/vars/dockerosversion'
+	
+	cat /etc/yum/vars/dockerosversion
+	
+	sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+	
+	dnf install -y "https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
+	
+
+	keep doing yum update after adding each extra
+	
+	Add docker to default yum repo.
+	sudo -E yum-config-manager --add-repo "$DOCKERURL/rhel/docker-ee.repo"
+
+	
+	install docker ee
+	sudo yum -y install docker-ee
+	
+	Start Service
+	sudo systemctl start docker
+	
+	docker run hello-world
+
+	sudo systemctl enable docker 
+
+
+---------------------------------------------------------------------
+Docker Swarm with ucp and dtr
+https://medium.com/@kasunmaduraeng/how-to-setup-docker-ee-swarm-cluster-with-ucp-and-drt-b2585c535db7
+
+Install kubernetes on RHEL8 docker ee setup
+https://medium.com/@swapnasagarpradhan/install-a-kubernetes-cluster-on-rhel8-with-docker-ee-8d3d4bee74d2
+
+Install kubernetes on RHEL7 docker ee setup
+https://myopswork.com/how-to-install-kubernetes-k8-in-rhel-or-centos-in-just-7-steps-2b78331174a5
+
+	Install ucp
+	-----------
+	
+	Open all ports or open the below mentioned ports
+	
+	12387, 4789, 12381, 12386, 443, 2376, 12379, 12380, 12376, 12382, 12383, 12384, 12385.
+
+	in RHEL we need to specifically open these ports using the below mentioned commands.
+	
+
+	
+	sudo iptables -F && sudo systemctl restart docker.service
+	
+	#unistall ucp
+	-------------
+	sudo docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock --name ucp docker/ucp uninstall-ucp -i
+	
+	docker container run --rm  -it --name ucp -v /var/run/docker.sock:/var/run/docker.sock docker/ucp:2.2.4 install --host-address <ip address> --interactive
+	
+		admin user: admin
+		admin pwd: (8 char) e.g. admin@123
+
+	do swarm join 
+	
+	Install dtr
+	-----------
+	docker run -it --rm docker/dtr install --ucp-node dockernode-1 --ucp-username admin --ucp-url https://<ip address> --ucp-insecure-tls
+		
+	-------------------
+	Worker
+	ssh -i <private key path> vilas@52.188.207.170
+	company-pwd@123456
+	Master
+	ssh -i <private key path> vilas@52.188.200.136
+	me@654321
+	
+	
+	
+	------------------
+	For RHEL 7 
+	
+	sudo yum-config-manager --enable rhel-7-server-extras-rpms
+	
+		There is different command based on the cloud provider. Looks the site for details. Probably this may not be required in RHEL 8 because extras are mostly part of the release.
+
+
+
+---------------------------------
+Additional commands to disable firewall 
+for i in 179 443; do
+  echo adding $i to the firewall
+  firewall-cmd --add-port=$i/tcp --permanent
+done
+
+systemctl reload firewalld
+systemctl restart firewalld 
+sudo iptables -F && sudo systemctl restart docker.service
+
+
+179 443.
+  sudo firewall-cmd --zon=public --add-port=2377 --permanent
+
+docker stop $(docker ps -a -q)
+docker rm $(docker ps -a -q)
+
+RHEL 7 specific failures
+https://stackoverflow.com/questions/53436443/azure-redhat-vm-yum-update-fails-with-ssl-peer-rejected-your-certificate-as-exp
+
+
+FATA[0047] the following required ports are blocked on your host: 12383, 2376, 12382, 443, 12387, 12381, 12385, 12376, 12379, 12386, 12384, 12380.  Check your firewall settings

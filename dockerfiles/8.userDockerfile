@@ -1,10 +1,10 @@
-FROM ubuntu:latest
+FROM centos
 
-RUN apt-get update
-RUN apt-get install sudo
+RUN dnf install -y sudo && \
+    adduser user && \
+    echo "user ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/user && \
+    chmod 0440 /etc/sudoers.d/user
 
-RUN adduser --disabled-password --gecos '' vilas
-RUN adduser vilas sudo
-RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN su - user -c "touch mine"
 
-USER vilas 
+CMD ["su", "-", "user", "-c", "/bin/bash"]

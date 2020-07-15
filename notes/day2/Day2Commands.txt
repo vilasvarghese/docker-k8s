@@ -35,7 +35,7 @@
 		docker run -it env bash
 
 	6. COPY
-		
+
 		docker build -t "tag" -f <file> .
 		docker run <image>
 
