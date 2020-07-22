@@ -9,7 +9,20 @@ On both master and slave nodes :
     sudo su 
     yum install docker -y 
     systemctl enable docker && systemctl start docker
+------------------------------------------------------------------
+Only for installing Docker CE on CentOS 7 on AWS
+	1. sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+  
+	2. sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+	
+	3. sudo yum-config-manager --enable docker-ce-edge
+	4. sudo yum-config-manager --enable docker-ce-test
+	5. yum install -y https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.6-3.3.el7.x86_64.rpm
+	6. sudo yum install docker-ce
+	7. systemctl start docker
+	8. systemctl enable docker
 
+------------------------------------------------------------------
 
 
 cat <<EOF > /etc/yum.repos.d/kubernetes.repo
@@ -76,4 +89,3 @@ on all the worker nodes do
 
     mkdir -p $HOME/.kube
     export KUBECONFIG=/etc/kubernetes/kubelet.conf
-    
