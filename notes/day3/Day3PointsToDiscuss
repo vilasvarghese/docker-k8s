@@ -15,7 +15,7 @@ What is IP address?
 			
 	What is MAC address?
 		- Media access control address 
-		- unique identifier assigned to device. 
+		- unique identifier assigned to device.
 		
 		- Within the Open Systems Interconnection (OSI) model, 
 			- MAC addresses are used in the medium access control protocol sublayer of the data link layer. 
@@ -30,6 +30,73 @@ What is IP address?
 			A subnet mask separates the IP address into the network and host addresses (<network><host>). Subnetting further divides the host part of an IP address into a subnet and host address (<network><subnet><host>) if additional subnetwork is needed.
 		
 		Explain good image.
+----------------------------------------------------
+Subnet:
+	Logical subdivision of an IP network.
+	Dividing a network into 2 or more network.
+	Relieve n/w congestion.
+	Improve Securty
+	
+	
+	
+	subnet mask
+	n/w ID:
+	host Id
+	broadcast Id
+	
+	Ask. Given a network ID. e.g. 192.168.4.0/24
+		create 3 separate n/w for
+			engineering
+			reception
+			HR
+		
+		
+	You need to identify each 
+		n/w id
+		subnet mask
+		host id range
+		number of usable host IDs
+		broadcast ID
+
+Reference table:	
+	
+	Subnet		1		2		4		8		16		32		64		128		256		(each number = 2* (previous))
+	Host		256		128		64		32		16		8		4		2		1		(each number = (previous) / 2)
+	Subnet Mast	/24		/25		/26		/27		/28		/29		/30		/31		/32		(each number = /(previous+1))
+	
+Network ID: given 192.168.4.0/24
+We need 3 network.
+	Since we don't have 3 - let's go for 4.
+	
+	Subnet: 4				(i.e. we can define 4 subnets)
+	Host: 	64				(max. we can define 64 hosts in each n/w along with n/w ID and broadcast id)
+	Subnet Mask: /26		/26 should be the new subnet mask for each of these subnets.
+	
+	
+3 networks
+
+	ID's reserved
+	-------------
+	1st: Network ID - one IP
+	last: Broadcast ID - one IP
+
+	So total IP for host = 64 - 2 = 62.
+------------------------------------------------------------------------------------------------------------------
+	NetworkID			Subnet Mask			Host ID Range				# of Usable Host		Broadcast Id
+------------------------------------------------------------------------------------------------------------------
+	192.168.4.0			/26					192.168.4.1-192.168.4.62	62(64 -2 read above)	192.168.4.63
+	192.168.4.64		/26					..65-126					62(64 -2 read above)	192.168.4.127
+	192.168.4.128		/26					..129-190					62(64 -2 read above)	192.168.4.191
+	192.168.4.192		/26					..193-254					62(64 -2 read above)	192.168.4.255
+------------------------------------------------------------------------------------------------------------------
+
+	192.168.1.0/24 means 0 - 255 = 256 host can be assigned.
+	192.168.0.0/16 means 256 * 256 = 65536 host can be assigned.
+	
+	
+		
+
+----------------------------------------------------		
 		
 NIC (Network interface card)
 	show online.
@@ -212,7 +279,13 @@ CNM and libnetwork
   			-o parent=eth0 <name e.g. macnet32>
 
 
-    none: For this container, disable all networking. Usually used in conjunction with a custom network driver.
+    none: 
+		For this container, 
+		disable all networking. 
+		Usually used in conjunction with a custom network driver.
+		Kubernetes uses this. 
+		Loopback is the only device added.
+			
 		-> docker run -it --net=none ubuntu bash # --net=none will do the trick.
 		
 
@@ -233,3 +306,678 @@ e.g.
 
 
 Docker best practices.
+
+
+################################################################################################################################
+Reference: 
+1. https://docs.docker.com/network/
+
+	Docker containers and services are powerful 
+		connect them together, or 
+		connect them to non-Docker workloads. 
+	
+	Docker containers and services need not know 
+		they are deployed on Docker 
+	or 
+		whether their peers are Docker workloads or not. 
+	or
+		Docker hosts run Linux, Windows, or a mix of the two
+		
+		
+	Basic Docker networking concepts 
+	--------------------------------
+	Mostly works with all Docker installations. 
+		few advanced features are only available to Docker EE customers.
+
+	Network drivers
+	---------------
+	Docker’s networking subsystem is pluggable, 
+		using drivers. 
+	Several drivers exist by default, 
+		and provide core networking functionality:
+
+		bridge: 
+		------
+			The default network driver. 
+			If you don’t specify a driver, this is the type of network you are creating. 
+			Bridge networks are usually used when your applications run in standalone containers that need to communicate. 
+			
+			
+			
+		host: 
+		-----
+		Remove network isolation between the container and the Docker host
+		Use the host’s networking directly. 
+		Host is only available for swarm services on Docker 17.06 and higher. 
+
+
+		none
+		----
+		Disable all networking. 
+		Usually used in conjunction with a custom network driver. 
+		none is not available for swarm services. 
+		
+		
+		overlay: 
+		--------
+		Connect multiple Docker daemons together 
+		Enable swarm services to communicate with each other. 
+			or 
+				facilitate communication between a swarm service and a standalone container
+			or 
+				between two standalone containers on different Docker daemons. 
+		Removes the need to do OS-level routing between these containers. See overlay networks.
+
+		macvlan: 
+		--------
+		Allow you to assign a MAC address to a container, 
+		Gives you a feeling like a physical device on your network. 
+		The Docker daemon routes traffic to containers by their MAC addresses. 
+		Using the macvlan driver is sometimes the best choice 
+			when dealing with legacy applications that expect to be directly connected to the physical network
+				rather than routed through the Docker host’s network stack.
+
+
+
+	Network plugins
+	----------------
+		can install and use third-party network plugins with Docker. 
+		These plugins are available from Docker Hub or from third-party vendors. 
+		e.g. calico
+		
+	Network driver summary
+	----------------------
+	User-defined bridge networks are best 
+		when you need multiple containers to 
+		communicate on the same Docker host.
+
+	Host networks are best 
+		when the network stack should not be isolated from the Docker host
+		but you want other aspects of the container to be isolated.
+
+	Overlay networks are best when you need containers running on different Docker hosts to communicate, or 
+	when multiple applications work together using swarm services.
+
+	Macvlan networks are best when you are migrating from a VM setup or need your containers to look like physical hosts on your network, 
+	each with a unique MAC address.
+
+	Third-party network plugins allow you to integrate Docker with specialized network stacks.
+
+
+-----------------------------------------------------------------------------------------------------------------------------
+2. https://docs.docker.com/engine/tutorials/networkingcontainers/
+	Launch a container on the default network
+	Docker provides two network drivers for you, the bridge and the overlay drivers.
+	Defualt Docker Engine networks
+		bridge
+		none
+		host
+	
+	bridge is a special network. 
+		docker's default network for a container.
+		can be seen by inspecting a container.
+		
+	Remove a container from a network by disconnecting the container
+		docker network disconnect bridge networktest
+		
+	Cannot remove the builtin bridge network named bridge.
+	
+	Understanding Bridge network
+	----------------------------
+		Create your own bridge network
+
+		Limited to a single host running Docker Engine. 
+			$ docker network create -d bridge my_bridge
+
+			-d flag: define the type of driver.
+					default is also bridge.
+
+			$ docker network ls
+
+	
+			$ docker network inspect my_bridge
+			[
+				{
+					"Name": "my_bridge",
+					"Id": "5a8afc6364bccb199540e133e63adb76a557906dd9ff82b94183fc48c40857ac",
+					"Scope": "local",
+					"Driver": "bridge",
+					"IPAM": {
+						"Driver": "default",
+						"Config": [
+							{
+								"Subnet": "10.0.0.0/24",
+								"Gateway": "10.0.0.1"
+							}
+						]
+					},
+					"Containers": {},
+					"Options": {},
+					"Labels": {}
+				}
+			]
+
+	Here is what we will do.
+	-----------------------
+	1. Create a container attached to my_bridge - a1
+	2. Create a container attached to bridge - a2
+	3. Get inside container a2
+		Ping container a1
+		It fails.
+	4. Attach container a2 also to my_bridge.
+	5. Now ping a1 and it should work.
+
+	Add containers to a network
+	To build secure web applications create a network. 
+	Networks, provide complete isolation for containers. 
+	You can add containers to a network when you first run a container.
+
+	docker run -d --net=my_bridge --name a1 nginx
+	docker run -d --net=bridge --name a2 nginx
+	
+	inspect my_bridge 
+		a container attached. 
+	inspect container 
+		see the network.
+	
+	$ docker inspect --format='{{json .NetworkSettings.Networks}}'  a1
+		Check IP: 172.17.0.2
+
+	Now, open a shell to your running ap container:
+	$ docker container exec -it a2 bash
+
+		apt-get -y update && apt-get -y upgrade
+		apt-get install -y iputils-ping
+		
+		root@a205f0dd33b2:/# ping 172.17.0.2
+		ping 172.17.0.2
+		PING 172.17.0.2 (172.17.0.2) 56(84) bytes of data.
+		^C
+		--- 172.17.0.2 ping statistics ---
+		44 packets transmitted, 0 received, 100% packet loss, time 43185ms
+		After a bit, use CTRL-C to end the ping and notice that the ping failed. That is because the two containers are running on different networks. You can fix that. Then, use the exit command to close the container.
+
+	Attach a2 to my_bridge. 
+	$ docker network connect my_bridge a2
+
+	Open a new shell into the a2 and try ping
+
+	$ docker container exec -it a2 bash
+
+	root@a205f0dd33b2:/# ping a1
+	PING web (10.0.0.2) 56(84) bytes of data.
+	64 bytes from web (10.0.0.2): icmp_seq=1 ttl=64 time=0.095 ms
+
+	The ping shows it is contacting a different IP address, the address on the my_bridge which is different from its address on the bridge network.
+	
+-----------------------------------------------------------------------------------------------------------------------------
+3. https://docs.docker.com/config/containers/container-networking/
+	All n/w interfaces (bridge/Overlay or any other) 
+		There is no difference to the container.
+	For the cotnainer
+		there is a unique IP address with in the decided network.
+			Only exception is none n/w
+	
+	
+	
+	Published ports
+	---------------
+
+	By default containers are connected to Bridge network.
+		They are not bound to ports of the Host.
+	To make a port available --publish or -p flag. 
+	Creates a firewall rule which maps a container port to a port on the Docker host.
+		
+
+Different ways to publish ports
+-----------------------------
+	-p 8080:80	
+		Map TCP port 80 in the container to port 8080 on the Docker host.
+		
+	-p 192.168.1.100:8080:80 
+		Map TCP port 80 in the container to port 8080 on the Docker host for connections to host IP 192.168.1.100.
+		
+	-p 8080:80/udp	
+		Map UDP port 80 in the container to port 8080 on the Docker host.
+
+	-p 8080:80/tcp 
+		Map TCP port 80 in the container to TCP port 8080 on the Docker host
+
+
+		IP address and hostname
+		-----------------------
+	Default
+		container is assigned an IP address for every Docker network it connects to.
+			(if n/w supports it)
+		assigned from the pool assigned to the network
+		Docker daemon effectively acts as a DHCP server for each container. 
+			(What is DHCP server? Allocates and keeps a record of all leased IP addresses)
+		Each network also has a default subnet mask and gateway.
+
+	When the container starts, 
+		it can only be connected to a single network
+			using --network or --net
+	And connect a running container to multiple networks 
+		using docker network connect. 
+		--ip or --ip6 
+		-------------
+	While starting a container using the --network (--net) flag, 
+		or 
+	While connecting an existing container to a different network
+		you can specify the IP address
+			--ip or --ip6 flags.
+
+	Container’s hostname 
+		defaults to be the container’s ID. 
+	Override the hostname using --hostname. 
+	While connecting to an existing network 
+		use --alias flag to specify an additional network alias 
+			for the container on that network.
+
+		DNS services (DNS: Phone book of your n/w)
+		------------
+	Default, 
+		container inherits the DNS settings of the host
+		as defined in the /etc/resolv.conf. 
+	Containers that use the default bridge network 
+		get a copy of this file
+		Containers also have same /etc/resolv.conf
+	Other containers (not using bridge) 
+		use Docker’s embedded DNS server, 
+		forwards external DNS lookups to the DNS servers configured on the host.
+
+	Custom hosts defined in /etc/hosts are not inherited. 
+	To pass additional hosts into your container, 
+		https://docs.docker.com/engine/reference/commandline/run/#add-entries-to-container-hosts-file---add-host
+		
+	Flag	Description
+	--dns	
+		The IP address of a DNS server. 
+		To specify multiple DNS servers, 
+			use multiple --dns flags. 
+		If the container cannot reach any of the IP addresses you specify, 
+			Google’s public DNS server 8.8.8.8 is added, 
+			so that your container can resolve internet domains.
+	--dns-search	
+		A DNS search domain to search non-fully-qualified hostnames. 
+		For multiple DNS search prefixes, use multiple --dns-search flags.
+	
+	--dns-opt	
+		A key-value pair representing a DNS option and its value. See your operating system’s documentation for resolv.conf for valid options.
+	
+	--hostname	
+		The hostname a container uses for itself. Defaults to the container’s ID if not specified.
+
+-----------------------------------------------------------------------------------------------------------------------------
+4. https://docs.docker.com/network/network-tutorial-standalone/
+
+	Networking for standalone containers - not swarm
+	
+	Use the default bridge network
+	------------------------------
+	docker network ls
+		bridge, host and none
+		
+		host and none
+			Not full fledged network.
+	
+	
+		docker run -dit --name alpine1 alpine ash 
+			#With -d the container would stop after starting but not with -dit. Didn't find -dit in documentation.
+		docker run -dit --name alpine1 alpine ash
+
+		docker network inspect bridge
+			The above containers should be listed.
+	
+	from terminal 1
+		docker attach alpine1
+			get inside
+		ip addr show
+			displays lo and eth0 with IP
+		ping -c 2 google.com
+			responds
+		ping -c 2 172.17.0.3 (apline2 IP)
+			passes
+		ping c 2 alpine2
+			fails: bad address
+		
+	from terminal 2	
+		docker attach alpine2
+		Do control + p + q (without releasing)
+			Works only in alpine containers.
+			
+	Automatic Service Discovery
+	---------------------------
+	On user-defined networks like mybridge, 
+		containers can resolve a container name to an IP address. 
+		This capability is called automatic service discovery
+		
+	1. docker network create --driver bridge mybridge
+	2. docker network ls
+	3. docker network inspect mybridge
+	4. Create four containers.
+		docker run -dit --name alpine1 --network mybridge alpine ash
+		docker run -dit --name alpine2 --network mybridge alpine ash
+		docker run -dit --name alpine3 alpine ash #default to bridge
+		docker run -dit --name alpine4 --network mybridge alpine ash
+		
+	5. docker network connect bridge alpine4
+	6. docker container ls
+	7. Inspect the bridge network and the mybridge network again:
+
+		$ docker network inspect bridge
+			Containers alpine3 and alpine4 are connected to the bridge network.
+		$ docker network inspect mybridge
+			Containers alpine1, alpine2, and alpine4 are connected to the mybridge network.
+	8. docker container attach alpine1
+		ping -c 2 alpine2 #ping using container name (not hostname)
+		ping -c 2 alpine4
+		ping -c 2 alpine1
+			All passes and connects
+	9. From alpine1, you should not be able to connect to alpine3 as they are not on the same n/w
+		ping -c 2 alpine3
+			ping: bad address 'alpine3'
+			
+		Cannot access either through container name or ip address.
+	10. Container alpine4 shares the network with all containers so. It should be able to ping all containers by IP.
+		
+		docker container attach alpine4
+		ping -c 2 alpine1
+		ping -c 2 alpine2
+		ping -c 2 alpine4
+			All 3 pass
+		
+		ping -c 2 alpine3
+			ping: bad address 'alpine3'
+			Default bridge doesn't support lookup through Container name.
+		
+	11. Final test
+		Verify that all containers can ping google.com
+		
+			docker container attach <name>
+				ping google.com
+			Control + p. Control + q	
+				
+	12. Stop and remove all containers and the mybridge network.
+		$ docker container stop alpine1 alpine2 alpine3 alpine4
+		$ docker container rm alpine1 alpine2 alpine3 alpine4
+		$ docker network rm mybridge
+	
+		
+-----------------------------------------------------------------------------------------------------------------------------
+5. http://success.docker.com/article/networking
+	Excellent article on Swarm networking.
+-----------------------------------------------------------------------------------------------------------------------------
+6. https://docs.docker.com/network/iptables/
+
+	On Linux, 
+		Docker manipulates iptables rules to provide network isolation. 
+		Don't modify the rules Docker inserts into your iptables policies
+			it does have some implications on what you need to do 
+				if you want to have your own policies in addition to those managed by Docker.
+
+	If you’re running Docker on a host that is exposed to the Internet
+		you will probably want to have iptables policies in place that prevent unauthorized access to containers 
+		or other services running on your host. 
+		
+		Add iptables policies before Docker’s rules
+		-------------------------------------------
+	Docker installs two custom iptables chains named DOCKER-USER and DOCKER, 
+		ensures that incoming packets are always checked by these two chains first.
+
+	All of Docker’s iptables rules are added to the DOCKER chain. 
+	Do not manipulate this chain manually. 
+	If you need to add rules which load before Docker’s rules, 
+		add them to the DOCKER-USER chain. 
+		These rules are applied before any rules Docker creates automatically.
+
+	Rules added to the FORWARD chain -- 
+		either manually, or 
+		by another iptables-based firewall -- 
+		are evaluated after these chains. 
+	This means that if you expose a port through Docker, 
+		this port gets exposed no matter what rules your firewall has configured. 
+	If you want those rules to apply even when a port gets exposed through Docker, 
+		you must add these rules to the DOCKER-USER chain.
+
+	Restrict connections to the Docker host
+	---------------------------------------
+	Default, 
+		all external source IPs are allowed to connect to the Docker host. 
+		To allow only a specific IP or network to access the containers, 
+		insert a negated rule at the top of the DOCKER-USER filter chain. 
+		For example, 
+			the to restricts external access from all IP addresses except 192.168.1.1:
+	
+				$ iptables -I DOCKER-USER -i ext_if ! -s 192.168.1.1 -j DROP
+				
+				where ext_if is host’s external interface. 
+				
+			Instead allow connections from a source subnet. 
+				allows access from the subnet 192.168.1.0/24:
+					$ iptables -I DOCKER-USER -i ext_if ! -s 192.168.1.0/24 -j DROP
+
+
+			Access from a range of IP addresses to accept using --src-range 
+				(Remember to also add -m iprange when using --src-range or --dst-range):
+					$ iptables -I DOCKER-USER -m iprange -i ext_if ! --src-range 192.168.1.1-192.168.1.3 -j DROP
+
+		Allow a range from a subnet
+		
+		Use -s or --src-range 
+			+
+			-d or --dst-range 
+				control both the source and destination. 
+			For instance, if Docker daemon listens on both 192.168.1.99 and 10.1.2.3
+			you can make rules specific to 10.1.2.3 and leave 192.168.1.99 open.
+
+		iptables is complicated - Refer Netfilter.org HOWTO for more details.
+
+	Docker on a router
+	------------------
+	 
+	
+	If Docker host needs to act as a router, 
+		because Docker sets the policy for the FORWARD chain to DROP.
+		this will not happen. 
+	
+	You can do this by adding explicit ACCEPT rules to the DOCKER-USER chain to allow it:
+
+	$ iptables -I DOCKER-USER -i src_if -o dst_if -j ACCEPT
+	
+	Prevent Docker from manipulating iptables
+	-----------------------------------------
+	Possible to set the iptables key to false in the Docker engine’s configuration file at /etc/docker/daemon.json
+		It is NOT possible to completely prevent Docker from creating iptables rules, 
+	Setting iptables to false will more than likely break container networking for the Docker engine.
+
+	For system integrators who wish to build the Docker runtime into other applications, explore the moby project.
+
+	Setting the default bind address for containers
+	-----------------------------------------------
+	By default, 
+		Docker daemon will expose ports on the 0.0.0.0 address
+			i.e. any address on the host. 
+		If you want to change that behavior to only expose ports on an internal IP address 
+			use the --ip option to specify a different IP address. 
+		However, setting --ip only changes the default, it does not restrict services to that IP.
+
+
+---------------------------------------------------------------------------------------------------------------------------
+7. https://docs.docker.com/network/bridge/
+
+	In Docker
+	----------
+	Software bridge 
+	Allows containers connected to the same bridge network to communicate
+	Provides isolation from containers which are not connected to that bridge network. 
+	
+	Docker bridge driver 
+	--------------------
+	Automatically installs rules in the host machine 
+		so that containers on different bridge networks 
+		cannot communicate directly with each other.
+
+
+	Apply to containers running on the same Docker daemon host. 
+	
+	When you start Docker
+		default bridge network (also called bridge) 
+			is created automatically, 
+	New containers connect to it unless otherwise specified. 
+	You can also create user-defined custom bridge networks. 
+	User-defined bridge networks are superior to the default bridge network.
+
+		Differences between user-defined bridges and the default bridge
+		---------------------------------------------------------------
+	
+		User-defined bridges provide automatic DNS resolution between containers.
+		Containers on the default bridge network can only access each other by IP addresses
+		Unless you use the legacy (deprecated) --link option
+		These links need to be created in both directions, 
+			complex with more than two containers communicating. 
+		Alternatively, you can manipulate the /etc/hosts files within the containers
+			but this creates problems that are difficult to debug.
+
+		User-defined bridges provide better isolation.
+		---------------------------------------------
+		All containers without a --network, 
+			attached to default bridge network. 
+			This can be a risk
+				as unrelated stacks/services/containers are then able to communicate.
+
+		Using a user-defined network ensures 
+			containers carefully added to that network are only communicating with each others.
+
+		Attaching and Detaching Containers
+		----------------------------------
+		User defined network
+			Connect or disconnect containers from user-defined networks on the fly. 
+		Default
+			stop the container and recreate it with different network options.
+			Cannot connect/attach and disconnect/dittach 
+
+		user-defined network creates a configurable bridge.
+		---------------------------------------------------
+		If your containers use the default bridge network
+			you can configure it, 
+			but all the containers use the same settings, 
+				such as MTU (maximum transmission unit (MTU) is the size of the largest protocol data unit (PDU)) and 
+				iptables rules. 
+			
+			configuring the default bridge network happens 
+				outside of Docker, 
+				requires a restart of Docker.
+
+		User-defined bridge networks 
+			Create a different bridge network for each group of apps that needs to be managed separately.
+			
+
+		Linked containers on the default bridge network share environment variables
+		---------------------------------------------------------------------------
+		Originally only way to share environment variables between containers 
+			link them using the --link flag. 
+			In user-defined networks
+				we cannot env. variables through links.
+
+		$ docker network create my-net
+		$ docker network rm my-net
+
+		What’s really happening?
+		-----------------------
+		User defined bridge
+			Create
+			remove 
+			connect 
+			disconnect 
+		
+		Docker uses tools specific to the operating system to manage the underlying network infrastructure 
+		
+		$ docker create --name my-nginx --network my-net --publish 8080:80 nginx:latest
+				--------
+
+		$ docker network connect my-net my-nginx
+		$ docker network disconnect my-net my-nginx
+		
+		Use IPv6
+		---------
+		First
+			enable the option on the Docker daemon 
+			reload its configuration
+		Then	
+			create any IPv6 networks or assigning containers IPv6 addresses.
+
+		While creating network
+			specify the --ipv6 flag to enable IPv6. 
+		
+		You can’t selectively disable IPv6 support on the default bridge network.
+
+		Enable forwarding from Docker containers to the outside world
+		Default, 
+			traffic from containers connected to the default bridge network 
+				is not forwarded to the outside world. 
+			To enable forwarding, 
+				change two settings. 
+			
+			a. Configure the Linux kernel to allow IP forwarding.
+				$ sysctl net.ipv4.conf.all.forwarding=1
+		
+			b. Change the policy for the iptables FORWARD policy from DROP to ACCEPT.
+				$ sudo iptables -P FORWARD ACCEPT
+		
+		These changes doesn't persist across a reboot
+			add them to a start-up script.
+
+		Use the default bridge network
+		
+		Default bridge network 
+			legacy of Docker 
+			not recommended for production. 
+			It has technical shortcomings.
+				can communicate only by IP address
+				can be solved by legacy --link flag.
+
+		Configure the default bridge network
+		------------------------------------
+		Modify daemon.json
+
+		{
+		  "bip": "192.168.1.5/24",
+		  "fixed-cidr": "192.168.1.5/25",
+		  "fixed-cidr-v6": "2001:db8::/64",
+		  "mtu": 1500,
+		  "default-gateway": "10.20.1.1",
+		  "default-gateway-v6": "2001:db8:abcd::89",
+		  "dns": ["10.20.1.2","10.20.1.3"]
+		}
+		Restart Docker for the changes to take effect.
+
+		Use IPv6 with the default bridge network
+		----------------------------------------
+		If you configure Docker for IPv6 support 
+			the default bridge network is also configured for IPv6 automatically. 
+			Unlike user-defined bridges, 
+			you can’t selectively disable IPv6 on the default bridge.
+
+---------------------------------------------------------------------------------------------------------------------------
+8. https://docs.docker.com/network/host/
+	Already covered except
+	Host networking driver 
+		works on Linux hosts only
+	not supported on 
+		Docker Desktop for Mac, 
+		Docker Desktop for Windows, 
+	or 
+		Docker EE for Windows Server.
+
+---------------------------------------------------------------------------------------------------------------------------
+9. https://docs.docker.com/network/overlay/
+
+	
+
+---------------------------------------------------------------------------------------------------------------------------
+10. https://docs.docker.com/network/macvlan/
+---------------------------------------------------------------------------------------------------------------------------
+
+
+11. https://docs.docker.com/engine/extend/plugins_services/
