@@ -53,6 +53,10 @@ net.bridge.bridge-nf-call-iptables = 1
 ### Do it on both master as welll as worker nodes 
 
     yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+	
+	
+    yum remove -y kubelet kubeadm kubectl 
+
 
     systemctl enable kubelet && systemctl start kubelet
 
@@ -85,7 +89,7 @@ Take a pause of 2 minutes and see if the nodes are ready; run it on master node
 
     kubectl get nodes
 
-watch system pods
+##watch system pods
 
     kubectl get pods --all-namespaces
 
