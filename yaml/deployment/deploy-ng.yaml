@@ -14,7 +14,6 @@ spec:
       labels:
         app: nginx
     spec:
-#      hostNetwork: true 
       containers:
       - name: nginx
         image: nginx:1.9.1
