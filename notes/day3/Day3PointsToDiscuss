@@ -531,7 +531,7 @@ Reference:
 
 Different ways to publish ports
 -----------------------------
-	-p 8080:80	
+	-p 8080:80	(host port: container port) 
 		Map TCP port 80 in the container to port 8080 on the Docker host.
 		
 	-p 192.168.1.100:8080:80 
@@ -558,9 +558,11 @@ Different ways to publish ports
 		it can only be connected to a single network
 			using --network or --net
 	And connect a running container to multiple networks 
-		using docker network connect. 
-		--ip or --ip6 
-		-------------
+		using "docker network connect". 
+		
+		
+		ask for ip: --ip or --ip6 
+		-------------------------
 	While starting a container using the --network (--net) flag, 
 		or 
 	While connecting an existing container to a different network
@@ -576,7 +578,7 @@ Different ways to publish ports
 
 		DNS services (DNS: Phone book of your n/w)
 		------------
-	Default, 
+	Default (container connected to bridge)
 		container inherits the DNS settings of the host
 		as defined in the /etc/resolv.conf. 
 	Containers that use the default bridge network 

@@ -145,7 +145,7 @@ Vilas : Attach tries to attach to process 1 where as exec executes a new process
 	docker commit <<container id> <<docker hub username>>/<<image name>>
 	
 	e.g malla
-	docker commit -m "what is comming" 23o482o3023 malla/abc-xyz
+	docker commit -m "what is comming" 23o482o3023 vilasvarghese/abc-xyz
 	docker images
 		- malla/abc-xyz
 
@@ -363,6 +363,7 @@ Difference between docker create and docker run
 ############################
 docker create creates a container in stoped state.
 docker run creates a container in running state.
+docker run = docker create + docker start
 ############################
 Writing container id into a file.
 Useful if your machine is restarted and you want to debug in the logs

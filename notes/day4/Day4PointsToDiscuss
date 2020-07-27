@@ -1,3 +1,5 @@
+
+https://medium.com/@kumargaurav1247/components-of-kubernetes-architecture-6feea4d5c712
 What is kubernetes?
 
 	Kubernetes (K8s) is an 
@@ -59,7 +61,7 @@ Compare that with Docker Swarm. [refer below for summary]
 	- k8s uses its own commands.
 	- [Docker swarm is a continuation to docker.]
 	- k8s is truely open sourced. Maintained by a open source community. At every point you can contribute. 
-	- [Docker is maintained by Docker Inc]
+	- [Docker is maintained by Mirantis]
 	- k8s is slower but more robust (it works) than Docker.
 	- With k8s we need to create load balancers. 
 	- [Docker has automated internal load balancing]

@@ -7,6 +7,7 @@ sudo systemctl status ssh
 ########################
 CentOS
 ------
+sudo yum –y remove openssh-server openssh-clients
 sudo yum –y install openssh-server openssh-clients
 sudo systemctl start sshd
 sudo systemctl status sshd
