@@ -1,0 +1,9 @@
+remove sshd
+sudo su
+yum remove -y openssh-server openssh-clients
+
+install sshd
+sudo yum –y install openssh-server openssh-clients
+sudo systemctl start sshd
+sudo systemctl status sshd
+sudo systemctl enable sshd
