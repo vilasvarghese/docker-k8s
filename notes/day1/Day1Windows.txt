@@ -1,0 +1,513 @@
+Refer putty-ssh
+
+N.B: 
+	
+Create a dockerhub account 
+Create a github account
+https://github.com/vilasvarghese/docker-k8s.git		
+
+The independent container platform that enables organizations to seamlessly build, share and run any application, anywhere—from hybrid cloud to the edge.
+	- Docker
+	- Reference: https://www.docker.com/why-docker
+##############
+Install git
+sudo yum install git
+
+Steps to check into git
+1. git init
+2. git config --global user.email "mymail@mine.com"
+3. git config --global user.name "my git user name"
+4. git add *
+5. git commit -m "my comments"
+6. git remote add origin https://github.com/<my username>/<my repo>.git
+7. git push -u origin master
+
+
+Introduction : 
+	Introduce myself
+	Understand the participants.
+
+Ensure
+1. Internet is working
+2. All are connected on clear wifi or from home with good broadband speed.
+3. Nobody should be connected to vpn or any other proxy.
+4. Internet should be working without restrictions.
+5. There should not be any firewall installed.
+
+
+
+Docker container last only till the program you started in it lasts. It will stop immediately after the program exits.
+
+portainer/portainer can be used to monitor and manage what is happening on the docker
+
+
+--------------------------------------------------------------------------------
+Container Vs Virtualization
+https://docs.microsoft.com/en-us/virtualization/windowscontainers/about/containers-vs-vm
+--------------------------------------------------------------------------------
+
+1. docker run hello-world
+
+2. docker images #docker image ls
+
+	docker run -d -p 80:80 mcr.microsoft.com/windows/servercore/iis
+	docker ps
+	docker stop <id>
+	docker ps -a
+	docker rm #docker container rm
+	docker image ls #docker images
+	docker image rm <id>#docker rmi <id>
+	
+	docker run mcr.microsoft.com/windows/servercore/iis
+	Ctrl + c
+	docker run -d mcr.microsoft.com/windows/servercore/iis
+	docker ps
+	docker attach <id>
+	
+################################################
+Important command in Docker 
+
+docker
+#lists all docker commands
+docker <command> --help
+
+################################################
+	
+	
+#################################################
+Difference between attach and exec
+
+If we use docker attach, we can use only one instance of shell.
+So if we want to open new terminal with new instance of container's shell, we just need to run docker exec
+
+if the docker container was started using /bin/bash command, you can access it using attach, if not then you need to execute the command to create a bash instance inside the container using exec.
+
+Attach isn't for running an extra thing in a container, it's for attaching to the running process.
+"docker exec" is specifically for running new things in a already started container, be it a shell or some other process.
+
+While attach is not well named, particularly because of the LXC command lxc-attach (which is more akin docker exec <container> /bin/sh, but LXC specific), it does have a specific purpose of literally attaching you to the process Docker started.
+Depending on what the process is the behavior may be different, for instance attaching to /bin/bash will give you a shell, but attaching to redis-server will be like you'd just started redis directly without daemonizing.
+
+Vilas : Attach tries to attach to process 1 where as exec executes a new process which you specify.
+#################################################	
+3. docker image rm <image id> -f
+
+4. docker search ubuntu
+
+5. docker pull mcr.microsoft.com/windows/servercore:ltsc2019
+
+6. docker images
+	docker inspect image
+	
+7. docker run mcr.microsoft.com/windows/servercore:ltsc2019
+	docker ps
+	docker ps -a
+	docker rm <id>
+	
+
+	docker run -it mcr.microsoft.com/windows/servercore:ltsc2019 powershell
+	Output
+	root@7624b390cb6b:/# 
+	#attached mode.
+	
+	-> mkdir vilas
+-------------------------------------------------------------------
+Root directory
+	docker info
+	
+	c:\ProgramData\docker
+	
+	Image: image\windowsFilter
+	check repositories.json
+	
+	
+-------------------------------------------------------------------	
+8. open new terminal 
+	docker ps
+	docker ps -l
+	exit the container
+	docker ps #oops gone?
+	docker ps -a #no worries i found
+	docker start <container id>
+	docker exec -it <container id> /bin/sh
+	mkdir vilas
+	cd vilas
+	echo Hello World > first-file.txt
+	exit
+	docker ps
+	
+	alternatively we can do
+	docker exec -it <first 4/5 char of container id> /bin/sh
+	
+	docker stop <name>
+	docker start <name>
+
+-------------------------------------	
+Following are not supported in windows
+Error response from daemon: Cannot pause container 7cb885c7b55e42536fbff7e8c59dce14dfc99e7fb92755e6ef6a333737087618: cannot pause Windows Server Containers
+
+	docker pause <name>
+	docker unpuase <name>
+-------------------------------------	
+	
+	docker restart <name>
+
+10. Create few folders and files in it.
+	
+
+#Windows does not support commit of a Working container.
+
+11. 
+------------------------------------------------------------------------------------
+Error response from daemon: windows does not support commit of a running container
+------------------------------------------------------------------------------------
+	docker commit -m "What you did to the image" -a "Author Name" container_id repository/new_image_name
+	e.g - docker commit -m 'simple commit' 7624b390cb6b vilasvarghese/windows_with_folder	
+	-m is the message and -a is the author.
+
+Error response from daemon: windows does not support commit of a running container	
+	
+		or 
+	docker commit <<container id> <<docker hub username>>/<<image name>>
+	
+	e.g malla
+	docker commit -m "what is comming" 23o482o3023 malla/abc-xyz
+	docker images
+		- malla/abc-xyz
+
+	docker images 
+	this will show two different images.
+
+12. docker login -u docker-registry-username
+
+13. docker tag <image name or rep name> docker-registry-username/image-name
+	or docker tag <image id> docker-registry-username/image-name
+
+14. docker push docker-registry-username/image-name
+
+15. docker ps
+
+16. docker stop <container id>
+
+17. docker start <container id>
+
+18. docker exec -it <container id> powershell
+	docker pause <container id>
+	docker ps
+	-interactive mode is stuck
+	
+----------------------------------------------------
+Another image to use
+docker run -it mcr.microsoft.com/windows/servercore:ltsc2019 powershell
+----------------------------------------------------	
+
+19. docker container prune -f # will kill only those containers which are not active now.
+
+
+20. docker container inspect <container id>
+
+Differentiate container and image
+	Layers of image (Unified file system - UFS)
+	Local image cache
+	How it actually stores
+	Image inspect
+	Save and Load images like regular files.
+
+21. docker image history <image id>
+
+22. docker rm <container id>
+	docker rmi  <image id> or docker image rm <image id>
+
+23. docker run --detach --name web mcr.microsoft.com/windows/nanoserver:1809
+	- Will execute the container in detached mode.
+	
+	
+24. docker run -it --name web mcr.microsoft.com/windows/servercore/iis powershell
+	cd 
+
+25. docker exec -it container_id powershell
+	docker exec -d container_id
+	
+26. Execution options in docker
+	Various run options
+
+	a. -p 
+	docker run -d -p 80:80 --name my_image mcr.microsoft.com/windows/servercore/iis #detached mode.
+
+	b. image:tag
+	docker run mcr.microsoft.com/windows/servercore:ltsc2019
+
+	c. image@digest
+	docker run alpine@sha256:9cacb71397b640eca97488cf08582ae4e4068513101088e9f96c9814bfda95e0 date
+
+	d. login to a container (interactive tty)
+	docker run -it mcr.microsoft.com/windows/servercore:ltsc2019 powershell
+
+	e. name
+	docker run --name my-nginx -d mcr.microsoft.com/windows/servercore/iis
+
+	f. network
+	docker network ls
+
+
+	g. restart if the container exists.
+	docker run --restart=always mcr.microsoft.com/windows/servercore/iis
+
+	h. Run the redis container with a restart policy of on-failure and a maximum restart count of 10. If the redis container exits with a non-zero exit status more than 10 times in a row Docker will abort trying to restart the container. 
+
+	docker run --restart=on-failure:10 mcr.microsoft.com/windows/servercore/iis
+
+
+	i. By default a container’s file system persists even after the container exits. Docker to automatically clean up the container and remove the file system when the container exits, you can add the --rm flag:
+
+	docker run --rm=false mcr.microsoft.com/windows/servercore:ltsc2019 #rm=false - automatically clean up the file system when the container exits.
+
+	Refer https://docs.docker.com/engine/reference/run/ for the complete list.
+
+27. docker image inspect <image id>
+
+28. Moving images without using dockerHub
+	You may use this to check in images to git ect.
+	
+	docker save -o C:\docker\win.tar <image id> 
+		check in to git or copy to remote machine
+	docker load -i  C:\docker\win.tar
+
+	alternatively we can do the following DIRECTLY FROM CONTAINER
+	docker export <container id> | gzip > /tmp/xyz.gz
+	push to the git repo.
+	zcat NAME.gz | docker import - <container name #create the image
+
+
+	Difference between docker save, docker export, docker load and docker import.
+
+	docker save will indeed produce a tarball, but with all parent layers, and all tags + versions.
+	docker export does also produce a tarball, but without any layer/history.
+
+	It is often used when one wants to "flatten" an image, as illustrated in "Flatten a Docker container or image"
+
+	docker export <CONTAINER ID> | docker import - some-image-name:latest
+	However, once those tarballs are produced, load/import are there to:
+
+	docker import creates one image from one tarball which is not even an image (just a filesystem you want to import as an image)
+	Create an empty filesystem image and import the contents of the tarball
+
+	docker load creates potentially multiple images from a tarred repository (since docker save can save multiple images in a tarball).
+	Loads a tarred repository from a file or the standard input stream
+
+30. Resource provisioning
+1. Stop and kill all containers
+docker stop $(docker ps -a -q) #stop ALL containers
+docker rm -f $(docker ps -a -q) # remove ALL containers
+
+
+2. Run 5 alpine containers reserving 250 MB
+-------------------------------------
+Windows doesn't support memory reservation
+-------------------------------------
+	docker container run -d --memory-reservation=750m --name mymem1 mcr.microsoft.com/windows/servercore:ltsc2019 sleep 3600
+
+
+	3. Kill all of them and rerun with 1GB
+		This works while your machine has only 4GB.
+
+	4. top
+	5. docker stats
+	6. docker ps -a
+
+	-m  or  --memory= : The maximum amount of memory the container can use. If you set this option, the minimum allowed value is 4m (4 megabyte).
+	 --memory-swap : The amount of memory this container is allowed to swap to disk.
+
+	1. docker pull python:3-alpine
+	2. docker container run -d --memory=20m --memory-swap=20m --name mywin mcr.microsoft.com/windows/servercore:ltsc2019 powershell
+	
+--------------------------------------------------
+Docker supports memory
+docker container run -d --memory=20m --name mywin mcr.microsoft.com/windows/servercore:ltsc2019 powershell
+--------------------------------------------------	
+
+	3. docker exec -it myPython /bin/sh
+
+	We can block the OOM error as follows 
+	docker container run -d --oom-kill-disable --memory=20m --memory-swap=30m --name myPython python:3-alpine sleep 3600
+
+	However never use "--oom-kill-disable" because your container might hang.
+
+	--cpu-shares
+	Our CPU stress application: time dd if=/dev/urandom bs=1M count=2 | md5sum
+
+	time ... measures elapsed time: shows those 3 timer lines
+	dd if=/dev/urandom bs=1M count=2 ... copies bs=blocksize one MB of randomness twice
+	md5sum ... calculates md5 security hashes ( give cpu a load )
+
+	1. Create 3 containers with limited cpu
+
+
+	- docker container run -d --cpu-shares=1024 --name mycpu1024 alpine:3.8 /bin/sh -c 'time dd if=/dev/urandom bs=1M count=100 | md5sum'
+	- docker container run -d --cpu-shares=500 --name mycpu500 alpine:3.8 /bin/sh -c 'time dd if=/dev/urandom bs=1M count=100 | md5sum'
+	- docker container run -d --cpu-shares=100 --name mycpu100 alpine:3.8 /bin/sh -c 'time dd if=/dev/urandom bs=1M count=100 | md5sum'
+
+	docker logs mycpu1024
+	docker logs mycpu500
+	docker logs mycpu100
+
+
+#####################################################
+Other helpful commands
+#####################################################
+Stop all containers
+docker stop $(docker ps -a -q) #stop ALL containers
+
+Remove all containers
+docker rm -f $(docker ps -a -q) # remove ALL containers
+
+All commandline commands
+https://docs.docker.com/engine/reference/commandline/
+
+
+From CLI 
+	find how much CPU and memory is allocated.
+	
+
+
+############################
+Advantages of Docker?
+	- Lightweight footprint and minimal overhead
+	- Portability across machines
+	- Simplify Deveops practices
+	- Speeds up CI
+	- Empower microservice architecture
+	- Isolation
+############################
+
+Additions
+############################
+Renaming a container
+############################
+docker run -d --name web mcr.microsoft.com/windows/servercore/iis
+docker rename web web-old
+
+############################
+Creating a container
+############################
+	docker create mcr.microsoft.com/windows/servercore/iis
+############################
+Difference between docker create and docker run
+############################
+docker create creates a container in stoped state.
+docker run creates a container in running state.
+############################
+Writing container id into a file.
+Useful if your machine is restarted and you want to debug in the logs
+############################
+docker create --cidfile /tmp/web1.cid nginx
+docker run --cidfile /tmp/web2.cid nginx
+
+cat /tmp/web1.cid
+
+
+#######################################################
+
+
+Advantages of Docker
+--------------------
+Containerization is increasingly popular because containers are:
+
+Flexible: Even the most complex applications can be containerized.
+Lightweight: Containers leverage and share the host kernel, making them much more efficient in terms of system resources than virtual machines.
+Portable: You can build locally, deploy to the cloud, and run anywhere.
+Loosely coupled: Containers are highly self sufficient and encapsulated, allowing you to replace or upgrade one without disrupting others.
+Scalable: You can increase and automatically distribute container replicas across a datacenter.
+Secure: Containers apply aggressive constraints and isolations to processes without any configuration required on the part of the user.
+
+
+
+
+
+
+
+#################################
+Install windows
+https://blog.sixeyed.com/getting-started-with-docker-on-windows-server-2019/
+Install-WindowsFeature -Name Containers
+Restart-Computer -Force  
+
+Install-Module -Name DockerMsftProvider -Repository PSGallery -Force
+Install-Package -Name docker -ProviderName DockerMsftProvider -Force -RequiredVersion 19.03  
+Start-Service docker 
+
+dockerd --experimental
+
+#############################
+
+Install-Module -Name DockerMsftProvider -Force
+Install-Package -Name docker -ProviderName DockerMsftProvider -Force 
+(Install-WindowsFeature Containers).RestartNeeded
+
+
+daemon.json
+----------------
+{
+ "graph":"D:\\IMAGES"
+}
+----------------
+
+Copy to C:\ProgramData\Docker\Config
+
+Restart
+
+
+docker container run --detach --publish 8080:80 --name web microsoft/iis:nanoserver
+
+Then open http://localhost:8080 in your browser and see the default IIS web page. 
+
+
+You can replace the default page with your own content by copying a file into the container. You need to stop the container first:
+	
+	docker container stop web
+	Create a file called index.html in C:\temp\index.html
+	
+	Copy that file into the container and it will overwrite the default IIS homepage:
+
+docker container cp C:\temp\index.html web:C:\inetpub\wwwroot\index.html
+
+
+Installing Docker on Windows.
+	Docker Desktop
+	Docker in Windows
+		On Windows 10
+		On Windows 2016/2019
+			Ideal installation methodology
+				https://hub.docker.com/editions/enterprise/docker-ee-server-windows
+			Alternative
+				Install Docker EE
+				--------------------------------------------------------------------------------------
+				You have to install Docker Enterprise to be able to switch from Windows to Linux containers. See https://computingforgeeks.com/how-to-run-docker-containers-on-windows-server-2019/ for more info.
+				--------------------------------------------------------------------------------------
+				https://computingforgeeks.com/how-to-run-docker-containers-on-windows-server-2019/
+
+			N.B: There are couple of good documentation on how to install docker in windows.
+				This would work only for windows based containers.
+					My experience: even windows based images fails for os compatibility issues.
+					
+					
+	Install-Module -Name DockerProvider -Force
+	Install-Package Docker -ProviderName DockerProvider -RequiredVersion preview
+	
+	Uninstall-Package -Name docker -ProviderName DockerProvider
+	Uninstall-Module -Name DockerProvider
+	
+	Docker removal
+	--------------
+https://pixelrobots.co.uk/2018/01/uninstall-docker-windows-server-2016-windows-10/#:~:text=Uninstall%20from%20Windows%2010&text=Locate%20Docker%20for%20Windows%20and,right%20to%20close%20the%20uninstaller.
+
+
+
+Other references
+----------------
+https://medium.com/rkttu/install-microsoft-office-in-windows-container-ce05877138fd
+https://docs.microsoft.com/en-us/dotnet/architecture/microservices/container-docker-introduction/docker-defined
+	
+	dockerd --debug --experimental
+	
+https://rominirani.com/docker-on-windows-mounting-host-directories-d96f3f056a2c	
