@@ -1,3 +1,3 @@
 FROM mcr.microsoft.com/windows/servercore:ltsc2019
-ENTRYPOINT ping -n 3 localhost
+ENTRYPOINT ["ping", "-n 5 Hello"]
 CMD ["world"]

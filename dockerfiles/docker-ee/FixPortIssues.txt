@@ -94,7 +94,7 @@ docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock --name ucp dock
 	sudo docker stop $(sudo docker ps -aq)
 	sudo docker rm $(sudo docker ps -aq) --force
 	sudo docker rmi $(sudo docker images -aq) --force
-	sudo docker network prune
+	sudo docker network prune	
 	sudo docker system prune -a --force	
 	sudo iptables -F && sudo systemctl restart docker.service
 	

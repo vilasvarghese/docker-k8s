@@ -107,6 +107,10 @@ Vilas : Attach tries to attach to process 1 where as exec executes a new process
 	-> apt-get update
 	-> apt-get install iputils-ping
 	
+	------------------------------
+	watch du -sh <folder name>
+	-------------------------------
+	
 8. open new terminal 
 	docker ps
 	docker ps -l

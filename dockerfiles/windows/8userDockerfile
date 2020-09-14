@@ -1,0 +1,9 @@
+FROM centos
+
+#Normal user - net user user pwd
+RUN net user /add vilas vilas
+
+#Add admin user - net localgroup admin user /add	
+net localgroup administrators vilasadmin /add
+
+#login as the user

@@ -111,6 +111,9 @@ https://myopswork.com/how-to-install-kubernetes-k8-in-rhel-or-centos-in-just-7-s
 	
 	docker container run --rm  -it --name ucp -v /var/run/docker.sock:/var/run/docker.sock docker/ucp:2.2.4 install --host-address <ip address> --interactive
 	
+		
+		sudo docker container run --rm -it --name ucp -v /var/run/docker.sock:/var/run/docker.sock  docker/ucp install --host-address 192.168.76.135 --pod-cidr 172.17.0.0/16 --controller-port 8443 --interactive
+	
 		admin user: admin
 		admin pwd: (8 char) e.g. admin@123
 
@@ -119,7 +122,12 @@ https://myopswork.com/how-to-install-kubernetes-k8-in-rhel-or-centos-in-just-7-s
 	Install dtr
 	-----------
 	docker run -it --rm docker/dtr install --ucp-node dockernode-1 --ucp-username admin --ucp-url https://<ip address> --ucp-insecure-tls
-		
+
+	Uninstall dtr
+	-------------
+	docker run -it --rm docker/dtr destroy --ucp-url https://192.168.76.140:8443/ --ucp-username admin --ucp-password admin@123 --ucp-insecure-tls
+
+		docker run -it --rm docker/dtr install --ucp-node dockmasteracumen --ucp-username admin --ucp-url https://192.168.76.140:8443 --ucp-insecure-tls
 	-------------------
 	Worker
 	ssh -i <private key path> vilas@52.188.207.170
@@ -162,3 +170,6 @@ https://stackoverflow.com/questions/53436443/azure-redhat-vm-yum-update-fails-wi
 
 
 FATA[0047] the following required ports are blocked on your host: 12383, 2376, 12382, 443, 12387, 12381, 12385, 12376, 12379, 12386, 12384, 12380.  Check your firewall settings
+
+
+docker swarm join --token SWMTKN-1-4cxdwb9szsalc7n9xb7fqtyr5ub2b7wxrzifujva8fqe44p8n4-4pfm5qcu2916502spvo9g42af 52.188.200.136:2377

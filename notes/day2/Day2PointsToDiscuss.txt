@@ -385,6 +385,37 @@ Not mentioned anywhere else, by Vilas thinks so...
 
 
 		Override default shell
+##########################################################################################
+Best practices in Dockerfiles
+
+Official
+	https://docs.docker.com/develop/develop-images/dockerfile_best-practices/
+
+https://rock-it.pl/how-to-write-excellent-dockerfiles/
+	Write .dockerignore file
+		- Remove dependencies ect.
+	Container should do one thing
+	Understand Docker caching! Use COPY and RUN commands in proper order to utilize that.
+	Merge multiple RUN commands into one
+	Remove unneeded files after each step
+	Use proper base image (alpine versions should be enough)
+	Set WORKDIR and CMD
+	Use ENTRYPOINT when you have more than one command and/or need to update files using runtime data
+	Use exec inside entrypoint script
+		With entrypoint -
+			always execute a script
+			in that script
+				use exec to execute what is required.
+			Without it
+				we would not be able to stop our application gracefully 
+					SIGTERM is swallowed by bash script. 
+			Exec basically replaces script process with new one
+				so all signals and exit codes work as intended.
+	Prefer COPY over ADD
+	Specify default environment variables, ports, and volumes inside Dockerfile
+	Do not use 'latest' base image tag
+	
+##########################################################################################
 		
 
 

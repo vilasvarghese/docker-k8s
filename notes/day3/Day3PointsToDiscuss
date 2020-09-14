@@ -64,6 +64,8 @@ Reference table:
 	Host		256		128		64		32		16		8		4		2		1		(each number = (previous) / 2)
 	Subnet Mast	/24		/25		/26		/27		/28		/29		/30		/31		/32		(each number = /(previous+1))
 	
+	
+	
 Network ID: given 192.168.4.0/24
 We need 3 network.
 	Since we don't have 3 - let's go for 4.
@@ -93,9 +95,10 @@ We need 3 network.
 	192.168.1.0/24 means 0 - 255 = 256 host can be assigned.
 	192.168.0.0/16 means 256 * 256 = 65536 host can be assigned.
 	
-	
 		
+172.17.0.2 - 172.17.255.255
 
+172.17.0.0 - 172.17.255.255		- 172.17.0.1
 ----------------------------------------------------		
 		
 NIC (Network interface card)
@@ -286,7 +289,7 @@ CNM and libnetwork
 		Kubernetes uses this. 
 		Loopback is the only device added.
 			
-		-> docker run -it --net=none ubuntu bash # --net=none will do the trick.
+		-> 	docker run -it --net=none ubuntu bash # --net=none will do the trick.
 		
 
 	Copy the network parameters including IP address from one container to the other using the following
