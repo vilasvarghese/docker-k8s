@@ -1,0 +1,536 @@
+docker run -it -v c:\docker\volume1:c:\docker mcr.microsoft.com/windows/servercore:ltsc2019 powershell
+
+#######################################################################
+
+1. docker build -t from -f 1FromFile .
+	docker run -it from powershell
+	
+2. docker build -t run -f 2RunFile .
+	docker run -it run powershell
+	ls 
+		#Verify if vilas folder is present
+		
+3. docker build -t cmd -f 3cmdFile
+	docker run cmd
+	docker run cmd ping -n 2 google.com
+
+4. 
+	docker build -t cmd -f 4entrypoint
+
+5. 
+	docker build -t entrycmd -f 5EntryCmdfile
+	docker run entrycmd
+	docker run entrycmd google.com
+	
+6. 	docker build -t env -f 6envDockerfile
+	docker run -it env powershell
+		Print env variables
+		ls env:\
+		
+7. docker build -t add -f 7Addfile .
+	#Please note that docker seems to have trouble with absolute path in dock
+	
+8. docker build -t user -f 9userDockefile .
+	
+9. docker build -t myiis .
+
+	https://github.com/StefanScherer/dockerfiles-windows
+
+
+################################################################
+Lab on volumes
+################################################################
+
+	Persistent Storage
+	------------------
+	Windows containers support persistent storage via 
+		bind mounts and 
+		volumes. 
+	https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/persistent-storage
+	Persistent Storage in Containers
+	--------------------------------
+	app may need 
+		to persist data in a container
+		share data from host into the container or viceversa
+		share data between containers.
+	
+	Docker supports this using
+		Bind mounts
+		Named volumes
+
+
+		Bind mounts 
+			allow a container to share a directory with the host. 
+			When to use Bind mounts. 
+			
+			If container from multiple machines needs to access a volume, use
+				named volume or 
+				SMB mount .
+		
+		Permissions
+		-----------
+		Permission model of bind mounts varies 
+			depending on isolation level for your container.
+
+			1. Containers using Hyper-V isolation 
+				use following permission model
+					read-only 
+				or
+					read-write				
+				Files are accessed on the host using the LocalSystem account. 
+				N.B: 
+					1. By default, the local system account and the local administrator account have the same file privileges, but they have different functions. 
+			
+					2. In case of access denied in the container, 
+						verify LocalSystem has access to that directory on the host
+
+			2. Windows containers using process isolation 
+				Behave slightly different 
+				Use the process identity within the container to access data
+					i.e. file ACLs are honored. 
+					The identity of the process running in the container 
+						"ContainerAdministrator" on Windows Server Core and 
+						"ContainerUser" on Nano Server containers
+					will be used to access to the files and directories in the mounted volume 
+						Does not instead of LocalSystem
+					May need to be granted access to use the data.
+
+		These identities only exist within the context of the container
+			--not on the host where the files are stored--
+			Use a well-known security group such as Authenticated Users 
+				configure ACLs to grant access to the containers.
+
+
+		Security Alert
+		--------------
+		Do not bind-mount sensitive directories such as C:\ into an untrusted container. This would allow it to change files on the host that it would not normally have access to and could create a security breach.
+
+
+		Access Restrictions
+		read-only
+			docker run -v c:\ContainerData:c:\data:RO 
+		read-write
+			docker run -v c:\ContainerData:c:\data:RW 
+		default: read-write 
+			docker run -v c:\ContainerData:c:\data
+
+	Symlinks
+	--------
+		bind-mount a host path to a container that is a symlink, or contains symlinks - 
+			the container WILL NOT be able to access them.
+
+	SMB Mounts
+	----------
+		Windows Server version 1709 and later, 
+			"SMB Global Mapping" makes it possible to mount a SMB share on the host,
+			Pass directories on that share into a container. 
+			The container doesn't need to be configured with 
+				specific server, 
+				share, 
+				username or 
+				password - 
+			Instead handled on the host. 
+		The container will work the same as if it had local storage.
+		
+		Refer section below on how to configure it.
+		
+	Named Volumes
+	-------------
+		Allow you to create a volume by name, 
+		Assign it to a container, 
+		Reuse it later by the same name. 
+		Don't need to keep track of the actual path of where it was created
+		The Docker engine on Windows 
+			has a built-in named volume plugin 
+			create volumes on the local machine. 
+		An additional plugin is required 
+			if you want to use named volumes on multiple machines.
+
+
+
+
+
+	Difference between Docker in Windows and Linux
+	----------------------------------------------
+	
+	
+	
+	
+	Storage Limits
+	--------------
+	A common pattern for Windows applications is to query the amount of free disk space before installing or creating new files or as a trigger for cleaning up temporary files. With the goal of maximizing application compatibility, the C: drive in a Windows container represents a virtual free size of 20GB.
+
+	Default C:\ space in windows
+		20GB
+	
+	Modify the default (Increase or reduce)
+		docker run --storage-opt "size=50GB" mcr.microsoft.com/windows/servercore:ltsc2019 cmd
+
+
+	Bind Mounts
+	
+	1. using --mount
+	cd c:\
+	mkdir mount
+	docker run -it --name devtest --mount type=bind,source=C:\mount,target=C:\app mcr.microsoft.com/windows/servercore:ltsc2019 powershell
+
+		Get inside make some changes and see the impact in c:\mount
+		
+	2. Readonly --	mount 
+	docker run -it --name=romount --mount source=nvol1,destination=C:\test,readonly mcr.microsoft.com/windows/servercore:ltsc2019 powershell
+	
+		cd test
+		mkdir vilas
+			#Fails - in read only mode you cannot do that.
+				Access denieed
+					
+	3. Using -v
+	docker run -it --name=bindv -v C:\mount:C:\mytest mcr.microsoft.com/windows/servercore:ltsc2019 
+	
+	4. 
+	Create a volume named 'myvol'
+		docker volume create myvol
+	
+	Use it in a container
+		docker run -v myvol:c:\data
+
+	Write some files to c:\data in the container, then stop the container
+		docker run -v myvol:c:\data
+		
+		Run dir c:\data in the new container - the files are still there
+
+	Note
+		Convertion to lower case
+		
+		Windows Server will convert target pathnames to lower-case
+			(the path inside of the container) ; i. e. -v unwound:c:\MyData, or -v unwound:/app/MyData in Linux containers, will result in a directory inside the container of c:\mydata, or /app/mydata in Linux containers, being mapped (and created, if not existent).
+
+
+
+		Annonymous Volumes
+	
+
+	Backup and Restore
+	------------------
+	
+		1. docker run -it -v c:/persist --name win1 mcr.microsoft.com/windows/servercore:ltsc2019 powershell
+		
+		Then you can create a container just for taking back up as below
+		2. docker run --rm --volumes-from win1 -v xyz1:c:/backup mcr.microsoft.com/windows/servercore:ltsc2019 tar cvf c:/backup/backup.tar c:/persist
+		
+		
+		
+	4b. Restoring from backup.
+		Create a new container instruction very similar to 4a.
+		3. docker run -it -v c:/persist --name win2 mcr.microsoft.com/windows/servercore:ltsc2019 powershell
+		
+		un-tar the backup file in the new container`s data volume:
+		
+		4. docker run --rm --volumes-from win2 -v xyz1:c:/backup mcr.microsoft.com/windows/servercore:ltsc2019 powershell -c "cd C:/persist; tar xvf C:/backup/backup.tar --strip 1"
+
+################################################################
+
+--------------------------
+cd - to c drive
+mkdir sqlbackup 
+
+docker run -d -p 1433:1433 -e sa_password=Password -e ACCEPT_EULA=Y --name 'sql1' -v C:\sqlbackup:/var/opt/mssql microsoft/mssql-server-windows-developer
+	#User : sa
+################################################################
+
+
+
+#############################################################################
+
+c:\\windows\\system32\\cmd.ex : CMD location. Found in 
+https://docs.microsoft.com/en-us/virtualization/windowscontainers/about/
+
+Windows and containers
+-----------------------
+Containers are a technology for packaging and running Windows and Linux applications across diverse environments on-premises and in the cloud. 
+Containers provide a lightweight, isolated environment 
+Easy to develop, deploy, and manage apps on Containers. 
+Containers start and stop quickly
+	ideal for apps that need to rapidly adapt to changing demand. 
+	increasing the density and utilization of your infrastructure.
+
+How containers work
+-------------------
+	Containers 
+		build on top of the host operating system's kernel
+	
+	
+	
+	Container 
+		shares the host operating system's kernel, 
+		doesn't get unfettered access to it. 
+		Gets 
+			isolated and in some cases virtualized–view of the system. 
+		Builds on top of the kernel, 
+			but 
+				Kernel doesn't provide all of the APIs and services an app needs 
+				Instead provided by system files (libraries) 
+					run above the kernel in user mode. 
+				Container 
+					Isolated from the host's user mode environment
+					So container needs its own copy of these user mode system files
+					These are packaged into base image. 
+					base image 
+						foundational layer upon which your container is built
+						Provides operating system services 
+							(not provided by the kernel).
+
+
+	For example, a container can 
+		access a virtualized version of the file system and registry, 
+		but any changes affect only the container and are discarded when it stops. 
+		
+		
+	Container images
+--------------------
+	Containers are created from images. 
+	Images 
+		bundle of files organized into a stack of layers 
+		Reside on 
+			your local machine 
+		or 
+			in a remote container registry. 
+	Consists of user mode operating system files 
+		needed to support 
+			your app, 
+			any runtimes or dependencies of your app, 
+			miscellaneous configuration file your app needs to run properly.
+	
+	Each layer 
+		contains a set of files 
+		when overlaid together, represent your container image. 
+	Since containers and images are layered
+		don't need to always target a single base image to build a Windows container. 
+		Instead, 
+			target another image that already carries the framework you want. 
+			For e.g, 
+				.NET team publishes a .NET core image 
+				carries the .NET core runtime. 
+				We don't need to install .NET core–
+				instead they can reuse the layers of this container image. 
+				The .NET core image itself is built based upon Nano Server.
+
+-------------------------------------------------------------------------------------
+More details on Container Base images.
+https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/container-base-images
+-------------------------------------------------------------------------------------
+
+
+Container users
+---------------
+	Containers for developers
+	-------------------------
+	Containers 
+		help developers build and ship higher-quality apps, faster. 
+		With containers, 
+			developers can create a container image 
+				that deploys in seconds, 
+				identically across environments. 
+		An easy mechanism to share code 
+			across teams and to 
+				bootstrap a development environment without 
+				impacting your host filesystem.
+
+		Are portable and versatile, 
+			can run apps written in any language
+			they're compatible with any machine running 
+				Windows 10, version 1607 or later, 
+			or 
+				Windows Server 2016 or later. 
+		Developers can create and test 
+			container locally on their laptop or desktop, 
+			then deploy that same container image to their company's 
+				private cloud, 
+				public cloud, or 
+				service provider. 
+
+
+	Containers for IT professionals
+	-------------------------------
+		Containers help admins 
+			create infrastructure that's easier to update and maintain
+			Better utilization of hardware resources. 
+		IT professionals can use containers 
+			to provide standardized environments for their 
+				development, 
+				QA, and 
+				production teams. 
+		By using containers, 
+			systems administrators abstract away differences in O/S installations and the underlying infrastructure.
+
+	Container orchestration
+	-----------------------
+	We can manage a few containers manually using Docker and Windows
+	Real deployment often involves 100's of VM's with multiple containers running on them.
+	Orchestrators is required.
+
+	Container orchestrators were built to help manage containers at scale and in production. Orchestrators provide functionality for:
+
+		Deploying at scale
+		Workload scheduling
+		Health monitoring
+		Failing over when a node fails
+		Scaling up or down
+		Networking
+		Service discovery
+		Coordinating app upgrades
+		Cluster node affinity
+
+	Orchestrator options with Windows
+	---------------------------------
+		Azure Kubernetes Service (AKS) - 
+			use a managed Azure Kubernetes service
+		Azure Service Fabric - 
+			use a managed service
+		Azure Stack with the AKS Engine - 
+			use Azure Kubernetes Service on-premises
+		Kubernetes on Windows - 
+			set up Kubernetes yourself on Windows
+
+Concludes following
+https://docs.microsoft.com/en-us/virtualization/windowscontainers/about/
+
+Microsoft offers several images (called base images)
+---------------------------------------------------- 
+	We can use as a starting point to build your own container image:
+
+	1. Windows - 
+		contains the full set of Windows APIs and system services 
+			minus server roles.
+	2. Windows Server Core - 
+		a smaller image 
+		contains a subset of the Windows Server APIs–
+			namely the full .NET framework. 
+		Includes most server roles
+			(though sadly to few, not Fax Server).
+	3. Nano Server - 
+		Smallest Windows Server image
+			supports for the .NET Core APIs 
+				some server roles.
+------------------------------------------------------------
+PS C:\docker> docker pull mcr.microsoft.com/windows/nanoserver:1903
+1903: Pulling from windows/nanoserver
+no matching manifest for windows/amd64 10.0.17763 in the manifest list entries
+------------------------------------------------------------				
+	4. Windows 10 IoT Core - 
+		A version of Windows used by hardware manufacturers 
+			for small Internet of Things devices that run ARM or x86/x64 processors.
+			
+
+		
+
+-----------------------------------------
+Container Storage Overview
+--------------------------
+Different ways containers use storage on Windows. 
+	Storage is very different in Containers than VM's
+	By nature, 
+		containers are built not to allow app to write state over to host's filesystem. 
+		Containers use a "scratch" space by default 
+		Windows also provides a means to persist storage.
+		
+	Scratch Space
+	-------------
+	Windows containers by default use ephemeral storage. 
+	All container I/O happens in a "scratch space" 
+	Each container gets their own scratch. 
+	File are created and written to scratch space. 
+	Scratch space is cleared when container instances are stopped.
+	Containers never share the scratch space.
+	
+	Layer Storage
+	-------------
+	Container images are a bundle of files expressed as a series of layers. 
+	Layer storage is all the files that are built into the container. 
+	Every time you docker pull then docker run that container - they are the same.
+
+	
+	docker image inspect <image id>
+		GraphDriver
+	
+	cd into the GraphDriver location
+	open the json file inside in it.
+	Look at the different folders mentioned.
+	Open them 
+	you would find some folders in it.
+	
+	Where layers are stored and how to change it
+	---------------------------------------------
+	Default installation
+		Layers are stored in C:\ProgramData\docker 
+			split across directories
+				"image" and 
+				"windowsfilter"
+	
+	
+	
+-------------------------------------------------------------------------
+	Defaults can be modified by updating daemon.json 
+
+Configuring Docker
+------------------
+https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-docker/configure-docker-daemon
+-------------------------------------------------------------------------	
+	Supported operations in layer storage
+	-------------------------------------
+	Running containers can use most NTFS operations 
+		exception: transactions. 
+	Supported operations
+		setting ACLs, and all ACLs are checked inside the container. 
+		If you want to run processes as multiple users inside a container, you can create users in your Dockerfile with RUN net user /create ..., set file ACLs, then configure processes to run with that user using the Dockerfile USER directive.
+	
+	
+N.B:	What are NTFS?
+	NT file system (NTFS), which is also sometimes called the New Technology File System, is a process that the Windows NT operating system uses for storing, organizing, and finding files on a hard disk efficiently. 
+	
+	
+
+https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-docker/configure-docker-daemon
+
+	
+	Yet to cover
+	------------
+	Container Tools in Visual Studio
+	https://docs.microsoft.com/en-us/visualstudio/containers/overview?view=vs-2019
+	
+	
+	Configuring Docker
+	------------------
+	https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-docker/configure-docker-daemon
+	
+	C:\ProgramData\Docker\config\daemon.json
+	
+	
+---------------------------------------------------------------------------
+Configuration Steps
+On the container host, globally map the remote SMB share:
+
+
+Copy
+$creds = Get-Credential
+New-SmbGlobalMapping -RemotePath \\contosofileserver\share1 -Credential $creds -LocalPath G:
+This command will use the credentials to authenticate with the remote SMB server. Then, map the remote share path to G: drive letter (can be any other available drive letter). Containers created on this container host can now have their data volumes mapped to a path on the G: drive.
+
+ Note
+
+When using SMB global mapping for containers, all users on the container host can access the remote share. Any application running on the container host will also have access to the mapped remote share.
+
+Create containers with data volumes mapped to globally mounted SMB share docker run -it --name demo -v g:\ContainerData:c:\AppData1 mcr.microsoft.com/windows/servercore:ltsc2019 cmd.exe
+
+Inside the container, c:\AppData1 will then be mapped to the remote share’s "ContainerData" directory. Any data stored on globally mapped remote share will be available to applications inside the container. Multiple containers can get read/write access to this shared data with the same command.
+
+This SMB global mapping support is SMB client-side feature which can work on top of any compatible SMB server including:
+
+Scaleout File Server on top of Storage Spaces Direct (S2D) or a traditional SAN
+Azure Files (SMB share)
+Traditional File Server
+3rd party implementation of SMB protocol (ex: NAS appliances)
+ Note
+
+SMB global mapping does not support DFS, DFSN, DFSR shares in Windows Server version 1709 
+=====================================================================	
