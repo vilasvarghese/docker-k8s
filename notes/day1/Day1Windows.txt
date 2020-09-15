@@ -118,9 +118,7 @@ Root directory
 	c:\ProgramData\docker
 	
 	Image: image\windowsFilter
-	check repositories.json
-	
-	
+	check repositories.json	
 -------------------------------------------------------------------	
 8. open new terminal 
 	docker ps
@@ -129,7 +127,7 @@ Root directory
 	docker ps #oops gone?
 	docker ps -a #no worries i found
 	docker start <container id>
-	docker exec -it <container id> /bin/sh
+	docker exec -it <container id> powershell #or cmd
 	mkdir vilas
 	cd vilas
 	echo Hello World > first-file.txt
@@ -253,14 +251,15 @@ Differentiate container and image
 	g. restart if the container exists.
 	docker run --restart=always mcr.microsoft.com/windows/servercore/iis
 
+
 	h. Run the redis container with a restart policy of on-failure and a maximum restart count of 10. If the redis container exits with a non-zero exit status more than 10 times in a row Docker will abort trying to restart the container. 
 
-	docker run --restart=on-failure:10 mcr.microsoft.com/windows/servercore/iis
+	docker run --restart=on-failure:3 mcr.microsoft.com/windows/servercore/iis
 
 
 	i. By default a container’s file system persists even after the container exits. Docker to automatically clean up the container and remove the file system when the container exits, you can add the --rm flag:
 
-	docker run --rm=false mcr.microsoft.com/windows/servercore:ltsc2019 #rm=false - automatically clean up the file system when the container exits.
+	docker run --rm mcr.microsoft.com/windows/servercore:ltsc2019 #rm=false - automatically clean up the file system when the container exits.
 
 	Refer https://docs.docker.com/engine/reference/run/ for the complete list.
 
@@ -327,9 +326,11 @@ docker container run -d --memory=20m --name mywin mcr.microsoft.com/windows/serv
 --------------------------------------------------	
 
 	3. docker exec -it myPython /bin/sh
-
+--------------------------------------------------	
+--oom-kill-disable is not supported by windows.
+--------------------------------------------------	
 	We can block the OOM error as follows 
-	docker container run -d --oom-kill-disable --memory=20m --memory-swap=30m --name myPython python:3-alpine sleep 3600
+	docker container run -d --oom-kill-disable --memory=20m --name mcr.microsoft.com/windows/servercore:ltsc2019 sleep 3600
 
 	However never use "--oom-kill-disable" because your container might hang.
 
@@ -343,8 +344,8 @@ docker container run -d --memory=20m --name mywin mcr.microsoft.com/windows/serv
 	1. Create 3 containers with limited cpu
 
 
-	- docker container run -d --cpu-shares=1024 --name mycpu1024 alpine:3.8 /bin/sh -c 'time dd if=/dev/urandom bs=1M count=100 | md5sum'
-	- docker container run -d --cpu-shares=500 --name mycpu500 alpine:3.8 /bin/sh -c 'time dd if=/dev/urandom bs=1M count=100 | md5sum'
+	- docker container run -d --cpu-shares=1024 --name mycpu1024 mcr.microsoft.com/windows/servercore:ltsc2019 
+	- docker container run -d --cpu-shares=512 --name mycpu500 alpine:3.8 /bin/sh -c 'time dd if=/dev/urandom bs=1M count=100 | md5sum'
 	- docker container run -d --cpu-shares=100 --name mycpu100 alpine:3.8 /bin/sh -c 'time dd if=/dev/urandom bs=1M count=100 | md5sum'
 
 	docker logs mycpu1024
@@ -356,7 +357,7 @@ docker container run -d --memory=20m --name mywin mcr.microsoft.com/windows/serv
 Other helpful commands
 #####################################################
 Stop all containers
-docker stop $(docker ps -a -q) #stop ALL containers
+docker stop ||(docker ps -a -q) #stop ALL containers
 
 Remove all containers
 docker rm -f $(docker ps -a -q) # remove ALL containers

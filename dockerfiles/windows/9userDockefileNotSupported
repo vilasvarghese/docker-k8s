@@ -1,7 +1,15 @@
 FROM mcr.microsoft.com/windows/servercore:ltsc2019
 
+#COPY "." /
+
 RUN NET USER my_admin /add
 RUN	NET LOCALGROUP Administrators /add my_admin
 
 USER my_admin
+RUN whoami
+
+RUN NET USER sp_farm "P4ssw@rd" /add
+RUN	NET LOCALGROUP Administrators /add sp_farm
+
+USER sp_farm@'P4ssw@rd'
 RUN whoami

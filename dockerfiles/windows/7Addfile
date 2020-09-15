@@ -1,2 +1,2 @@
-FROM ubuntu
-ADD abc.txt /var/vilas/
+FROM mcr.microsoft.com/windows/servercore:ltsc2019
+ADD abc.txt .
