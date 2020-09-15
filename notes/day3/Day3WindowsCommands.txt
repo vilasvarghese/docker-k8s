@@ -1,0 +1,43 @@
+ip addr show
+ip route
+tr ls
+brctl show
+docker info
+
+docker network create -d nat name 
+docker run --network ...
+
+nat: 
+		
+			docker run -d -p 80:80 mcr.microsoft.com/windows/servercore/iis
+			docker run -d -p 80:80 --net=my_net mcr.microsoft.com/windows/servercore/iis
+			
+			Go to the container and verify the ip range.
+			Why is it different?
+			
+			
+			- Simple behavior and architecture. 
+			- Allows containers on the same network to communicate.
+			- Offers local service discovery.
+			- Offers external access to containers through port mapping.
+			Refer images
+			
+	This will work only with Docker swarm enabled.
+	-> docker network create -d "overlay" --attachable --subnet "10.244.0.0/24" -o com.docker.network.windowsshim.dnsservers="168.63.129.16" -o com.docker.network.driver.overlay.vxlanid_list="4096" my_overlay
+
+	
+	
+	-> docker run -it --net=none mcr.microsoft.com/windows/servercore/iis powershell
+
+  
+
+Docker monitoring
+-----------------
+1. docker stats
+2. curl --unix-socket /var/run/docker.sock  http://localhost/containers/<container-name | cid>/stats 
+e.g.
+	docker run -it alpine:latest /bin/sh
+	curl --unix-socket /var/run/docker.sock  http://localhost/containers/<id>/stats
+
+
+Docker best practices.

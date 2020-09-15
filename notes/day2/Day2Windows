@@ -35,6 +35,10 @@ docker run -it -v c:\docker\volume1:c:\docker mcr.microsoft.com/windows/serverco
 9. docker build -t myiis .
 
 	https://github.com/StefanScherer/dockerfiles-windows
+	
+	Best Practices for creating Dockerfiles
+	---------------------------------------
+	https://rock-it.pl/how-to-write-excellent-dockerfiles/
 
 
 ################################################################
@@ -95,10 +99,10 @@ Lab on volumes
 						Does not instead of LocalSystem
 					May need to be granted access to use the data.
 
-		These identities only exist within the context of the container
-			--not on the host where the files are stored--
-			Use a well-known security group such as Authenticated Users 
-				configure ACLs to grant access to the containers.
+					These identities only exist within the context of the container
+						--not on the host where the files are stored--
+						Use a well-known security group such as Authenticated Users 
+							configure ACLs to grant access to the containers.
 
 
 		Security Alert
@@ -173,7 +177,7 @@ Lab on volumes
 	cd c:\
 	mkdir mount
 	docker run -it --name devtest --mount type=bind,source=C:\mount,target=C:\app mcr.microsoft.com/windows/servercore:ltsc2019 powershell
-
+	
 		Get inside make some changes and see the impact in c:\mount
 		
 	2. Readonly --	mount 
@@ -182,7 +186,7 @@ Lab on volumes
 		cd test
 		mkdir vilas
 			#Fails - in read only mode you cannot do that.
-				Access denieed
+				Access denied
 					
 	3. Using -v
 	docker run -it --name=bindv -v C:\mount:C:\mytest mcr.microsoft.com/windows/servercore:ltsc2019 
