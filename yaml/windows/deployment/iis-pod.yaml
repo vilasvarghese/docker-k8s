@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: iispod
+spec:
+  containers:
+    - image: microsoft/iis 
+      name: iisc
+      ports:
+        - containerPort: 80
+          name: http
