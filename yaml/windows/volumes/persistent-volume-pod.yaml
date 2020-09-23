@@ -4,13 +4,13 @@ metadata:
   name: pv-pod
 spec:
   containers:
-  - image: alpine
+  - image: microsoft/iis 
     name: pv-container
 
-    command: ['sh', '-c', 'pv container running; sleep 3600']
+    command: ['powershell', '-command', 'echo pv container running; sleep 3600']
 
     volumeMounts:
-      - mountPath: "/my-pv-path"
+      - mountPath: "C:/my-pv-path"
         name: my-persistent-volumeclaim-name
 
   volumes:

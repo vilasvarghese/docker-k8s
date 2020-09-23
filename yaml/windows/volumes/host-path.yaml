@@ -1,15 +1,18 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: redis-hostpath
+  name: winhostpath 
 spec:
   containers:
-    - name: redis-container
-      image: redis
+    - name: wincontainer
+      image: microsoft/iis 
       volumeMounts:
-      - mountPath: /test-mnt
+      - mountPath: C:/test-mnt
         name: test-vol
   volumes:
   - name: test-vol
     hostPath:
-      path: /test-vol
+#######################################################
+#Ensure to create a folder with this name on your worker node. This restriction is only for windows
+###############################################################################
+      path: C:/test-vol
