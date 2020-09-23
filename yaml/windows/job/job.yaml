@@ -9,9 +9,9 @@ spec:
     spec:
       containers:
       - name: counter
-        image: centos:7
+        image: mcr.microsoft.com/windows/servercore:ltsc2019 
         command:
-        - "/bin/bash"
-        - "-c"
-        - "for i in 9 8 7 6 5 4 3 2 1; do echo $i; done"
+        - powershell.exe 
+        - -command
+        - "For ($i=0; $i -lt 10; $i++) {$i}"
       restartPolicy: Never

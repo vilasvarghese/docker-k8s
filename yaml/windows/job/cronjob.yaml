@@ -10,9 +10,9 @@ spec:
         spec:
           containers:
           - name: hello
-            image: busybox
+            image: mcr.microsoft.com/windows/servercore:ltsc2019 
             args:
-            - /bin/sh
-            - -c
+            - powershell.exe
+            - -command
             - date; echo Hello from the Kubernetes cluster
           restartPolicy: OnFailure
