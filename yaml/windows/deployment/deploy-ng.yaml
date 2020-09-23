@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: iis-container
-        image: microsoft/iis:windowsservercore-1803
+        image: microsoft/iis
         ports:
         - containerPort: 80
