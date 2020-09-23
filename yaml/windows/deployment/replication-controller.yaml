@@ -1,19 +1,19 @@
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  name: nginx
+  name: rc1
 spec:
   replicas: 3
   selector:
-    app: nginx
+    app: iisrc 
   template:
     metadata:
-      name: nginx
+      name: iisname1
       labels:
-        app: nginx
+        app: iisrc
     spec:
       containers:
-      - name: nginx
-        image: nginx
+      - name: container
+        image: microsoft/iis
         ports:
         - containerPort: 80

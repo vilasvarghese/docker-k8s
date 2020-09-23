@@ -1,12 +1,14 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: iispod
-  namespace: ns1
+  name: myiis
+  labels: 
+    env: dev
+    type: frontend
 spec:
   containers:
-    - image: microsoft/iis 
-      name: iisc
+    - image: microsoft/iis
+      name: iis
       ports:
         - containerPort: 80
           name: http

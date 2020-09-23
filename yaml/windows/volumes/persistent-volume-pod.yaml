@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pv-pod
+spec:
+  containers:
+  - image: alpine
+    name: pv-container
+
+    command: ['sh', '-c', 'pv container running; sleep 3600']
+
+    volumeMounts:
+      - mountPath: "/my-pv-path"
+        name: my-persistent-volumeclaim-name
+
+  volumes:
+    - name: my-persistent-volumeclaim-name
+      persistentVolumeClaim:
+        claimName: my-persistent-volumeclaim
