@@ -162,6 +162,9 @@ Vilas : Attach tries to attach to process 1 where as exec executes a new process
 	or docker tag <image id> docker-hub-username/image-name
 
 14. docker push docker-registry-username/image-name
+		docker search <repo name>
+		docker search image # delayed with indexing.
+		#New feature added "Public View". Click on this and search may start working.
 
 15. docker ps
 
