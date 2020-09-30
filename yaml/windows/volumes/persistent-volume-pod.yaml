@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pv-pod
+spec:
+  containers:
+  - image: microsoft/iis 
+    name: pv-container
+
+    command: ['powershell', '-command', 'echo pv container running; sleep 3600']
+
+    volumeMounts:
+      - mountPath: "C:/my-pv-path"
+        name: my-persistent-volumeclaim-name
+
+  volumes:
+    - name: my-persistent-volumeclaim-name
+      persistentVolumeClaim:
+        claimName: my-persistent-volumeclaim

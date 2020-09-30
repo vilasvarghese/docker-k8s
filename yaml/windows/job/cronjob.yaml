@@ -1,0 +1,18 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: hello
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hello
+            image: mcr.microsoft.com/windows/servercore:ltsc2019 
+            args:
+            - powershell.exe
+            - -command
+            - date; echo Hello from the Kubernetes cluster
+          restartPolicy: OnFailure

@@ -1,0 +1,18 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: nfs-in-a-pod
+spec:
+  containers:
+    - name: app
+      image: alpine
+      volumeMounts:
+        - name: nfs-volume
+          mountPath: /var/nfs # Please change the destination you like the share to be mounted too
+      command: ["/bin/sh"]
+      args: ["-c", "sleep 500000"]
+  volumes:
+    - name: nfs-volume
+      nfs:
+        server: 192.168.56.130 # Please change this to your NFS server
+        path: /mnt/sharedfolder # Please change this to the relevant share

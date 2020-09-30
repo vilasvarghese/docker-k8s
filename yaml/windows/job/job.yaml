@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: countdown
+spec:
+  template:
+    metadata:
+      name: countdown
+    spec:
+      containers:
+      - name: counter
+        image: mcr.microsoft.com/windows/servercore:ltsc2019 
+        command:
+        - powershell.exe 
+        - -command
+        - "For ($i=0; $i -lt 10; $i++) {$i}"
+      restartPolicy: Never
