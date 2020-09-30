@@ -1,0 +1,388 @@
+Windows containers in Kubernetes 
+--------------------------------
+	Kubernetes Orchestration of Windows containers 
+		include Windows nodes in your existing Linux cluster. 
+	Control Plane
+		Should be linux 
+		Windows not supported
+		workers can be 
+			Windows or 
+				Windows Server 2019 is the only Windows operating system supported
+					For v1.19
+					supports 
+						kubelet, 
+						container runtime (Docker)
+						kube-proxy
+						Kubeadm
+				More details: https://kubernetes.io/docs/setup/production-environment/windows/intro-windows-in-kubernetes/
+			Linux 
+
+
+Note: 
+	There are no plans to have a Windows-only Kubernetes cluster.
+	No plan - no effort to run k8s master on windows
+Note: 
+	Following is about Windows containers with process isolation. 
+	Windows containers with Hyper-V isolation is planned for a future release in a future release.
+
+Supported Functionality and Limitations
+---------------------------------------
+	Supported Functionality
+	-----------------------
+	Refer table in below link for os support.
+	https://kubernetes.io/docs/setup/production-environment/windows/intro-windows-in-kubernetes/
+	A single heterogeneous Kubernetes cluster can have 
+		Windows and 
+		Linux worker nodes. 
+	Windows containers have to be scheduled on Windows nodes 
+	Linux containers on Linux nodes.
+	
+	Note: 
+		Information on the different Windows Server servicing channels 
+			There are two primary release channels available to Windows Server customers, 
+			- Long-Term Servicing Channel and 
+			- Semi-Annual Channel.
+			Further details: https://docs.microsoft.com/en-us/windows-server/get-started-19/servicing-channels-19
+			
+	Note: 
+		Hope Windows O/S won't be frequently upgraded. 
+		Upgrading applications 
+			dictates and necessitates upgrading or introducing new nodes to the cluster. 
+			For the customers that chose to upgrade their operating system for containers running on Kubernetes, we will offer guidance and step-by-step instructions when we add support for a new operating system version. This guidance will include recommended upgrade procedures for upgrading user applications together with cluster nodes. Windows nodes adhere to Kubernetes version-skew policy (node to control plane versioning) the same way as Linux nodes do today.
+	Note: 
+		The Windows Server Host Operating System is subject to the Windows Server licensing. 
+		The Windows Container images are subject to the Supplemental License Terms for Windows containers.
+	Note: 
+		Windows containers with process isolation have strict compatibility rules, 
+			where the host OS version must match the container base image OS version. 
+			Once we support Windows containers with Hyper-V isolation in Kubernetes, 
+				the limitation and compatibility rules will change.
+	
+	Execution:
+		From an execution/usage perspective kubernetes on windows and linux looks similar. 
+		There are few limitations
+		
+		
+	Limitations
+	------------
+		Control Plane
+			Windows 
+				only on worker node 
+				Linux master nodes, 
+				zero or more Linux worker nodes, 
+				zero or more Windows worker nodes.
+
+		Compute
+		-------
+		Resource management and process isolation
+		-----------------------------------------
+		1. Restrictions on host o/s
+		---------------------------
+			Linux supports cgroups  
+				boundary for network, 
+				process and file system isolation. 
+				used to gather cpu/io/memory stats. 
+			In contrast, Windows 
+				uses Job object per container 
+					with a system namespace filter 
+					to 
+						contain all processes in a container 
+						provide logical isolation from the host. 
+					
+				Impossible to run Windows container without namespace filtering. 
+				System privileges cannot be asserted on the host
+				Privileged containers are not available on Windows. 
+				Containers cannot assume an identity from the host 
+					because the Security Account Manager (SAM) is separate.
+
+		2. Operating System Restrictions
+		--------------------------------
+		Strict compatibility rules between 
+			host OS version and container base image OS version. 
+			Only Windows containers with a container o/s of Windows Server 2019 are supported. 
+			Hyper-V isolation of containers, 
+				enabling backward compatibility of Windows container image versions
+					planned for future release.
+
+		3. Feature Restrictions: Most Memory and CPU restrictions are not implemented.
+		------------------------------------------------------------------------------
+			TerminationGracePeriod: not implemented
+			Single file mapping: to be implemented with CRI-ContainerD
+			Termination message: to be implemented with CRI-ContainerD
+			Privileged Containers: not currently supported in Windows containers
+			HugePages: not currently supported in Windows containers
+			Node problem detector is Linux-only and requires privileged containers. 
+				Hope: this will not be required in Windows as 
+					privileged containers are not supported
+			Not all features of shared namespaces are supported 
+				(see API section for more details)
+			Memory Reservations and Handling
+			Windows does not have an out-of-memory process killer as Linux does. 
+			Windows always treats 
+				all user-mode memory allocations as virtual
+				pagefiles are mandatory. 
+				Effectively 
+					Windows won't reach out of memory conditions like Linux, 
+					Processes page to disk instead of being subject to OOM termination. 
+					If memory is over-provisioned and all physical memory is exhausted, 
+						then paging can slow down performance.
+
+					Keeping memory usage within reasonable bounds is possible with a two-step process. 
+					First, use the kubelet parameters 
+						--kubelet-reserve and/or 
+						--system-reserve to account for memory usage on the node (outside of containers). 
+					(This reduces NodeAllocatable). 
+					As you deploy workloads, 
+						use resource limits (must set only limits or limits must equal requests) on containers. 
+						This also subtracts from NodeAllocatable and prevents the scheduler from adding more pods once a node is full.
+
+					A best practice to avoid over-provisioning is to configure the kubelet with a system reserved memory of at least 2GB to account for Windows, Docker, and Kubernetes processes.
+
+				The behavior of the flags behave differently as described below:
+					--kubelet-reserve, 
+					--system-reserve , and 
+					--eviction-hard 
+					flags update Node Allocatable
+
+				Eviction by using --enforce-node-allocable is not implemented
+				Eviction by using --eviction-hard and --eviction-soft are not implemented
+					MemoryPressure Condition is not implemented
+					There are no OOM eviction actions taken by the kubelet
+				Kubelet running on the windows node does not have memory restrictions. 
+					--kubelet-reserve and 
+					--system-reserve 
+					do not set limits on kubelet or processes running on the host. 
+					This means kubelet or a process on the host could cause memory resource starvation outside the node-allocatable and scheduler
+
+
+		4. Storage
+		----------
+		Windows has a layered filesystem driver to mount container layers
+		create a copy filesystem based on NTFS. 
+		All file paths in the container are resolved only within the context of that container.
+
+			Volume mounts can only target a directory in the container, 
+				not an individual file
+			Volume mounts cannot project files or directories back to the host filesystem
+			Read-only filesystems are not supported 
+				because write access is always required for the Windows registry and SAM database. 
+				However, read-only volumes are supported
+			Volume user-masks and permissions are not available. 
+				Because the SAM is not shared between the host & container, 
+					there's no mapping between them. 
+				All permissions are resolved within the context of the container
+				As a result, the following storage functionality is not supported on Windows nodes
+					Volume subpath mounts
+					Only the entire volume can be mounted in a Windows container.
+					Subpath volume mounting for Secrets
+
+					Host mount projection
+					DefaultMode (due to UID/GID dependency)
+					Read-only root filesystem. Mapped volumes still support readOnly
+					Block device mapping
+					Memory as the storage medium
+					File system features like uui/guid, per-user Linux filesystem permissions
+					NFS based storage/volume support
+					Expanding the mounted volume (resizefs)
+					
+					
+
+		5. Networking (Windows Container Networking)
+		-------------------------------------------
+			 
+			Differs in some important ways from Linux networking. 
+			The Microsoft documentation for Windows Container Networking contains additional details and background.
+
+			The Windows host networking service and virtual switch 
+				implement namespacing and 
+				can create virtual NICs as needed for a pod or container. 
+			However, many configurations such as 
+				DNS, 
+				routes, and 
+				metrics are stored in the 
+			Windows registry database 
+				rather than /etc/... files as they are on Linux. 
+			The Windows registry for the container is separate from that of the host, 
+				so concepts like mapping /etc/resolv.conf from the host into a container 
+					don't have the same effect they would on Linux. 
+				These must be configured using Windows APIs run in the context of that container. 
+				Therefore CNI implementations need to call the HNS instead of relying on file mappings to pass network details into the pod or container.
+
+			The following networking functionality is not supported on Windows nodes
+				Host networking mode 
+					not available for Windows pods
+				Local NodePort access from the node itself fails 
+					(works for other nodes or external clients)
+				Accessing service VIPs from nodes will be available with a future release of Windows Server
+				Overlay networking support in 	kube-proxy is an alpha release. In addition, it requires KB4482887 to be installed on Windows Server 2019
+				Local Traffic Policy and DSR mode
+				Windows containers connected to l2bridge, l2tunnel, or overlay networks do not support communicating over the IPv6 stack. There is outstanding Windows platform work required to enable these network drivers to consume IPv6 addresses and subsequent Kubernetes work in kubelet, kube-proxy, and CNI plugins.
+				Outbound communication using the ICMP protocol via the win-overlay, win-bridge, and Azure-CNI plugin. Specifically, the Windows data plane (VFP) doesn't support ICMP packet transpositions. This means:
+				ICMP packets directed to destinations within the same network (e.g. pod to pod communication via ping) work as expected and without any limitations
+				TCP/UDP packets work as expected and without any limitations
+				ICMP packets directed to pass through a remote network (e.g. pod to external internet communication via ping) cannot be transposed and thus will not be routed back to their source
+				Since TCP/UDP packets can still be transposed, one can substitute ping <destination> with curl <destination> to be able to debug connectivity to the outside world.
+
+		Features were added in Kubernetes v1.15:
+			kubectl port-forward
+			
+		CNI Plugins
+		-----------
+			Windows reference network plugins 
+				win-bridge and 
+				win-overlay 
+				do not currently implement CNI spec v0.4.0 
+					due to missing "CHECK" implementation.
+			
+		The Flannel VXLAN CNI has the following limitations on Windows:
+			Node-pod connectivity isn't possible by design. 
+			It's only possible for local pods with Flannel v0.12.0 (or higher).
+			Restricted to using VNI 4096 and UDP port 4789. 
+				VNI limitation is WIP
+				will be resolved in a future release 
+					(open-source flannel changes). 
+				See the official Flannel VXLAN backend docs for more details on these parameters.
+		DNS
+		---
+		ClusterFirstWithHostNet 
+			not supported for DNS. 
+			Windows treats all names with a '.' as a FQDN and skips PQDN resolution
+			On Linux, 
+				DNS suffix list is used when trying to resolve PQDNs. 
+			On Windows, 
+				 have only 1 DNS suffix, 
+					DNS suffix associated with that pod's namespace 
+						(mydns.svc.cluster.local for example). 
+						Windows can resolve FQDNs and services or names resolvable with just that suffix. 
+						For e.g., 
+							a pod spawned in the default namespace, 
+							will have the DNS suffix 
+								default.svc.cluster.local. 
+						On a Windows pod, you can resolve both 
+							kubernetes.default.svc.cluster.local 
+							and 	
+							kubernetes, but not the in-betweens, 
+								like kubernetes.default or kubernetes.default.svc.
+		Windows supports, 
+			there are multiple DNS resolvers that can be used. 
+			These come with slightly different behaviors, using the Resolve-DNSName utility for name query resolutions is recommended.
+		
+		IPv6
+		----
+		Kubernetes on Windows does not support single-stack "IPv6-only" networking. 
+		However,dual-stack IPv4/IPv6 networking for pods and nodes with single-family services is supported. See IPv4/IPv6 dual-stack networking for more details.
+
+		Session affinity
+		-----------------
+		Setting the maximum session sticky time for Windows services using service.spec.sessionAffinityConfig.clientIP.timeoutSeconds is not supported.
+
+		Security
+		--------
+		Secrets are written in clear text on the node's volume 
+			Stored as tmpfs/in-memory on linux. 
+			Customers have to do two things
+				Use file ACLs to secure the secrets file location
+				Use volume-level encryption using BitLocker
+		RunAsUser is not currently supported on Windows. 
+		The workaround is to create local accounts before packaging the container. 
+		The RunAsUsername capability is planned for future release.
+
+		Linux specific pod security context privileges such as 
+			SELinux, 
+			AppArmor, 
+			Seccomp, 
+			Capabilities (POSIX Capabilities), 
+			and others are not supported.
+		Additionally privileged containers are not supported on Windows.
+
+		API
+		---
+		No differences in how most of the Kubernetes APIs work for Windows. 
+		
+		Some properties on workload APIs such as Pod or Container were 
+			designed for Linux, 
+			failing to run on Windows.
+
+		At a high level, these OS concepts are different:
+
+			1. Identity - 
+				Linux uses 
+						userID (UID) and 
+						groupID (GID) 
+					represented as integer types. 
+					User and group names are not canonical - 
+						just an alias in 
+							/etc/groups or 
+							/etc/passwd 
+				Windows uses 
+					larger binary security identifier (SID) 
+					stored in the Windows Security Access Manager (SAM) database. 
+						SAM is not shared between the 
+							host and containers, 
+						or 
+							between containers.
+			2. File permissions - 
+				Windows uses an access control list based on SIDs, 
+					not bitmask (777) of permissions and UID+GID
+			3. File paths - 
+				Convention on Windows is to use \ instead of /. 
+				The Go IO libraries typically accept both and just make it work, 
+				but when you're setting a path or command line that's interpreted inside a container, 
+					\ may be needed in windows.
+			4. Signals - 
+				Windows interactive apps handle termination differently, 
+				Can implement one or more of these:
+					A UI thread handles well-defined messages including WM_CLOSE
+					Console apps handle ctrl-c or ctrl-break using a Control Handler
+					Services register a Service Control Handler function that can accept SERVICE_CONTROL_STOP control codes
+					Exit Codes follow the same convention where 0 is success, nonzero is failure. The specific error codes may differ across Windows and Linux. However, exit codes passed from the Kubernetes components (kubelet, kube-proxy) are unchanged.
+
+		V1.Container
+		V1.Container.ResourceRequirements.limits.cpu and V1.Container.ResourceRequirements.limits.memory - Windows doesn't use hard limits for CPU allocations. Instead, a share system is used. The existing fields based on millicores are scaled into relative shares that are followed by the Windows scheduler. see: kuberuntime/helpers_windows.go, see: resource controls in Microsoft docs
+		Huge pages are not implemented in the Windows container runtime, and are not available. They require asserting a user privilege that's not configurable for containers.
+		V1.Container.ResourceRequirements.requests.cpu and V1.Container.ResourceRequirements.requests.memory - Requests are subtracted from node available resources, so they can be used to avoid overprovisioning a node. However, they cannot be used to guarantee resources in an overprovisioned node. They should be applied to all containers as a best practice if the operator wants to avoid overprovisioning entirely.
+		V1.Container.SecurityContext.allowPrivilegeEscalation - not possible on Windows, none of the capabilities are hooked up
+		V1.Container.SecurityContext.Capabilities - POSIX capabilities are not implemented on Windows
+		V1.Container.SecurityContext.privileged - Windows doesn't support privileged containers
+		V1.Container.SecurityContext.procMount - Windows doesn't have a /proc filesystem
+		V1.Container.SecurityContext.readOnlyRootFilesystem - not possible on Windows, write access is required for registry & system processes to run inside the container
+		V1.Container.SecurityContext.runAsGroup - not possible on Windows, no GID support
+		V1.Container.SecurityContext.runAsNonRoot - Windows does not have a root user. The closest equivalent is ContainerAdministrator which is an identity that doesn't exist on the node.
+		V1.Container.SecurityContext.runAsUser - not possible on Windows, no UID support as int.
+		V1.Container.SecurityContext.seLinuxOptions - not possible on Windows, no SELinux
+		V1.Container.terminationMessagePath - this has some limitations in that Windows doesn't support mapping single files. The default value is /dev/termination-log, which does work because it does not exist on Windows by default.
+		V1.Pod
+		V1.Pod.hostIPC, v1.pod.hostpid - host namespace sharing is not possible on Windows
+		V1.Pod.hostNetwork - There is no Windows OS support to share the host network
+		V1.Pod.dnsPolicy - ClusterFirstWithHostNet - is not supported because Host Networking is not supported on Windows.
+		V1.Pod.podSecurityContext - see V1.PodSecurityContext below
+		V1.Pod.shareProcessNamespace - this is a beta feature, and depends on Linux namespaces which are not implemented on Windows. Windows cannot share process namespaces or the container's root filesystem. Only the network can be shared.
+		V1.Pod.terminationGracePeriodSeconds - this is not fully implemented in Docker on Windows, see: reference. The behavior today is that the ENTRYPOINT process is sent CTRL_SHUTDOWN_EVENT, then Windows waits 5 seconds by default, and finally shuts down all processes using the normal Windows shutdown behavior. The 5 second default is actually in the Windows registry inside the container, so it can be overridden when the container is built.
+		V1.Pod.volumeDevices - this is a beta feature, and is not implemented on Windows. Windows cannot attach raw block devices to pods.
+		V1.Pod.volumes - EmptyDir, Secret, ConfigMap, HostPath - all work and have tests in TestGrid
+		V1.emptyDirVolumeSource - the Node default medium is disk on Windows. Memory is not supported, as Windows does not have a built-in RAM disk.
+		V1.VolumeMount.mountPropagation - mount propagation is not supported on Windows.
+		V1.PodSecurityContext
+		None of the PodSecurityContext fields work on Windows. They're listed here for reference.
+
+		V1.PodSecurityContext.SELinuxOptions - SELinux is not available on Windows
+		V1.PodSecurityContext.RunAsUser - provides a UID, not available on Windows
+		V1.PodSecurityContext.RunAsGroup - provides a GID, not available on Windows
+		V1.PodSecurityContext.RunAsNonRoot - Windows does not have a root user. The closest equivalent is ContainerAdministrator which is an identity that doesn't exist on the node.
+		V1.PodSecurityContext.SupplementalGroups - provides GID, not available on Windows
+		V1.PodSecurityContext.Sysctls - these are part of the Linux sysctl interface. There's no equivalent on Windows.
+		
+		
+		#######################################
+		
+		https://github.com/microsoft/iis-docker
+		Upgrade
+			kubectl rollout status deployment.v1.apps/iisn
+
+			- kubectl --record deployment.v1.apps/iisn set image deployment.v1.apps/iisn iis-container=iis-container:windowsservercore-1903
+
+		Rollout history: 
+			- kubectl rollout history deployment.v1.apps/iisn
+
+		Rollback:
+			- kubectl rollout undo deployment.v1.apps/iisn

@@ -1,0 +1,21 @@
+ENV['VAGRANT_NO_PARALLEL'] = 'yes'
+
+Vagrant.configure(2) do |config|
+
+  config.vm.provision "shell", path: "bootstrap.sh"
+
+  # Kubernetes Master Server
+  config.vm.define "centmaster" do |centmaster|
+    centmaster.vm.box = "centos/7"
+    centmaster.vm.hostname = "docker"
+    centmaster.vm.network "private_network", ip: "192.168.56.101"
+    centmaster.vm.provider "virtualbox" do |v|
+      v.name = "docker"
+      v.memory = 3048
+      v.cpus = 2
+      # Prevent VirtualBox from interfering with host audio stack
+      v.customize ["modifyvm", :id, "--audio", "none"]
+    end
+    centmaster.vm.provision "shell", path: "bootstrap_centmaster.sh"
+  end
+end
