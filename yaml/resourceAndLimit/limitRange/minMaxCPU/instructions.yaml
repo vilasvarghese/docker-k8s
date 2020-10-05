@@ -1,0 +1,69 @@
+Reference: https://kubernetes.io/docs/tasks/administer-cluster/manage-resources/cpu-constraint-namespace/
+
+1. cd docker-k8s/yaml/resourceAndLimit/limitRange/minMaxCPU
+
+2. kubectl create namespace constraints-cpu-example
+
+3. kubectl apply -f cpu-limit.yaml --namespace=constraints-cpu-example
+
+4. kubectl get limitrange cpu-min-max-demo-lr --output=yaml --namespace=constraints-cpu-example
+	
+	a. The output shows the minimum and maximum CPU constraints as expected. 
+	b. For LimitRange we specified 
+		Min 
+		Max
+		But didn't specify
+			default value
+		default value was applied/created automatically. 
+	
+5. Effect of compute resources on LimitRange
+	If Container does not define CPU request and limit, 
+		assign default CPU request and limit to the Container.
+
+	Verify Container CPU request >= 200 millicpu.
+	Verify Container CPU limit that <= 800 millicpu.
+	
+6. kubectl apply -f cpu-pod.yaml --namespace=constraints-cpu-example
+
+7. kubectl get pod constraints-cpu-demo --namespace=constraints-cpu-example
+	kubectl get pod constraints-cpu-demo --output=yaml --namespace=constraints-cpu-example
+	kubectl get describe pod  constraints-cpu-demo --namespace=constraints-cpu-example
+	
+8. kubectl delete pod constraints-cpu-demo --namespace=constraints-cpu-example
+
+9. Try creating Pod that exceeds the maximum CPU constraint 
+	kubectl apply -f cpu-exceed-pod.yaml
+	
+	Error message as follows
+		Error from server (Forbidden): error when creating "examples/admin/resource/cpu-constraints-pod-2.yaml":
+	pods "constraints-cpu-demo-2" is forbidden: maximum cpu usage per Container is 800m, but limit is 1500m.
+	
+10. Try creating Pod that has less than minimum CPU constraint 
+	kubectl apply -f cpu-less-pod.yaml
+	
+	Error message
+		Error from server (Forbidden): error when creating "examples/admin/resource/cpu-constraints-pod-3.yaml":
+pods "constraints-cpu-demo-3" is forbidden: minimum cpu usage per Container is 200m, but request is 100m.
+
+11. Pod without any CPU request or limit
+	kubectl apply -f pod-with-no-req-limit.yaml
+	kubectl get pod constraints-cpu-demo-4 --namespace=constraints-cpu-example --output=yaml
+	
+	The output shows that the Pod's Container has a CPU request of 800 millicpu and a CPU limit of 800 millicpu.
+	
+12. This Container did not specify its own CPU request and limit, 
+	It was given the default CPU request and limit from the LimitRange.
+
+	Container might be running or 
+	it might not be running
+		If resources are not available.
+	If each of your Nodes has only 1 CPU, 
+		then there might not be enough allocatable CPU on any Node to accommodate a request of 800 millicpu.
+		
+	If you happen to be using Nodes with 2+ CPU, 
+		then you probably have enough CPU to accommodate the 800 millicpu request.
+
+13. Delete your Pod and Namespace:
+	kubectl delete pod constraints-cpu-demo-4 --namespace=constraints-cpu-example
+	kubectl delete pod --all --namespace=constraints-cpu-example
+	kubectl delete namespace constraints-cpu-example
