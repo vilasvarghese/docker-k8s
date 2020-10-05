@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+spec:
+  containers:
+  - name: nginx-c
+    image: nginx
+  tolerations:
+  - key: "app"
+    operator: "Equal"
+    value: "DBNode"
+    effect: "NoSchedule"
+#kubectl taint nodes kworker1 app=DBNode:NoSchedule

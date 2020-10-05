@@ -1,0 +1,72 @@
+These should be done in reference to the CKA-Notes resource requests and limits
+
+1. Create an ns
+	kubectl create namespace default-mem-example
+	
+2. Create a LimitRange 
+	Refer docker-k8s/yaml/resourceAndLimit/namespacleLimits/ns-memory-defaults.yaml
+		This configures 
+		
+		kubectl apply -f ns-memory-defaults.yaml  --namespace=default-mem-example
+		
+3. Create a pod in the ns
+	Now if a Container in Pod is created in the default-mem-example namespace, 
+		without memory request and memory limit, 
+		the Container is given a 
+			default memory request of 256 MiB 
+			default memory limit of 512 MiB.
+			
+		kubectl apply -f pod-ns-memory-defaults.yaml --namespace=default-mem-example
+		
+4. kubectl get pod default-mem-demo --output=yaml --namespace=default-mem-example
+
+------------------------------------------------------------------------------------------
+containers:
+- image: nginx
+  imagePullPolicy: Always
+  name: default-mem-demo-ctr
+  resources:
+    limits:
+      memory: 512Mi #Limit 
+    requests:
+      memory: 256Mi	#Request
+------------------------------------------------------------------------------------------
+	Delete the pod
+		kubectl delete pod default-mem-demo --namespace=default-mem-example
+		
+5. If you define only containers limit but not request
+	
+	kubectl apply -f 2ndpod-ns-memory-defaults.yaml --namespace=default-mem-example
+	
+	Limit would be applied to the request as well.
+
+kubectl get pod default-mem-demo-2 --output=yaml --namespace=default-mem-example
+------------------------------------------------------------------------------------------
+resources:
+  limits:
+    memory: 1Gi
+  requests:
+    memory: 1Gi
+------------------------------------------------------------------------------------------
+	
+6. If you make only resource request in containers and not mention any limit's
+
+
+	kubectl apply -f 3rdpod-ns-memory-defaults.yaml --namespace=default-mem-example
+	
+	Limit would be applied to the request as well.
+
+	kubectl get pod default-mem-demo-3 --output=yaml --namespace=default-mem-example
+	Default limit = 512Mi will be applied.
+
+------------------------------------------------------------------------------------------
+	
+resources:
+  limits:
+    memory: 512Mi
+  requests:
+    memory: 128Mi	
+------------------------------------------------------------------------------------------
+
+7. Cleanup the environment
+	kubectl delete namespace default-mem-example	

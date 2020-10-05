@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: mem-limit-range
+spec:
+  limits:
+  - default:
+      memory: 512Mi #Default memory limit
+    defaultRequest:
+      memory: 256Mi #Default memory request
+    type: Container
+
