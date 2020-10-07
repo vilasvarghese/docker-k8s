@@ -3,12 +3,23 @@
 	cd kubernetes
 	make
 	
+	sudo su
+	cd /home/vagrant/docker-k8s/yaml/cka/multipleScheulers/
+	curl https://storage.googleapis.com/kubernetes-release/release/v1.19.0/bin/linux/amd64/kube-scheduler -o kube-scheduler
+	
 2. docker build -t vilasvarghese/my-scheduler .	
 
 3. docker login -u vilasvarghese
 
 4. docker push vilasvarghese/my-scheduler
 	
+	
+Give access to  /usr/local/bin/kube-scheduler
+
+Login both workernode
+	cd /usr/local/bin
+	sudo mkdir kube-scheduler
+	sudo chmod 777 kube-scheduler
 	
 5. 	Refer my-scheduler.yaml
 	--scheduler-name 
