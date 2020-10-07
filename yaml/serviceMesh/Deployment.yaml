@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: productpage-v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: productpage
+  template:
+    metadata:
+      labels:
+        app: productpage
+        track: stable
+    spec:
+      containers:
+      - name: productpage
+        image: istio/examples-bookinfo-productpage-v1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9080

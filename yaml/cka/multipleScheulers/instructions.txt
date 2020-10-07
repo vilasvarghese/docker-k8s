@@ -1,0 +1,26 @@
+1. Get default scheuler
+	git clone https://github.com/kubernetes/kubernetes.git
+	cd kubernetes
+	make
+	
+2. docker build -t vilasvarghese/my-scheduler .	
+
+3. docker login -u vilasvarghese
+
+4. docker push vilasvarghese/my-scheduler
+	
+	
+5. 	Refer my-scheduler.yaml
+	--scheduler-name 
+		should be unique
+		should match with pod.spec.schedulerName
+		
+		
+	 Created a dedicated service account my-scheduler 
+	 Bind the cluster role system:kube-scheduler to it 
+		system:kube-scheduler role used by default scheduler
+	 Acquire the same privileges as kube-scheduler.
+	
+	kubectl apply -f my-scheduler.yaml
+
+6. kubectl get pods --namespace=kube-system

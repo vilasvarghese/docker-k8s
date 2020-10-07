@@ -1,0 +1,57 @@
+root@k18master vagrant]# curl -L https://istio.io/downloadIstio | sh -
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   102  100   102    0     0     15      0  0:00:06  0:00:06 --:--:--    24
+100  4277  100  4277    0     0    338      0  0:00:12  0:00:12 --:--:--  1275
+
+Downloading istio-1.7.3 from https://github.com/istio/istio/releases/download/1.7.3/istio-1.7.3-linux-a                md64.tar.gz ...
+
+Istio 1.7.3 Download Complete!
+
+Istio has been successfully downloaded into the istio-1.7.3 folder on your system.
+
+Next Steps:
+See https://istio.io/latest/docs/setup/install/ to add Istio to your Kubernetes cluster.
+
+To configure the istioctl client tool for your workstation,
+add the /home/vagrant/istio-1.7.3/bin directory to your environment path variable with:
+         export PATH="$PATH:/home/vagrant/istio-1.7.3/bin"
+
+Begin the Istio pre-installation check by running:
+         istioctl x precheck
+
+Need more information? Visit https://istio.io/latest/docs/setup/install/
+[root@k18master vagrant]# cd istio-1.7.3
+[root@k18master istio-1.7.3]# export PATH="$PATH:/home/vagrant/istio-1.7.3/bin"
+[root@k18master istio-1.7.3]# istioctl x precheck
+
+Checking the cluster to make sure it is ready for Istio installation...
+
+#1. Kubernetes-api
+-----------------------
+Can initialize the Kubernetes client.
+Can query the Kubernetes API Server.
+
+#2. Kubernetes-version
+-----------------------
+Istio is compatible with Kubernetes: v1.18.8.
+
+#3. Istio-existence
+-----------------------
+Istio will be installed in the istio-system namespace.
+
+#4. Kubernetes-setup
+-----------------------
+Can create necessary Kubernetes configurations: Namespace,ClusterRole,ClusterRoleBinding,CustomResource                Definition,Role,ServiceAccount,Service,Deployments,ConfigMap.
+
+#5. SideCar-Injector
+-----------------------
+[root@k18master istio-1.7.3]# istioctl install --set profile=demo
+Detected that your cluster does not support third party JWT authentication. Falling back to less secure                 first party JWT. See https://istio.io/docs/ops/best-practices/security/#configure-third-party-service-                account-tokens for details.
+✔ Istio core installed
+✔ Istiod installed
+✔ Ingress gateways installed
+✔ Egress gateways installed
+✔ Installation complete                                                                                                [root@k18master istio-1.7.3]#
+$ kubectl delete -f samples/addons $ istioctl manifest generate --set profile=demo | kubectl delete --ignore-not-found=true -f -
+$ kubectl delete namespace istio-system

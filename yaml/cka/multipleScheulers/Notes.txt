@@ -1,0 +1,16 @@
+https://kubernetes.io/docs/tasks/extend-kubernetes/configure-multiple-schedulers/
+
+Kubernetes ships with a default scheduler 
+	Default Scheduler	
+	https://kubernetes.io/docs/reference/command-line-tools-reference/kube-scheduler/
+	
+	If the default scheduler does not suit our needs 
+		implement our own scheduler. 
+	We can run multiple schedulers simultaneously 
+		alongside the default scheduler 
+	Instruct Kubernetes which scheduler to use 
+		for each of your pods.
+		
+	A detailed description of how to implement a scheduler 	https://github.com/kubernetes/kubernetes/tree/master/pkg/scheduler
+	
+	
