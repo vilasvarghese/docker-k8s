@@ -24,3 +24,31 @@
 	kubectl apply -f my-scheduler.yaml
 
 6. kubectl get pods --namespace=kube-system
+
+
+	Enable leader election
+	-----------------------
+	
+	kubectl create ns ns1
+	
+To run multiple-scheduler with leader election enabled, 
+
+	Update
+	--leader-elect=true
+	
+	Add the following 
+	--lock-object-namespace=<lock-object-namespace>
+	--lock-object-name=<lock-object-name>
+
+	Refer: my-scheduler-leader-elect.yaml
+
+N.B: 
+	The control plane creates the lock objects we mention,
+	namespace must be created by us. 
+	You can use the kube-system namespace.
+
+
+
+If RBAC is enabled on your cluster, you must update the system:kube-scheduler cluster role. Add your scheduler name to the resourceNames of the rule applied for endpoints and leases resources, as in the following example:
+
+kubectl edit clusterrole system:kube-scheduler
