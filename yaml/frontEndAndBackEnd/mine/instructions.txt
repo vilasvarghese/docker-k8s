@@ -14,8 +14,19 @@ We have already pushed a docker image into the dockerhub. Instructions used for 
 Now let's create a back end along with it's service.
 	kubectl create -f mysql.yaml
 
+A Service creates a 
+	persistent IP address and 
+	DNS name entry so that the 
+	backend microservice can always be reached. 
+	A Service uses selectors to find the Pods that it routes traffic to.
+
+
+
 Now let's create the frontend for the same along with it's service.
 	kubectl create -f frontend.yaml
 
-on the browser
+The frontend connects to the backend worker Pods by using the DNS name given to the backend Service. The DNS name is "mysqldb", which is the value of the name field in the Service customers.jsp.
+
+
+On the browser
 	http://192.168.253.130:<node port>/HelloWorld/customers.jsp
