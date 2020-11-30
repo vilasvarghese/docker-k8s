@@ -1,0 +1,21 @@
+The actual app and the Dockerfile for this can be found in 
+/home/vagrant/docker-k8s/dockerfiles/frontEndAndBackEnd/webfrontend-mysqldb
+
+cd /home/vagrant/docker-k8s/dockerfiles/frontEndAndBackEnd/webfrontend-mysqldb
+
+Understand the dockerfile and the associated app by doing  vi Dockerfile.dockerfile
+	The front end connects to a service with the name mysqldb
+
+We have already pushed a docker image into the dockerhub. Instructions used for the same are..
+	sudo docker  build -f Dockerfile.dockerfile -t vilasvarghese/k8sfrontend .
+	docker login -u vilasvarghese 
+	docker push vilasvarghese/k8sfrontend
+
+Now let's create a back end along with it's service.
+	kubectl create -f mysql.yaml
+
+Now let's create the frontend for the same along with it's service.
+	kubectl create -f frontend.yaml
+
+on the browser
+	http://192.168.253.130:<node port>/HelloWorld/customers.jsp
