@@ -1,0 +1,8 @@
+version: '3'
+services:
+
+  kanban-postgres:
+    image: "nginx"
+    container_name: mynginx
+    ports:
+      - 80:80 
