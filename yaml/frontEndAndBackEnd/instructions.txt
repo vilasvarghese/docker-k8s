@@ -1,0 +1,28 @@
+The backend microservice is a hello greeter. The frontend and backend are connected using a Kubernetes "service" object.
+
+Create and run a microservice using a "deployment" object.
+Route traffic to the backend using a frontend.
+Use a Service object to connect the frontend application to the backend application.
+
+
+Create the backend Deployment:
+
+	kubectl apply -f backend.yaml
+
+View backend Deployment:
+
+	kubectl describe deployment hello
+
+Create a backend service object
+	kubectl apply -f backendservice.yaml
+
+Creating the frontend
+	Now that you have your backend, you can create a frontend that connects to the backend. The frontend connects to the backend worker Pods by using the DNS name given to the backend Service. The DNS name is "hello", which is the value of the name field in the preceding Service configuration file.
+
+The Pods in the frontend Deployment run an nginxCreating the frontend
+
+Create the frontend Deployment and Service:
+
+	kubectl apply -f frontEnd.yaml
+
+curl http://machineIP:NodePort
