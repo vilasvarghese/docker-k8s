@@ -235,7 +235,7 @@ Differentiate container and image
 
 	i. By default a container’s file system persists even after the container exits. Docker to automatically clean up the container and remove the file system when the container exits, you can add the --rm flag:
 
-	docker run --rm=false ubuntu #rm=false - automatically clean up the file system when the container exits.
+	docker run --rm=false ubuntu #rm=true - automatically clean up the file system when the container exits.
 
 	Refer https://docs.docker.com/engine/reference/run/ for the complete list.
 
