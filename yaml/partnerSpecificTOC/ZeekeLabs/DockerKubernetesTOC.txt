@@ -1,0 +1,185 @@
+zekeLabs
+Learning made Simpler!
+27th October , 2020
+Docker & Kubernetes
+Training
+Training Plan
+Course type
+	● Instructor Led Classroom Training
+	Course Duration
+	● Approx. 40+ Hours
+	
+Prerequisites
+	● Foundational understanding of IT infrastructure
+	● Knowledge of Unix/Linux operating system
+	● Basic knowledge about Software Development Life Cycle
+
+Learning outcomes
+	● Learn concepts of Virtualization and Containerisation.
+	● Learn concepts of Microservices-based Architecture.
+	● Learn how Cloud-DevOps and Virtualization concepts converge together.
+	● Learn how Applications can be deployed and managed on cluster of servers.
+	● Get prepared for Kubernetes Administration certification.
+
+Environment setup
+	● AWS Cloud Account
+	● Connectivity tool: Putty, puttygen and Winscp
+
+Day 1
+1. Getting Started with Docker Containers
+	● Introduction Installing Docker on Ubuntu
+	● Installing Docker on CentOS
+	● Setting Up a Local Docker Host by Using Vagrant
+	● Starting a Docker Host in the Cloud by Using Docker Machine
+	● Using Docker Experimental Binaries
+	● Running Hello World in Docker
+	● Running a Docker Container in Detached Mode
+	● Creating, Starting, Stopping, and Removing Containers
+
+2. Image Creation and Sharing
+	● Introduction
+	● Keeping Changes Made to a Container by Committing to an Image
+	● Writing Your First Dockerfile
+	● Packaging a Flask Application Inside a Container
+	● Optimizing Your Dockerfile by Following Best Practices
+	● Versioning an Image with Tags
+	● Migrating from Vagrant to Docker with the Docker Provider
+	● Using Packer to Create a Docker Image
+	● Publishing Your Image to Docker Hub
+	● Running a Private Registry
+	● Setting Up an Automated Build on Docker Hub for Continuous Integration
+	● Building a Docker Image with a Dockerfile
+	● Sharing Data in Your Docker Host with Containers
+
+3. The Container Ecosystem
+	● Using Docker Compose to Create a WordPress
+	● Starting Containers on a Cluster with Docker Swarm
+	● Using Docker Machine to Create a Swarm Cluster Across Cloud Providers
+	● Discovering Docker Services
+	● Running Containers on a Cluster
+
+Day 2
+4. Container Management Systems: Docker Swarm
+	● Using Docker Compose to Create a WordPress
+	● Starting Containers on a Cluster with Docker Swarm
+	● Using Docker Machine to Create a Swarm Cluster Across Cloud Providers
+	● Discovering Docker Services
+	● Running Containers on a Cluster
+	● Scaling your Application across the cluster
+	● Best practices on Docker Swarm
+
+5. Introduction to Microservices:
+	● Service Oriented Architecture
+	● Monoliths vs microservices
+	● Deployment Patterns
+	● Data management
+	● Event sourcing
+	● Deploying microservices on containers
+
+Day 3
+6. Kubernetes: Introduction
+	● Introduction Understanding Kubernetes Architecture
+	● Docker Swarm and Kubernetes
+	● Creating a Multi Node Kubernetes Cluster with Vagrant
+	● Starting Containers on a Kubernetes Cluster with Pods
+	● Taking Advantage of Labels for Querying Kubernetes Objects
+	● Using a Replication Controller to Manage the Number of Replicas of a Pod
+	● Running Multiple Containers in a Pod
+	● Running the Kubernetes Dashboard
+
+7. Kubernetes: Core Concepts
+	● Kubernetes Cluster
+	● Architecture & Generic Installation
+	● Kubernetes Architecture
+	● Kubernetes Core
+	● Kubernetes API Primitives & Cluster Architecture
+	● Kubernetes Services & Network Primitives
+	● Run a Job
+	● Deploy a Pod
+	● Hardware and Underlying Infrastructure
+	● Validating Nodes & the Cluster
+
+8. Installation, Configuration & Validation
+	● Design a Kubernetes cluster.
+	● Raw Kubernetes Install -- Ubuntu and CentOS
+	● Install Kubernetes masters and nodes.
+	● Use of TLS bootstrapping.
+	● Configure secure cluster communications.
+	● Configure a Highly-Available Kubernetes cluster.
+	● Provision underlying infrastructure to deploy a
+	● Kubernetes cluster.
+	● Choose a network solution.
+	● Choose your Kubernetes
+	● Infrastructure configuration.
+	● Run end-to-end tests on your cluster.
+
+9. Application Lifecycle Management
+	● Understand Deployments
+	● Performing rolling updates and rollbacks.
+	● Ways to configure applications.
+	● Scaling applications.
+	● Create a self-healing application.
+
+Day 4
+10. Scheduling
+	● Labels & Selectors
+	● DaemonSets
+	● Raise a DaemonSet
+	● Resource Limits & Pod Scheduling
+	● Manually Scheduling Pods
+	● Label a Node & Schedule a Pod
+	● Multiple Schedulers
+
+11. Logging & Monitoring
+	● Monitoring Cluster Components and Applications
+	● View the Logs
+	● Managing Logs
+	● Logging/Monitoring
+	12. Cluster Maintenance
+	● Upgrading
+	● Upgrading Kubernetes Components
+	● Upgrading the Underlying Operating System(s)
+	● Backup and Restore a Kubernetes Cluster
+
+13. Networking
+	● Node Network Configuration
+	● Service Networking
+	● Ingress and Ingress rules
+	● Deploying a Load Balancer
+	● Configure & Use Cluster DNS
+	● Container Network Interface (CNI)
+
+Day 5
+14. Storage
+	● Persistent Volumes
+	● Volumes and their Access Modes
+	● Applications & Persistent Storage
+	● Kubernetes storage objects.
+	● Persistent volume claims primitive.
+
+15. Jobs:
+	● Job Resource
+	● Job manifest
+	● Batch Jobs
+	● CronJob
+	● Running multiple pods in a Job
+	● Scheduling and parallelism
+
+16. Security:
+	● Authentication & Authorization
+	● Configure Network Policies
+	● TLS Certificates for Cluster Components
+	● Securing Images
+	● Security Contexts
+	● Troubleshooting in Kubernetes
+
+17. Troubleshooting
+	● Troubleshoot application failure.
+	● Troubleshoot control plane failure.
+	● Troubleshoot worker node failure.
+	● Troubleshoot networking.
+
+18. Application use case:
+	● Deploying a web application over kubernetes cluster.
+	● Host it on AWS EKS.
+	Doubt Clearing / Queries session

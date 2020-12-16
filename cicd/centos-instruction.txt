@@ -1,8 +1,8 @@
 Java Installation
-sudo yum install java-1.8.0-openjdk-devel
+sudo yum install -y java-1.8.0-openjdk-devel
 
 #install maven
-sudo yum install maven
+sudo yum install -y maven
 mvn -version
 
 

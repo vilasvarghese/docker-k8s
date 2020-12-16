@@ -130,7 +130,16 @@ For others you just need to have HA strategy.
 kubectl get pod -n kube-system
 kubectl exec etcd-master -n kube-system etcdctl get / --prefix -keys-only
 
+kubectl exec etcd-kmaster -n kube-system ETCDCTL_API=3 etcdctl snapshot save ~/backup/snapshot.db   --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt  --cert=/etc/kubernetes/pki/etcd/healthcheck-client.crt --key=/etc/kubernetes/pki/etcd/healthcheck-client.key 
 
+kubectl exec etcd-kmaster -n kube-system  ETCDCTL_API=3 etcdctl snapshot restore snapshot.db \
+  --name m1 \
+  --initial-cluster m1=http://192.168.76.130:2380 \
+  --initial-cluster-token etcd-cluster-1 \
+  --initial-advertise-peer-urls http://192.168.76.130:2380
+
+
+kubectl exec etcd-kmaster -n kube-system ETCDCTL_API=3 etcdctl snapshot save ~/backup/snapshot.db    --cacert=/etc/kubernetes/pki/etcd/ca.crt  --cert=/etc/kubernetes/pki/etcd/healthcheck-client.crt --key=/etc/kubernetes/pki/etcd/healthcheck-client.key 
 
 API Server
 ----------
@@ -591,7 +600,12 @@ default: default namespace for objects with no other namespace
 kube-system: The namespace for objects created by the Kubernetes system
 
 kube-public: 
-	reserved for cluster usage
+	reserved for cluster usage. Can be used for objects which needs to be shared across ns.
+
+kube-node-lese: Node specific objects 
+
+
+
 
 
 We can create our own namespace as follows
@@ -602,6 +616,19 @@ kubectl delete namespaces <insert-some-namespace-name>
 `
 kubectl run nginx --image=nginx --namespace=<insert-namespace-name-here>
 
+--------------------------------------------
+create
+	kubectl create ns <name>
+view
+	kubectl get ns
+edit
+	kubectl edit ns <name>
+describe ns
+	kubectl describe ns <name>
+	
+delete 
+	kubectl delete ns <name>
+--------------------------------------------
 We can see object belonging to a namespace by giving -n <namespace>
 kubectl get svc -n kube-system
 kubectl describe svc kube-dns -n kube-system
@@ -792,6 +819,43 @@ A Pod (as in a pod of whales or pea pod) is a
 			replication. 
 		Pods enable 
 			data sharing and communication among their constituents.
+
+--------------------------------------------
+For Pod
+create 
+	#in default ns
+	kubectl create -f <yaml>
+	kubectl create -f <yaml> -n <ns>
+	kubectl run mynginx --image=nginx
+view
+	kubectl get pods
+	kubectl get pod --all-namespaces
+edit
+	kubectl apply -f <yaml>
+	
+describe ns
+	kubectl describe pod <name>
+	
+Using a pod
+	How to get inside a container?
+	How 
+	
+delete 
+	kubectl delete pod <name>
+	kubectl delete -f <any object - not just pod>
+--------------------------------------------
+
+
+LIst of api versions?
+	kubectl api-versions
+
+
+Lot of kubectl commands
+https://kubernetes.io/docs/reference/kubectl/overview/
+
+--------------------------------------------
+
+
 Uses of Pods
 ------------
 
@@ -1121,8 +1185,8 @@ Way more powerful than docker volumes
 			
 		kubectl apply -f empty-dir.yaml
 		#####################
-		#kubectl exec -it <<pod name>> -c <container name> /bin/sh
-		kubectl exec -it <<pod name>> /bin/sh
+		#kubectl exec -it <<pod name>> -c <container name> -- /bin/sh
+		kubectl exec -it <<pod name>> -- /bin/sh
 		#####################
 		- We can create emptyDir in RAM by doing the following
 		emptyDir:
@@ -1152,7 +1216,13 @@ For this K8s introduced two new API resources: PersistentVolume and PersistentVo
 
 PVs are resources in the cluster. PVCs are requests for those resources and also act as claim checks to the resource.
 
-A PersistentVolume (PV) is a piece of storage in the cluster that has been provisioned by an administrator or dynamically provisioned using Storage Classes. It is a resource in the cluster just like a node is a cluster resource. PVs are volume plugins like Volumes, but have a lifecycle independent of any individual Pod that uses the PV. This API object captures the details of the implementation of the storage, be that NFS, iSCSI, or a cloud-provider-specific storage system.
+A PersistentVolume (PV) 
+	piece of storage in the cluster 
+	provisioned by an administrator or dynamically provisioned using Storage Classes. 
+	Resource in the cluster just like a node is a cluster resource. 
+	PVs are volume plugins like Volumes, 
+		but have a lifecycle independent of any individual Pod that uses the PV. 
+		This API object captures the details of the implementation of the storage, be that NFS, iSCSI, or a cloud-provider-specific storage system.
 
 
 A PersistentVolumeClaim (PVC) is a request for storage by a user. While PersistentVolumeClaims allow a user to consume abstract storage resources, it is common that users need PersistentVolumes with varying properties, such as performance, for different problems. Cluster administrators need to be able to offer a variety of PersistentVolumes that differ in more ways than just size and access modes, without exposing users to the details of how those volumes are implemented. For these needs, there is the StorageClass resource.

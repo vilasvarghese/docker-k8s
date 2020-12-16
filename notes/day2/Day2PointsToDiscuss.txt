@@ -643,3 +643,48 @@ tmpfs
 		
 		docker stop <id>
 		docker rm <id>
+
+
+###########################################################################################
+Docker - Storage
+###########################################################################################
+The following table shows the different storage drivers along with the technology used for the storage drivers.
+
+Following are both known technologies and subsequent storage drivers in docker
+-----------------------------------------
+Technology		|	Storage Driver		|	
+-----------------------------------------
+OverlayFS		|	overlay or overlay2	|	
+AUFS			|	aufs				|	
+Btrfs			|	brtfs				|	
+Device Manager	|	devicemanager		|	
+VFS				|	vfs					|	
+ZFS				|	zfs					|	
+-----------------------------------------
+
+AUFS
+	Stable driver
+	Can be used for production-ready applications.
+	Efficient memory usage 
+	Write activity increases with aufs.
+	Recommended for Platform as a service.
+
+Devicemapper
+	Stable driver
+	Recommended for testing applications in the lab.
+	This driver is in line with the main Linux kernel functionality.
+
+Btrfs
+	This driver is in line with the main Linux kernel functionality.
+	There is a high-write activity associated with this driver which should be considered.
+	This driver is good for instances where you maintain multiple build pools.
+
+Ovelay
+	This is a stable driver and it is in line with the main Linux kernel functionality.
+	It has a good memory usage.
+	This driver is good for testing applications in the lab.
+
+
+
+###########################################################################################
+###########################################################################################

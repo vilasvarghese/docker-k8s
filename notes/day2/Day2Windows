@@ -191,9 +191,18 @@ Lab on volumes
 	3. Using -v
 	docker run -it --name=bindv -v C:\mount:C:\mytest mcr.microsoft.com/windows/servercore:ltsc2019 
 	
+	-v C:\mount:C:\mytest
+		1. Source: not mandatory (Automatically - random name)
+		2. Destination: Mandatory (location)
+		3. Access type: RW
+	
+	
+	
 	4. 
 	Create a volume named 'myvol'
 		docker volume create myvol
+		
+		docker run -it --name=bindv -v C:\mytest mcr.microsoft.com/windows/servercore:ltsc2019 
 	
 	Use it in a container
 		docker run -v myvol:c:\data
@@ -213,15 +222,20 @@ Lab on volumes
 
 		Annonymous Volumes
 	
+	
 
 	Backup and Restore
 	------------------
 	
 		1. docker run -it -v c:/persist --name win1 mcr.microsoft.com/windows/servercore:ltsc2019 powershell
 		
+		
 		Then you can create a container just for taking back up as below
 		2. docker run --rm --volumes-from win1 -v xyz1:c:/backup mcr.microsoft.com/windows/servercore:ltsc2019 tar cvf c:/backup/backup.tar c:/persist
 		
+docker run --rm mcr.microsoft.com/windows/servercore:ltsc2019 
+
+
 		
 		
 	4b. Restoring from backup.

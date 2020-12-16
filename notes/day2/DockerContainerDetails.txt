@@ -1,0 +1,156 @@
+	Connect to virtual image
+		docker run -it --privileged --pid=host <image name: e.g. nginx> nsenter -t 1 -m -u -i sh
+		
+	1. Docker Images
+		docker inspect <image name>	
+		will have an UpperDir - note this directory.
+		LoweDir: 
+			contains the read-only layers of an image
+		UpperDir: 
+			The read-write layer that represents changes
+			ls -la <upper dir for nginx> has the following folders.
+				access.log
+				error.log
+		MergedDir: 
+			Result of the computation between UpperDir and LowerDir - 
+			Used by Docker to run the container.
+		WorkDir: 
+			Internal directory for overlay2 and should be empty.
+		
+		
+		A Docker image 
+			Built up from a series of layers. 
+			Each layer represents an instruction in the image’s Dockerfile. 
+			Each layer except the very last one is read-only.
+		
+		For e.g.
+			FROM ubuntu:18.04		#Creates a new layer - Layer 1
+			COPY . /app				#Creates a new layer with the diff. from the Layer1. Depends on Layer1
+			RUN make /app			#Creates a new layer with the diff. from the Layer2. Depends on Layer2
+			CMD python /app/app.py	#Creates a new layer with the diff. from the Layer2. Depends on Layer2
+		
+
+		Each layer is only a set of differences from the layer before it. 
+		The layers are stacked on top of each other. 
+
+		When you create a new container, 
+			you add a new writable layer on top of the underlying layers. 
+			This layer is often called the “container layer”. 
+			All changes made to the running container, 
+				such as writing new files, 
+				modifying existing files, 
+				and deleting files, 
+				are written to this thin writable container layer. 
+
+		https://docs.docker.com/storage/storagedriver/
+		A storage driver handles the details about the way these layers interact with each other. 
+		Different storage drivers are available, 
+			Each has advantages and disadvantages in different situations.
+
+		Container and layers
+		--------------------
+	The major difference between a container and an image is the top writable layer. 
+	All writes to the container that 
+		add new or 
+		modify existing data 
+		are stored in this writable layer. 
+	When the container is deleted, 
+		the writable layer is also deleted. 
+		The underlying image remains unchanged.
+
+	Each container has its own writable container layer (created when containers are launched), 
+	All changes are stored in this container layer, 
+	Multiple containers can share access to the same underlying image 
+	Still have their own data state
+	
+	Docker uses storage drivers to manage the contents of 
+		the image layers and 
+		the writable container layer. 
+	Each storage driver handles the implementation differently, 
+		but all drivers use 
+			stackable image layers 
+			copy-on-write (CoW) strategy.
+
+		
+	Container size on disk
+	----------------------
+	To view the approximate size of a running container, 
+		use docker ps -s command. Two different columns relate to size.
+
+	size: the amount of data (on disk) that is used for the writable layer of each container.
+
+	Virtual size: 
+		read-only image data used by the container + the container’s writable layer size.
+		
+		Two containers started from the same image 
+			share 100% of the read-only data, 
+		Two containers with different images which have layers in common 
+			share those common layers. 
+		
+		So disk utilization <> sum (virtual size) of all containers.
+
+		Total disk space used by all running containers on disk 
+			Some combination of each container’s size and the virtual size values. 
+			
+		If multiple containers started from the same exact image
+			SUM (size of containers) plus one image size (virtual size- size).
+
+			Even that does not count the following additional ways a container can take up disk space:
+
+			Disk space used for log files if you use the json-file logging driver. 
+				This can be non-trivial if your container generates a large amount of logging data and log rotation is not configured.
+			Volumes and bind mounts used by the container.
+			Disk space used for the container’s configuration files, which are typically small.
+			Memory written to disk (if swapping is enabled).
+			Checkpoints, if you’re using the experimental checkpoint/restore feature.
+
+		
+	2. Understanding how images are stored.
+		docker inspect <image name e.g. nginx>
+			Note UpperDir
+		Execute the docker run command 	below
+			docker run -it --privileged --pid=host <image name: e.g. nginx> nsenter -t 1 -m -u -i sh
+			or directly go to that folder on the host machine.
+			
+		get inside the virtual image
+			cd to the <UpperDir> noted.
+		For nginx you would find an docker-entrypoint.sh file.
+		This file can be noted in https://github.com/nginxinc/docker-nginx/blob/master/stable/alpine/Dockerfile folder
+		If you look at the Dockerfile
+			Entrypoint definition (not the last command) is the command which can be observed as merged in the image towards the end.
+		
+
+	3. Docker Volumes
+
+		$ docker run --name nginx_container -v /var/log nginx	
+		Find the details of volume connected to by
+		docker inspect nginx_container (container inspect)
+			"Source": "/var/lib/docker/volumes/<unique name>/_data"
+			
+	4. Clean up space used by Docker
+		
+		Container, networks, images, and the build cache can be cleaned up by executing:
+		$ docker system prune -a
+		
+		Above doesn't do a volume prune as they are treated separately. So we can additionally execute 
+			docker volumes prune
+		
+	5. The copy-on-write (CoW) strategy
+		Strategy of 
+			sharing and 
+			copying files for maximum efficiency. 
+		If a file or directory exists in a lower layer within the image, 
+			and another layer (including the writable layer) needs read access to it, 
+			it just uses the existing file. 
+		The first time another layer needs to modify the file 
+			(when building the image or running the container), 
+			the file is copied into that layer and modified. 
+			This minimizes I/O and the size of each of the subsequent layers. 
+			Advantages of this.
+				Sharing promotes smaller images (image layers)
+				Quick response time.
+					Copying makes containers efficient
+
+
+More details: 
+D:\PraiseTheLord\HSBGInfotech\docker\daywiseClasses\D2\Day2PointsToDiscuss.txt

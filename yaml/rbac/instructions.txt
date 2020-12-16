@@ -54,11 +54,13 @@ Step 2 - Understanding Subjects, Resources, and Operations in Kubernetes
 				Vilas: Subject
 				list: verb
 				pod: resource
+				
 
 		Subject
 			User
 			Group
 			Application or Service
+				ServiceAccount
 
 		Role
 			Association of operations (verb e.g. list) to resources (e.g. pod)

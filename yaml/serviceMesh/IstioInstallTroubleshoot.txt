@@ -1,0 +1,6 @@
+Istio installation will not work if 
+	vm ip and 
+	cidr are both in the same range
+	
+	
+	https://istio.io/latest/docs/setup/getting-started/

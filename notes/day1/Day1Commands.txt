@@ -273,58 +273,103 @@ Differentiate container and image
 	Loads a tarred repository from a file or the standard input stream
 
 30. Resource provisioning
-1. Stop and kill all containers
-docker stop $(docker ps -a -q) #stop ALL containers
-docker rm -f $(docker ps -a -q) # remove ALL containers
+	1. Stop and kill all containers
+	docker stop $(docker ps -a -q) #stop ALL containers
+	docker rm -f $(docker ps -a -q) # remove ALL containers
 
 
-2. Run 5 alpine containers reserving 250 MB
-	docker container run -d --memory-reservation=750m --name mymem1 ubuntu:latest sleep 3600
-	docker container run -d --memory-reservation=750m --name mymem2 ubuntu:latest sleep 3602
-	docker container run -d --memory-reservation=750m --name mymem3 ubuntu:latest sleep 3603
-	docker container run -d --memory-reservation=750m --name mymem4 ubuntu:latest sleep 3604
-	docker container run -d --memory-reservation=750m --name mymem5 ubuntu:latest sleep 3605
-	docker container run -d --memory-reservation=750m --name mymem6 ubuntu:latest sleep 3605
-	docker container run -d --memory-reservation=750m --name mymem7 ubuntu:latest sleep 3605
+	2. Run 5 alpine containers reserving 250 MB
+		docker container run -d --memory-reservation=750m --name mymem1 ubuntu:latest sleep 3600
+		docker container run -d --memory-reservation=750m --name mymem2 ubuntu:latest sleep 3602
+		docker container run -d --memory-reservation=750m --name mymem3 ubuntu:latest sleep 3603
+		docker container run -d --memory-reservation=750m --name mymem4 ubuntu:latest sleep 3604
+		docker container run -d --memory-reservation=750m --name mymem5 ubuntu:latest sleep 3605
+		docker container run -d --memory-reservation=750m --name mymem6 ubuntu:latest sleep 3605
+		docker container run -d --memory-reservation=750m --name mymem7 ubuntu:latest sleep 3605
 
-	3. Kill all of them and rerun with 1GB
-		This works while your machine has only 4GB.
+		3. Kill all of them and rerun with 1GB
+			This works while your machine has only 4GB.
 
-	4. top
-	5. docker stats
-	6. docker ps -a
+		4. docker top
+			See the top processes with in a running container. Similar to top in linux.
+			
+		5. docker stats
+			Statistics of a running container
+			i.e. CPU %, Memory % etc...
+			
+		
+		6. docker ps -a
 
-	-m  or  --memory= : The maximum amount of memory the container can use. If you set this option, the minimum allowed value is 4m (4 megabyte).
-	 --memory-swap : The amount of memory this container is allowed to swap to disk.
+		-m  or  --memory= : The maximum amount of memory the container can use. If you set this option, the minimum allowed value is 4m (4 megabyte).
+		 --memory-swap : The amount of memory this container is allowed to swap to disk.
 
-	1. docker pull python:3-alpine
-	2. docker container run -d --memory=20m --memory-swap=20m --name myPython python:3-alpine sleep 3600
+		1. docker pull python:3-alpine
+		2. docker container run -d --memory=20m --memory-swap=20m --name myPython python:3-alpine sleep 3600
 
-	3. docker exec -it myPython /bin/sh
+		3. docker exec -it myPython /bin/sh
 
-	We can block the OOM error as follows 
-	docker container run -d --oom-kill-disable --memory=20m --memory-swap=30m --name myPython python:3-alpine sleep 3600
+		We can block the OOM error as follows 
+		docker container run -d --oom-kill-disable --memory=20m --memory-swap=30m --name myPython python:3-alpine sleep 3600
 
-	However never use "--oom-kill-disable" because your container might hang.
+		However never use "--oom-kill-disable" because your container might hang.
 
-	--cpu-shares
-	Our CPU stress application: time dd if=/dev/urandom bs=1M count=2 | md5sum
+		--cpu-shares
+		Our CPU stress application: time dd if=/dev/urandom bs=1M count=2 | md5sum
 
-	time ... measures elapsed time: shows those 3 timer lines
-	dd if=/dev/urandom bs=1M count=2 ... copies bs=blocksize one MB of randomness twice
-	md5sum ... calculates md5 security hashes ( give cpu a load )
+		time ... measures elapsed time: shows those 3 timer lines
+		dd if=/dev/urandom bs=1M count=2 ... copies bs=blocksize one MB of randomness twice
+		md5sum ... calculates md5 security hashes ( give cpu a load )
 
-	1. Create 3 containers with limited cpu
+		1. Create 3 containers with limited cpu
 
 
-	- docker container run -d --cpu-shares=1024 --name mycpu1024 alpine:3.8 /bin/sh -c 'time dd if=/dev/urandom bs=1M count=100 | md5sum'
-	- docker container run -d --cpu-shares=500 --name mycpu500 alpine:3.8 /bin/sh -c 'time dd if=/dev/urandom bs=1M count=100 | md5sum'
-	- docker container run -d --cpu-shares=100 --name mycpu100 alpine:3.8 /bin/sh -c 'time dd if=/dev/urandom bs=1M count=100 | md5sum'
+		- docker container run -d --cpu-shares=1024 --name mycpu1024 alpine:3.8 /bin/sh -c 'time dd if=/dev/urandom bs=1M count=100 | md5sum'
+		- docker container run -d --cpu-shares=500 --name mycpu500 alpine:3.8 /bin/sh -c 'time dd if=/dev/urandom bs=1M count=100 | md5sum'
+		- docker container run -d --cpu-shares=100 --name mycpu100 alpine:3.8 /bin/sh -c 'time dd if=/dev/urandom bs=1M count=100 | md5sum'
 
-	docker logs mycpu1024
-	docker logs mycpu500
-	docker logs mycpu100
+		docker logs mycpu1024
+		docker logs mycpu500
+		docker logs mycpu100
 
+
+31. docker history
+		How the image was created or
+		What all commands were RUN in the creation of command.
+	See full commands in the third column (CREATED BY) 
+		docker history docker.company.net/docker-base-images/image:1.0
+
+	See more details of history
+	
+	The Docker GoLang template --format option 
+		works with docker history
+		must be entered AFTER --format
+		because it modifies --format, NOT docker history. 
+	The docker history command takes only 1 argument. 
+	The --format option changes the output of docker history, and --no-trunc modifies the --format option.
+
+The command sequence must be
+
+	docker history <image-id> --format <GoLang template spec> --no-trunc
+
+The --no-trunc option follows --format on the command line, because it modifies the --format option.
+So for the fully history in a tabular format:
+	docker history <image-id> --format "table{{.ID}}, {{.CreatedBy}}" --no-trunc
+
+
+32. docker kill 
+	Kill a docker container. Kill all processes with in the same.
+	
+	
+33. Working with docker daemon
+	sudo systemctl start docker
+		sudo service docker start
+		
+	sudo systemctl stop docker
+		sudo service docker stop
+		
+	sudo systemctl restart docker
+	sudo systemctl enable docker
+	sudo systemctl status docker
 
 #####################################################
 Other helpful commands
