@@ -62,7 +62,7 @@
 		apt-get -y update && apt-get -y upgrade
 		apt-get install -y iputils-ping
 		
-		root@a205f0dd33b2:/# ping 172.17.0.2
+		root@a205f0dd33b2:/# ping 172.18.0.2
 		ping 172.17.0.2
 		PING 172.17.0.2 (172.17.0.2) 56(84) bytes of data.
 		^C
@@ -152,9 +152,11 @@ Different ways to publish ports
 
 		DNS services (DNS: Phone book of your n/w)
 		------------
+	The DNS (Domain Name System) server settings on your device are your gateway to the web.	
 	Default (container connected to bridge)
 		container inherits the DNS settings of the host
 		as defined in the /etc/resolv.conf. 
+		 
 	Containers that use the default bridge network 
 		get a copy of this file
 		Containers also have same /etc/resolv.conf

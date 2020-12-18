@@ -1,0 +1,190 @@
+################################################################################################
+
+	Docker Compose
+
+################################################################################################
+
+
+
+Compose 
+	Tool to combine multiple images/live applicatons together in a single file.
+	Tool to both build and run an application using a single command.
+	YAML file is used to configure application’s services. 
+	Create and start all the services from configuration with a single command. 
+	
+	cd docker-k8s
+	docker-compose -f dc1.yaml up
+	docker-compose -f dc1.yaml down
+	
+	
+Compose works in all environments: 
+	production, 
+	staging, 
+	development, 
+	testing, 
+	as well as CI workflows.
+----------------------------------------------------------------------------------	
+Three-step process in Compose:
+	Define services that participate in docker-compose.yml
+	For services 
+		that are picked from image: define
+		that are from live application: define Dockerfile and application context
+	Run docker-compose up and Compose starts and runs your entire app.	
+
+----------------------------------------------------------------------------------	
+Compose has commands for managing the whole lifecycle of your application:
+	Start, stop, and rebuild services
+	---------------------------------
+		Create and start containers, network and volume
+			docker-compose up
+		
+		Stop and remove containers, networks, images, and volumes
+			docker-compose down
+		
+		Build or rebuild services
+			docker-compose build
+			
+		Starts existing containers for a service. docker start
+			docker-compose start
+			
+		Graceful stop and remove	
+			docker-compose stop
+			docker-compose rm
+		
+	------------------------------------------------------------------	
+		N.B: docker-compose 	up Vs start Vs run
+		
+		Builds, (re)creates, starts, and attaches to containers for a service.
+
+		Unless they are already running, this command also starts any linked services.
+
+		docker-compose up 
+			Use up to start or restart all the services defined in a docker-compose.yml. 
+			Default “attached” mode, you see all the logs from all the containers. 
+			“detached” mode (-d), Compose exits after starting the containers, but the containers continue to run in the background.
+			If there are existing containers for a service, and the service’s configuration or image was changed after the container’s creation, docker-compose up picks up the changes by stopping and recreating the containers (preserving mounted volumes). To prevent Compose from picking up changes, use the --no-recreate flag.
+		
+		docker-compose run command is for running “one-off” or “adhoc” tasks. 
+			It requires the service name you want to run and only starts containers for services that the running service depends on. Use run to run tests or perform an administrative task such as removing or adding data to a data volume container. The run command acts like docker run -ti in that it opens an interactive terminal to the container and returns an exit status matching the exit status of the process in the container.
+		
+		docker-compose start command is useful only to restart containers that were previously created, but were stopped. It never creates new containers.
+		
+		N.B: docker-compose up Vs start Vs run ends
+		
+		------------------------------------------------------------------
+	View the status of running services
+	-----------------------------------
+		List containers
+			docker-compose ps
+
+		
+		
+	Stream the log output of running services
+	-----------------------------------------
+		View output from containers
+			docker-compose logs	
+	
+	Run a one-off command on a service
+	---------------------------------
+	Validate and view the Compose file
+		docker-compose config
+	
+	Create services
+		docker-compose create 
+	
+	List containers
+		docker-compose ps
+		
+	Receive real time events from containers
+		docker-compose events
+		
+	Execute a command in a running container
+		docker-compose exec
+		
+----------------------------------------------------------------------------------		
+
+Docker Compose Features 
+-----------------------	
+Multiple isolated environments on a single host
+Preserve volume data when containers are created
+Only recreate containers that have changed
+
+
+Multiple isolated environments on a single host
+	Compose uses project name to isolate environments from each other. 
+	This project name can be used in several different contexts:
+		On a dev host, 
+			to create multiple copies of a single environment
+				run a stable copy for each feature branch of a project
+		on a CI server, to keep builds from interfering with each other, you can set the project name to a unique build number
+		on a shared host or dev host, to prevent different projects, which may use the same service names, from interfering with each other
+		The default project name is the basename of the project directory. You can set a custom project name by using the -p command line option or the COMPOSE_PROJECT_NAME environment variable.
+
+Preserve volume data when containers are created
+	Compose preserves all volumes used by your services. 
+	When docker-compose up runs, 
+		if it finds any containers from previous runs, 
+		it copies the volumes from the old container to the new container. 
+		This process ensures that any data you’ve created in volumes isn’t lost.
+
+If you use docker-compose on a Windows machine, 
+	see Environment variables and adjust the necessary environment variables for your specific needs.
+
+Only recreate containers that have changed
+	Compose caches the configuration used to create a container. 
+	When you restart a service that has not changed, 
+	Compose re-uses the existing containers. 
+	Re-using containers means that you can make changes to your environment very quickly.
+
+Variables and moving a composition between environments
+	Compose supports variables in the Compose file. 
+	You can use these variables to customize your composition for 
+		different environments, 
+	or 
+		different users. 
+You can extend a Compose file using the extends field or by creating multiple Compose files. 	
+
+Docker Compose Use Cases
+------------------------
+1. On dev. env.
+	You need a single instance of services.
+	Everything getting created using a single file
+2. Single Host deployments
+3. Automated testing environments
+
+
+
+-------------------------------------------------------------------
+Install Docker Compose
+
+https://docs.docker.com/compose/install/
+
+	sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+	sudo chmod +x /usr/local/bin/docker-compose
+	sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+	
+	docker-compose up
+	docker-compose down
+	docker-compose --volumes #remove active volumes also
+	
+--------------------------------------------------------------------
+Exercises
+	1. cd docker-k8s/
+		docker-compose -f dc1.yaml up
+		http://13.232.1.89:8080/
+		
+		docker-compose -f dc1.yaml down
+		
+		More examples refer 
+			https://docs.docker.com/compose/gettingstarted/
+			
+--------------------------------------------------------------------
+Pick exercise from 
+https://wkrzywiec.medium.com/how-to-run-database-backend-and-frontend-in-a-single-click-with-docker-compose-4bcda66f6de
+			
+
+################################################################################################
+
+	Docker Compose
+
+################################################################################################

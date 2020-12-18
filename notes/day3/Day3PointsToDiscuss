@@ -62,11 +62,17 @@ Reference table:
 	
 	Subnet		1		2		4		8		16		32		64		128		256		(each number = 2* (previous))
 	Host		256		128		64		32		16		8		4		2		1		(each number = (previous) / 2)
-	Subnet Mast	/24		/25		/26		/27		/28		/29		/30		/31		/32		(each number = /(previous+1))
+	Subnet Mask	/24		/25		/26		/27		/28		/29		/30		/31		/32		(each number = /(previous+1))
 	
 	
 	
 Network ID: given 192.168.4.0/24
+		
+		N/w : 192.168.4.0/26
+		N/w : 192.168.4.64/26
+		n/w : 192.168.4.128/26
+		n/w : 192.168.4.192/26
+		
 We need 3 network.
 	Since we don't have 3 - let's go for 4.
 	
@@ -114,29 +120,30 @@ ip addr show
 		
 	#Bridge related details
 	
-	NIC en 
-		- is ethernet
-	"wi" 
-		- wifi
-	"w" 
-		- wlan.
-	ip : 192.168.92.5/24 - ip address - 192.168.92.5 and 24 is the subnet mask.
+	NIC 
+		en 
+			- is ethernet
+		"wi" 
+			- wifi
+		"w" 
+			- wlan.
+		ip : 192.168.92.5/24 - ip address - 192.168.92.5 and 24 is the subnet mask.
 
-	All above are external NIC	
-	"s" : slot 
-	ens33 
-		33rd slot. 
-		Pci slot number 33
+		All above are external NIC	
+		"s" : slot 
+		ens33 
+			33rd slot. 
+			Pci slot number 33
+			
+			enp5s25 - en stands for ethernet, p for port -5 and s for slot - 25.
+			wlp3s0 - wl - wlan (wide lan), port 3 and slot 0
+			
+		Below would be internal NIC.	
+			eno - ethernet onboard, ie. it is inbuild or internal card.
 		
-		enp5s25 - en stands for ethernet, p for port -5 and s for slot - 25.
-		wlp3s0 - wl - wlan (wide lan), port 3 and slot 0
-		
-	Below would be internal NIC.	
-		eno - ethernet onboard, ie. it is inbuild or internal card.
-	
 
-	#External NIC - doesn't come with the mother board
-	#Internal NIC - came with the mother board
+		#External NIC - doesn't come with the mother board
+		#Internal NIC - came with the mother board
 
 ip route
 	
