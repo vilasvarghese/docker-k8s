@@ -125,8 +125,10 @@ Compose has commands for managing the whole lifecycle of your application:
 	Execute a command in a running container
 		docker-compose exec
 		docker-compose -f dc1.yaml exec
-		 docker-compose -f dc1.yaml exec docker-k8s_web_1 bash #docker-compose ps
-		
+		docker-compose -f dc1.yaml exec docker-k8s_web_1 bash #docker-compose ps
+
+	Example of execute a command	
+		ExampleOfCommand.txt
 		
 ----------------------------------------------------------------------------------		
 
@@ -162,6 +164,29 @@ Only recreate containers that have changed
 	When you restart a service that has not changed, 
 	Compose re-uses the existing containers. 
 	Re-using containers means that you can make changes to your environment very quickly.
+	
+	docker-compose start service
+	docker-compose build --no-cache nginx 
+	docker-compose up --build
+	docker-compose up --build <service_name> #start linked services too
+	docker-compose up -d --no-deps --build <service_name> #don't start linked service
+		--no-deps - Don't start linked services.
+		--build - Build images before starting containers.
+		
+	Version before 1.19
+		docker-compose build service1 service2 --no-cache does this job better (github.com/docker/compose/issues/1049). I had issue with cached containers that were built before using docker-compose up -d --no-deps --build
+	From 1.19
+		docker-compose up --build --force-recreate --no-deps [-d] [<service_name>..]
+
+
+			-d, --detach        Detached mode: Run containers in the background,
+                        print new container names. Incompatible with
+                        --abort-on-container-exit.
+			--no-deps           Don't start linked services.
+			--force-recreate    Recreate containers even if their configuration
+								and image haven't changed.
+			--build             Build images before starting containers.
+	
 
 Variables and moving a composition between environments
 	Compose supports variables in the Compose file. 
