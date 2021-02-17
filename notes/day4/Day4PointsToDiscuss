@@ -1140,7 +1140,7 @@ kubectl logs $pods
 	
 #################################################################
 
-Storage Volume
+Storage Volume - Kubernetes Volumes
 	
 https://kubernetes.io/docs/concepts/storage/	
 	
@@ -1164,7 +1164,7 @@ Way more powerful than docker volumes
 		- cloud based volumes like
 			S3
 			awsElasticBlockStore
-			gcePersisteDisk
+			gcePersistetDisk
 			azureDisk
 			azureFile
 			
@@ -1195,8 +1195,8 @@ Way more powerful than docker volumes
 	HostPath
 		- Mounts file or directory from the Host node's filesystem into your Pod.
 		- Data remains after Pod is removed.
-		- Similar to Docker volume.
-		- Use cautiously because there is no guarantee that Pod's would be created on the same Node.
+		- Similar to Docker volume (Bind Mounts).
+		- Use cautiously because there is no gu	arantee that Pod's would be created on the same Node.
 
 Persistent Volumes 
 #################################################################
@@ -1218,15 +1218,24 @@ PVs are resources in the cluster. PVCs are requests for those resources and also
 
 A PersistentVolume (PV) 
 	piece of storage in the cluster 
+	Not a namespaced object. Can belong to any namespace.
 	provisioned by an administrator or dynamically provisioned using Storage Classes. 
 	Resource in the cluster just like a node is a cluster resource. 
 	PVs are volume plugins like Volumes, 
 		but have a lifecycle independent of any individual Pod that uses the PV. 
 		This API object captures the details of the implementation of the storage, be that NFS, iSCSI, or a cloud-provider-specific storage system.
+	Can create PV with varying properties, 
+		e.g. PV with diff. performance
+		PV with diff. reliability
+	Cluster administrators need to be able to offer a variety of PersistentVolumes that differ in more ways than just size and access modes, without exposing users to the details of how those volumes are implemented. For these needs, there is the StorageClass resource.
 
 
-A PersistentVolumeClaim (PVC) is a request for storage by a user. While PersistentVolumeClaims allow a user to consume abstract storage resources, it is common that users need PersistentVolumes with varying properties, such as performance, for different problems. Cluster administrators need to be able to offer a variety of PersistentVolumes that differ in more ways than just size and access modes, without exposing users to the details of how those volumes are implemented. For these needs, there is the StorageClass resource.
-
+A PersistentVolumeClaim (PVC) 
+	request for storage by a user. 
+	Allow a user to consume abstract storage resources
+	Namespaced object. Should be in the same ns as pod's using them.
+	May get bound to a PersistentVolumes 
+	
 Types of PV's
 
 Static
@@ -1437,7 +1446,7 @@ Created outside pods/containers.
 	Can be used any number of times on Pod's 
 Stored inside ETCD database on K8s master
 There is a limit to each secret size
-	limit is 1MB
+	limit is 1 MB
 Loaded as tempfs and is available at a well defined location
 
 How do we inject secrets into Pod's

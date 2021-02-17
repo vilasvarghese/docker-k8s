@@ -446,3 +446,38 @@ Secure: Containers apply aggressive constraints and isolations to processes with
 Doker 
 
 https://docs.mirantis.com/docker-enterprise/v3.0/dockeree-products/dtr/dtr-user/access-dtr/configure-your-docker-engine.html
+
+##############################################################
+Docker Engine 
+	Container Platform for complete distributed app lifecycle
+	
+Docker Architecture
+
+Docker differentiators
+	Docker API
+	Docker CLI
+	Docker Compose
+	Docker Build
+	Auth
+	Docker Content Trust
+	Docker Distribution
+	[
+		Plugin
+		Storage
+		Networking
+	]
+	
+SwarkKit
+Containerd
+InfratKit
+
+Containerd
+	Containerd 0.2
+		Integrated to Docker in 1.11
+		Simple runtime on top of runc
+	Containerd to CNCF
+		Goal of being a stable runtime with OCI image support
+		CRI implementation started
+		Plugin architecture built
+	Container Runtime Interface
+		Containerd scope increased to match 

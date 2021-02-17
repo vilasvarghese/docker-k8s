@@ -1,22 +1,6 @@
-
 ################################################################################################
 
 	Docker Compose
-
-
-
-
-	DEPRECATED.
-
-
-
-	This file is deprecated. Instead refer 
-	-------------------------------------
-	
-	
-	
-		D:\PraiseTheLord\HSBGInfotech\Others\vilas\docker-k8s\notes\day4\DockerComposeNotes.txt
-
 
 ################################################################################################
 
@@ -30,7 +14,8 @@ https://docs.docker.com/compose/install/
 	sudo chmod +x /usr/local/bin/docker-compose
 	sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 	
-	docker-compose up
+	#General instruction. 
+	docker-compose up # expects a file named docker-compose.yml or docker-compose.yaml
 	docker-compose down
 	docker-compose --volumes #remove active volumes also
 ----------------------------------------------------------
@@ -99,15 +84,42 @@ Compose has commands for managing the whole lifecycle of your application:
 		Unless they are already running, this command also starts any linked services.
 
 		docker-compose up 
-			Use up to start or restart all the services defined in a docker-compose.yml. 
-			Default “attached” mode, you see all the logs from all the containers. 
-			“detached” mode (-d), Compose exits after starting the containers, but the containers continue to run in the background.
-			If there are existing containers for a service, and the service’s configuration or image was changed after the container’s creation, docker-compose up picks up the changes by stopping and recreating the containers (preserving mounted volumes). To prevent Compose from picking up changes, use the --no-recreate flag.
+			Use up to 
+				create the network if it is not already present, 
+				start or restart all the services 
+					defined in a docker-compose.yml. 
+			Default “attached” mode, 
+					you see all the logs from all the containers. 
+			“detached” mode (-d), 
+				Compose exits after starting the containers, 
+				containers continue to run in the background.
+			If there are 
+				existing containers for a service, and 
+				service’s configuration or image was changed 
+					after the container’s creation, 
+				docker-compose up 
+					picks up the changes by stopping and recreating the containers 	
+						(preserving mounted volumes). 
+					To prevent Compose from picking up changes
+						use the --no-recreate flag.
 		
-		docker-compose run command is for running “one-off” or “adhoc” tasks. 
-			It requires the service name you want to run and only starts containers for services that the running service depends on. Use run to run tests or perform an administrative task such as removing or adding data to a data volume container. The run command acts like docker run -ti in that it opens an interactive terminal to the container and returns an exit status matching the exit status of the process in the container.
+		docker-compose run command 
+			run “one-off” or “adhoc” tasks. 
+			It requires 
+				service name you want to run 
+					only starts containers for services that the running service depends on. Use run to 
+						run tests or 
+						perform an administrative task 
+							e.g. remove or add data to a data volume container. 
+			Acts like docker run -it 
+				opens an interactive terminal to the container 
+				returns an exit status matching the exit status of the process in the container.
 		
-		docker-compose start command is useful only to restart containers that were previously created, but were stopped. It never creates new containers.
+		docker-compose start command 
+			useful only to restart containers 
+				previously created, 
+					but were stopped. 
+					It never creates new containers.
 		
 		N.B: docker-compose up Vs start Vs run ends
 		
@@ -123,7 +135,7 @@ Compose has commands for managing the whole lifecycle of your application:
 	-----------------------------------------
 		View output from containers
 			docker-compose logs	
-			docker-compose -f dc1.yaml logs
+																					docker-compose -f dc1.yaml logs
 	
 	Run a one-off command on a service
 	---------------------------------
@@ -242,8 +254,22 @@ Exercises
 		
 End to end exercise on docker-compose
 
+
 		
 --------------------------------------------------------------------
+
+
+
+https://github.com/dockersamples/example-voting-app
+Forked to 
+https://github.com/vilasvarghese/example-voting-app
+
+Refer the notes
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
+Following example is deprecated because Voting app seems to be a much better example for students to understand
+
+
 Pick exercise from 
 https://wkrzywiec.medium.com/how-to-run-database-backend-and-frontend-in-a-single-click-with-docker-compose-4bcda66f6de
 
@@ -339,6 +365,9 @@ spring.liquibase.change-log=classpath:/db/changelog/db.changelog-master.xml
 -------------------------------------------------		
 	
 	http://localhost:8080/api/swagger-ui.html.
+
+Deprecated example ends	
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~	
 ################################################################################################
 
 	Docker Compose
