@@ -1,0 +1,697 @@
+Reference: https://docs.docker.com/develop/develop-images/dockerfile_best-practices/
+
+Docker image 
+	Images: read-only layers 
+		Each of which represents a Dockerfile instruction. 
+		The layers are stacked and each one is a delta of the changes from the previous layer
+	
+	Create ephemeral containers
+	---------------------------
+		Container can be stopped and destroyed, then rebuilt and replaced with an absolute minimum set up and configuration.
+		
+	Build context
+	-------------
+		Current working directory is called the build context. 
+		Dockerfile is assumed to be located here
+		-f to locate. 
+		Regardless of where the Dockerfile actually lives
+			all contents of files and directories in the current directory are sent to the Docker daemon as the build context.
+		Increase in size of current directory 
+			Increase the time to build, pull and push image.
+		Watch out for a message while building image lik
+			Sending build context to Docker daemon  187.8MB
+			
+	Pipe Dockerfile through stdin
+	-----------------------------
+		Can build images by piping Dockerfile through stdin with a local or remote build context. 
+		Piping a Dockerfile through stdin can be useful to perform one-off builds 
+		Dockerfile itself is a result of automated process.
+		
+		echo -e 'FROM busybox\nRUN echo "hello world"' | docker build -
+		#No file created.
+	
+	BUILD AN IMAGE USING A DOCKERFILE FROM STDIN, WITHOUT SENDING BUILD CONTEXT
+	---------------------------------------------------------------------------
+		docker build [OPTIONS] -
+		
+		e.g.
+docker build -t myimage:latest -<<EOF
+FROM busybox
+RUN echo "hello world"
+EOF
+		
+		N.B. : In the above method relative reference to files in current directory would fail.
+		
+		e.g.
+		COPY somefile.txt . #somefile.txt will not be reachable.
+		
+	BUILD FROM A LOCAL BUILD CONTEXT, USING A DOCKERFILE FROM STDIN
+	---------------------------------------------------------------
+	docker build [OPTIONS] -f- PATH
+-------------------------------
+docker build -t myimage:latest -f- . <<EOF
+FROM busybox
+COPY somefile.txt .
+RUN cat /somefile.txt
+EOF	
+-------------------------------
+
+	BUILD FROM A REMOTE BUILD CONTEXT, USING A DOCKERFILE FROM STDIN
+	----------------------------------------------------------------
+	docker build [OPTIONS] -f- PATH
+
+This can be useful if your context is remote.
+--------------------------------------
+docker build -t myimage:latest -f- https://github.com/docker-library/hello-world.git <<EOF
+FROM busybox
+COPY hello.c .
+EOF	
+--------------------------------------
+		How does that work?
+		When building an image using a remote Git repository as build context, 
+		Docker performs a git clone of the repository on the local machine
+		Sends those files as build context to the daemon. 
+		git should be installed on the host 
+		
+	Exclude with .dockerignore
+	--------------------------
+	To exclude files not relevant to the build 
+	use a .dockerignore file. 
+	This file supports exclusion patterns similar to .gitignore files. 
+	
+	
+		a. Before the docker CLI sends the context to the docker daemon, 
+			it checks for .dockerignore in the root directory of the context. 
+		If exists, 
+			CLI modifies the context to exclude files and directories.
+
+		b. The CLI interprets the .dockerignore file as 
+			newline-separated list of patterns 
+			root of the context is both 
+				working 
+				root directory. 
+			For e.g., 
+			/foo/bar or foo/bar 
+				exclude a file or directory named bar in the foo subdirectory of PATH or in the root of the git repository located at URL. Neither excludes anything else.
+
+		If a line in .dockerignore file starts with # in column 1, then this line is considered as a comment and is ignored before interpreted by the CLI.
+
+		Here is an example .dockerignore file:
+
+		# comment	: 	Ignored.
+		*/temp*		: 	#Exclude files and directories whose names start with temp in any 	
+						#immediate subdirectory of the root. 
+						#For example, following are excluded
+							#/somedir/temporary.txt  
+							#/somedir/temp.
+		*/*/temp*	: 	#	Exclude files and directories starting with temp from any 
+						#	subdirectory that is two levels below the root. 
+						#	For example, 
+						#	/somedir/subdir/temporary.txt 
+		temp?		: 	#Exclude files and directories in the root directory whose names are 
+						# 5 character long and starts with temp. 
+						#	For example, /tempa and /tempb are excluded.	
+		Uses Go’s filepath.Match rules
+		Also supports a special wildcard string ** 
+		matches any number of directories (including zero). 
+		For example, 
+			**/*.go exclude all <any name>.go files in any directory
+
+		Lines starting with ! (exclamation mark) 
+			can be used to make exceptions to exclusions. 
+----------------			
+*.md
+!README.md
+
+		Exclude all *.md files except README.md
+----------------	
+*.md
+!README*.md
+README-secret.md		
+----------------	
+		Exclude all except README.md and README-secret.md
+		Exclude al .md files except all README<any name>.md 
+			Disallow REAME-secret.md
+			
+-------------------
+*.md
+README-secret.md
+!README*.md
+--------------------	
+		All README*.md files are included
+		README-secret.md - this will be overwritten by !README*.md as it comes latter
+		
+	Dockerfile and .dockerignore files. 
+		docker requires these files for processing.
+		We can mention them in .dockerignore.
+		But docker will still send them.
+		But it wil not be available for ADD, COPY commands.
+		
+	
+	Don’t install unnecessary packages
+	----------------------------------
+	Avoid installing "nice to have" packages. 
+	For e.g. vi 
+		Running applications doesn't need vi
+	
+	Decouple applications
+	--------------------
+	Each container should have only one concern. 
+	Decouple applications into multiple containers 
+		scale horizontally 
+		reuse containers. 
+	for e.g. user service and password service may be seperate.
+	
+	Recommendation (not mandatory)
+		1 container = 1 process 
+		For example, 
+		some containers might spawn additional processes 
+		
+	Minimize the number of layers
+	-----------------------------
+	Older versions of Docker
+		less number of layers - better performance
+	Following features were added to reduce this limitation:
+	
+	Only RUN, COPY, ADD create new layer
+	Other instructions 
+		create temporary intermediate images
+		do not increase the size of the build.
+	Use multi-stage builds
+		copy the artifacts you need into the final image. 
+	Advantage
+	---------
+	Use intermediate builds to debug
+	Use final builds to run it on production.
+	
+	Sort multi-line arguments
+	-------------------------
+	If possible in multi-line arguments
+		sort alphanumerically. 
+			avoid duplication of packages 
+		Add a space before backslash (\).
+
+	RUN apt-get update && apt-get install -y \
+	  bzr \
+	  cvs \
+	  git \
+	  mercurial \
+	  subversion \
+	  && rm -rf /var/lib/apt/lists/*
+	  
+	
+	Leverage build cache
+	--------------------
+
+	While building an image
+		Docker executes instructions sequentially
+		In each line, 
+			Docker looks for an existing image in its cache 
+			If not found, create a new (duplicate) image.
+
+	To ignore cache 
+		use docker build --no-cache=true 
+		
+	How does docker find a matching image
+	-------------------------------------
+	Start with a parent image which is in the cache
+	Next instruction is compared against all child images derived from that base image 
+		Check if one of them was built using the exact same instruction. 
+		If not, the cache is invalidated.
+
+	Mostly, just compare instruction in the Dockerfile with one of the child images 
+	But certain instructions require more examination and explanation.
+
+	For the ADD and COPY instructions
+		Contents of the file(s) in the image are examined 
+			checksum is calculated for each file. 
+		Last-modified and last-accessed times of file(s) are not considered in these checksums. 
+		During the cache lookup
+			the checksum is compared against the checksum in the existing images. 
+			If checksum is different then cache is invalidated
+				New image created.
+
+	Apart from the ADD and COPY commands, 
+		cache checking does not look at the files in the container 
+		For example, 
+			RUN apt-get -y update 
+				files updated in the container are not examined to determine if a cache hit exists. 
+			In that case just the command string itself is used to find a match.
+
+	Once the cache is invalidated, 
+		all subsequent Dockerfile commands generate new images and the cache is not used.
+		
+	
+	
+	
+	Dockerfile instructions
+	------------------------
+	FROM
+		Whenever possible, 
+			use current official images as the basis for your images. 
+			Recommend the Alpine 
+				Tightly controlled and small in size (currently under 5 MB), 
+				Still being a full Linux distribution.
+				
+	LABEL
+-----------------------------------------------------------------
+https://docs.docker.com/config/labels-custom-metadata/
+What are label's
+
+	Labels are a mechanism for applying metadata to Docker objects, including:
+		Images
+		Containers
+		Local daemons
+		Volumes
+		Networks
+		Swarm nodes
+		Swarm services
+
+	key-value pair, stored as a string
+	Multiple labels for an object is supported
+	Each key-value pair must be unique within an object. 
+	If the same key is given multiple values
+		the most-recently-written value overwrites all previous values. 
+
+	LABEL multi.label1="value1" \
+		  multi.label2="value2" \
+		  other="value3"
+	docker image inspect --format='' myimage
+
+	Refer : https://docs.docker.com/config/labels-custom-metadata/
+	
+
+
+
+
+
+
+
+-----------------------------------------------------------------
+
+You can add labels to your image 
+	help organize images by project, 
+	record licensing information
+	to aid in automation
+	or for other reasons. 
+	For each label, 
+		add a line beginning with LABEL and with one or more key-value pairs. The following examples show the different acceptable formats. Explanatory comments are included inline.
+
+		Strings with spaces must be quoted or the spaces must be escaped. Inner quote characters ("), must also be escaped.
+
+
+		LABEL com.example.version="0.0.1-beta"
+		LABEL vendor1="ACME Incorporated"
+		LABEL vendor2=ZENITH\ Incorporated
+		LABEL com.example.release-date="2015-02-12"
+		LABEL com.example.version.is-production=""
+		An image can have more than one label. 
+			Prior to Docker 1.10, it was recommended to combine all labels into a single LABEL instruction, to prevent extra layers from being created. This is no longer necessary, but combining labels is still supported.
+
+
+		LABEL com.example.version="0.0.1-beta" com.example.release-date="2015-02-12"
+		The above can also be written as:
+
+
+		LABEL vendor=ACME\ Incorporated \
+			  com.example.is-beta= \
+			  com.example.is-production="" \
+			  com.example.version="0.0.1-beta" \
+			  com.example.release-date="2015-02-12"
+	
+	RUN
+	---
+	Split long or complex RUN statements on multiple lines separated with backslashes 
+		Dockerfile more 
+			readable, 
+			understandable
+			maintainable.
+
+		APT-GET
+		-------
+		RUN apt-get command has several gotchas.
+		
+		Don't use apt-get upgrade and dist-upgrade
+			Instead use apt-get install -y
+
+		Avoid RUN apt-get upgrade and dist-upgrade
+			many of the “essential” packages from the parent images 
+				cannot upgrade inside an unprivileged container. 
+			If a package contained in the parent image is out-of-date, 
+				contact its maintainers. 
+			If you know there is a particular package, foo, 
+				that needs to be updated, 
+				use apt-get install -y foo to update automatically.
+
+		Always combine RUN apt-get update with apt-get install in the same RUN statement. For example:
+
+		RUN apt-get update && apt-get install -y \
+			package-bar \
+			package-baz \
+			package-foo  \
+			&& rm -rf /var/lib/apt/lists/*
+			
+	
+	Using apt-get update alone in a RUN statement causes caching issues 
+	Subsequent apt-get install instructions fail. 
+	For example, say you have a Dockerfile:
+
+		FROM ubuntu:18.04
+		RUN apt-get update
+		RUN apt-get install -y curl
+		
+	After building the image, all layers are in the Docker cache. 
+	Suppose you later modify apt-get install by adding extra package (nginx):
+		FROM ubuntu:18.04
+		RUN apt-get update
+		RUN apt-get install -y curl nginx
+
+	Docker sees the initial and modified instructions as identical 
+	Reuses the cache from previous steps. 
+	So apt-get update is not executed 
+		because the build uses the cached version. 
+	Because the apt-get update is not run
+		your build can potentially get an outdated version of the curl and nginx packages.
+
+	Using 
+		RUN apt-get update && apt-get install -y 
+		ensures your Dockerfile installs the latest package versions 
+		no further coding or manual intervention. 
+	This technique is known as “cache busting”. 
+	You can also achieve cache-busting 
+		by specifying a package version. 
+	This is known as version pinning, for example:
+
+		RUN apt-get update && apt-get install -y \
+			package-bar \
+			package-baz \
+			package-foo=1.3.*
+			
+	
+	Version pinning 
+		forces the build to retrieve a particular version 
+		regardless of what’s in the cache. 
+	This technique can also reduce failures 
+		due to unanticipated changes in required packages.
+
+	Below is a well-formed RUN instruction that demonstrates all the apt-get recommendations.
+
+	RUN apt-get update && apt-get install -y \
+		aufs-tools \
+		automake \
+		build-essential \
+		curl \
+		dpkg-sig \
+		libcap-dev \
+		libsqlite3-dev \
+		mercurial \
+		reprepro \
+		ruby1.9.1 \
+		ruby1.9.1-dev \
+		s3cmd=1.1.* \
+	 && rm -rf /var/lib/apt/lists/*
+	 
+	The s3cmd argument specifies a version 1.1.*. 
+	If the image previously used an older version, 
+		specifying the new one causes a cache bust of apt-get update 
+		ensures the installation of the new version. 
+		Listing packages on each line can also prevent mistakes in package duplication.
+
+	When you clean up the apt cache by removing 
+		/var/lib/apt/lists 
+		it reduces the image size, 
+		since the apt cache is not stored in a layer. 
+	Since the RUN statement starts with apt-get update
+		the package cache is always refreshed prior to apt-get install.
+
+	Official Debian and Ubuntu images automatically run apt-get clean
+		so explicit invocation is not required.
+
+	
+	
+	USING PIPES
+	-----------
+	Some RUN commands depend on the ability to pipe the output of one command into another
+		using the pipe character (|), 
+	For	example:
+		RUN wget -O - https://some.site | wc -l > /number
+	
+	Docker executes these commands using 
+		/bin/sh -c interpreter
+		evaluates the exit code of the last operation in the pipe to determine success. 
+	Build succeeds and produces a new image if wc -l command succeeds
+		even if the wget command fails.
+
+	If you want the command to fail due to an error at any stage in the pipe
+		prepend set -o pipefail 
+		
+	RUN set -o pipefail && wget -O - https://some.site | wc -l > /number
+	
+	N.B: Not all shells support the -o pipefail option.
+
+	For e.g. dash shell on Debian-based images, 
+		consider using the exec form of RUN to explicitly choose a shell that does support the pipefail option. 
+	For example:
+	RUN ["/bin/bash", "-c", "set -o pipefail && wget -O - https://some.site | wc -l > /number"]
+
+
+	CMD
+	---
+	Use CMD to run the software contained in your image, 
+	Use CMD as below
+		CMD ["executable", "param1", "param2"…]. 
+	For e.g. Apache can be started as 
+		CMD ["apache2","-DFOREGROUND"]. 
+	
+	Generally CMD should be given an interactive shell
+		e.g. 
+			bash, python and perl. 
+	For example, 
+		CMD ["perl", "-de0"], 
+		CMD ["python"], or 
+		CMD ["php", "-a"]. 
+	Using this form means that when you execute something like 
+		docker run -it python
+		Will get executed in usable shell
+	CMD should rarely be used in the manner of CMD ["param", "param"] 
+		in conjunction with ENTRYPOINT, 
+		unless you and your expected users are already quite familiar with how ENTRYPOINT works.
+		
+	
+	EXPOSE
+	------
+	EXPOSE instruction indicates the ports on which a container listens for connections. 
+	For e.g. 
+		For Apache
+			EXPOSE 80
+		MongoDB 
+			EXPOSE 27017 
+			
+
+	For external access, use port mapping (-p)
+	
+	
+	
+	ENV
+	---
+	To make new software easier to run use ENV to update the PATH environment variable 
+
+	1. 	For example, 
+	ENV PATH=/usr/local/nginx/bin:$PATH 
+	ensures that 
+		CMD ["nginx"] just works.
+
+	2. Container can be using ENV like below
+		ENV can be used for mysql image to define admin password 
+
+	3. ENV can also be used to set commonly used version numbers 
+
+		ENV PG_MAJOR=9.3
+		ENV PG_VERSION=9.3.4
+		RUN curl -SL https://example.com/postgres-$PG_VERSION.tar.xz | tar -xJC /usr/src/postgress && …
+		ENV PATH=/usr/local/postgres-$PG_MAJOR/bin:$PATH
+
+	Similar to having constant variables in a program 
+		Lets you change a single ENV instruction to auto-magically bump the version of the software in your container.
+
+	Each ENV line creates a new intermediate layer
+		just like RUN commands. 
+		So if you unset the environment variable latter
+		it still persists in this layer 
+		its value can be dumped. 
+	Following Dockerfile helps to understand the same.
+
+	FROM alpine
+	ENV ADMIN_USER="mark"
+	RUN echo $ADMIN_USER > ./mark
+	RUN unset ADMIN_USER
+	$ docker run --rm test sh -c 'echo $ADMIN_USER'
+
+	Output: mark
+	
+	How to solve this?
+		1. Use a RUN command to set, use, and unset the variable all in a single layer. 
+		
+----------------------------------
+	FROM alpine
+	RUN export ADMIN_USER="mark" \
+		&& echo $ADMIN_USER > ./mark \
+		&& unset ADMIN_USER
+	CMD sh
+----------------------------------	
+		2. Alternatively put all of the commands into a shell script and have the RUN command just run that shell script.
+----------------------------------		
+	$ docker run --rm test sh -c 'echo $ADMIN_USER'
+----------------------------------
+
+	ADD or COPY
+	-----------
+	
+	COPY is preferred. 
+		more transparent than ADD. 
+		COPY only supports the basic copying of local files into the container
+		
+	Best use for ADD is local tar file auto-extraction into the image
+		ADD rootfs.tar.xz /.
+
+	Copying multiple files in Dockerfile 
+		COPY them individually and not all at once. 
+		Each step’s build cache is only invalidated 
+			(forcing the step to be re-run) if the specifically required files change.
+
+For example:
+----------------------------------
+COPY requirements.txt /tmp/
+RUN pip install --requirement /tmp/requirements.txt
+COPY . /tmp/
+----------------------------------
+Results in fewer cache invalidations for the RUN step, 
+	than COPY . /tmp/ before it.
+
+	Because image size matters, 
+		using ADD to fetch packages from remote URLs is strongly discouraged; 
+		you should use curl or wget instead. 
+		That way you can delete the files you no longer need after they’ve been extracted 
+		and you don’t have to add another layer in your image. 
+
+For example, you should avoid doing things like:
+---------------------------------------------------------------
+	ADD https://example.com/big.tar.xz /usr/src/things/
+	RUN tar -xJf /usr/src/things/big.tar.xz -C /usr/src/things
+	RUN make -C /usr/src/things all
+---------------------------------------------------------------
+	
+	Instead do it as
+---------------------------------------------------------------
+	RUN mkdir -p /usr/src/things \
+		&& curl -SL https://example.com/big.tar.xz \
+		| tar -xJC /usr/src/things \
+		&& make -C /usr/src/things all
+---------------------------------------------------------------		
+	For other items (files, directories) that do not require ADD’s tar auto-extraction capability, you should always use COPY.
+
+
+
+	ENTRYPOINT
+	----------
+	The best use for ENTRYPOINT is to set the image’s main command
+	Makes you feel like that image was suppose to do what is in ENTRYPOINT
+
+	Apart from normal usage
+		The ENTRYPOINT instruction can execute a helper script
+		Multiple  lines can be executed this way.
+		
+	For example, the Postgres Official Image uses the following script as its ENTRYPOINT:
+
+	set -e
+
+	if [ "$1" = 'postgres' ]; then
+		chown -R postgres "$PGDATA"
+
+		if [ -z "$(ls -A "$PGDATA")" ]; then
+			gosu postgres initdb
+		fi
+
+		exec gosu postgres "$@"
+	fi
+
+	exec "$@"
+	Configure app as PID 1
+
+	The helper script is copied into the container and run via ENTRYPOINT on container start:
+
+	COPY ./docker-entrypoint.sh /
+	ENTRYPOINT ["/docker-entrypoint.sh"]
+	CMD ["postgres"]
+
+	This script allows the user to interact with Postgres in several ways.
+
+		It can simply start Postgres:
+			$ docker run postgres
+
+		Or, it can be used to run Postgres and pass parameters to the server:
+			$ docker run postgres postgres --help
+
+		Lastly, it could also be used to start a totally different tool, such as Bash:
+			$ docker run --rm -it postgres bash
+			
+			
+	VOLUME
+	------
+	The VOLUME instruction should be used to expose any 
+		database storage area, 
+		configuration storage, 
+		or files/folders created by your docker container. 
+	You are strongly encouraged to use VOLUME for any mutable and/or user-serviceable parts of your image.
+	
+	
+	USER
+	----
+		If a service can run without privileges, 
+			use USER to change to a non-root user. 
+		Start by creating the user and group in the Dockerfile with something like 
+			RUN groupadd -r postgres && useradd --no-log-init -r -g postgres postgres.
+
+			Consider an explicit UID/GID
+			Users and groups in an image are assigned a non-deterministic UID/GID 
+				in that the “next” UID/GID is assigned regardless of image rebuilds. 
+			So, if it’s critical, you should assign an explicit UID/GID.
+
+		Due to an unresolved bug in the Go archive/tar package’s 
+			handling of sparse files, attempting to create a user with a significantly large UID
+				inside a Docker container can lead to disk exhaustion 
+				because /var/log/faillog in the container layer is filled with NULL (\0) characters. 
+			A workaround is to pass the --no-log-init flag to useradd. 
+			The Debian/Ubuntu adduser wrapper does not support this flag.
+
+		Avoid installing or using sudo as it has 
+			unpredictable TTY and 
+			signal-forwarding behavior 
+			that can cause problems. 
+		If you need sudo, such (e.g. initializing the daemon as root)
+			consider using “gosu”.
+		Lastly, to reduce layers and complexity, 
+			avoid switching USER back and forth frequently.
+		
+		
+	WORKDIR
+	-------
+
+	For clarity and reliability, 
+		Always use absolute paths for your WORKDIR. 
+		Always use WORKDIR instead of RUN cd … && do-something, 
+		which are hard to read, troubleshoot, and maintain.	
+	
+	
+	ONBUILD
+	-------
+	An ONBUILD command executes after the current Dockerfile build completes. 
+	ONBUILD executes in any child image derived FROM the current image. Think of the ONBUILD command as an instruction the parent Dockerfile gives to the child Dockerfile.
+
+	A Docker build executes ONBUILD commands before any command in a child Dockerfile.
+
+	ONBUILD is useful for images that are going to be built FROM a given image. For example, you would use ONBUILD for a language stack image that builds arbitrary user software written in that language within the Dockerfile, as you can see in Ruby’s ONBUILD variants.
+
+	Images built with ONBUILD should get a separate tag, for example: ruby:1.9-onbuild or ruby:2.0-onbuild.
+
+	Be careful when putting ADD or COPY in ONBUILD. The “onbuild” image fails catastrophically if the new build’s context is missing the resource being added. Adding a separate tag, as recommended above, helps mitigate this by allowing the Dockerfile author to make a choice.

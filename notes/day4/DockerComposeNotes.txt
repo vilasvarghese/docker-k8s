@@ -85,8 +85,7 @@ Compose has commands for managing the whole lifecycle of your application:
 
 		docker-compose up 
 			Use up to 
-				create the network if it is not already present, 
-				start or restart all the services 
+				Build and start or restart all the services 
 					defined in a docker-compose.yml. 
 			Default “attached” mode, 
 					you see all the logs from all the containers. 
@@ -265,6 +264,9 @@ Forked to
 https://github.com/vilasvarghese/example-voting-app
 
 Refer the notes
+The app will be running at 
+	http://localhost:5000, and the results will be at 
+	http://localhost:5001.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
 Following example is deprecated because Voting app seems to be a much better example for students to understand

@@ -1,0 +1,2419 @@
+Understanding the internals
+---------------------------
+	docker info #Default on CentOS
+	
+References: 	
+	https://docs.docker.com/engine/reference/commandline/info/
+	https://docs.docker.com/engine/reference/commandline/dockerd/
+	https://docs.docker.com/config/daemon/
+
+output is something like
+
+ Debug Mode: false	#Default Docker doesn't run in debug mode. 
+					#More details in https://docs.docker.com/config/daemon/ and 
+					# 				https://success.docker.com/article/how-do-i-enable-debug-logging-of-the-docker-daemon
+
+Server:
+ Containers: 1		# Generic info.
+  Running: 0		
+  Paused: 0			
+  Stopped: 1		
+ Images: 1						#Number of unique images. The same image tagged under different names is counted only once.
+ Server Version: 19.03.12		#Docker Server version
+ Storage Driver: overlay2		#Storage driver. Can be configured in daemon.json. 
+								#Depending on the storage driver in use, additional information can be shown, such as pool name, data file, metadata file, data space used, total data space, metadata space used, and total metadata space.
+  Backing Filesystem: xfs		#
+								#When run for the first time Docker allocates a certain amount of data space and meta data space from the space available on the volume where /var/lib/docker is mounted.
+  
+  
+  Supports d_type: true			
+  Native Overlay Diff: true		#Is native overlay supported?
+ Logging Driver: json-file		#
+ Cgroup Driver: cgroupfs		
+ Plugins:
+  Volume: local					#
+  Network: bridge host ipvlan macvlan null overlay		#Different networks supported.
+  Log: awslogs fluentd gcplogs gelf journald json-file local logentries splunk syslog
+ Swarm: inactive
+ Runtimes: runc
+ Default Runtime: runc
+ Init Binary: docker-init
+ containerd version: 7ad184331fa3e55e52b890ea95e65ba581ae3429
+ runc version: dc9208a3303feef5b3839f4323d9beb36df0a9dd
+ init version: fec3683
+ Security Options:
+  seccomp
+   Profile: default
+ Kernel Version: 3.10.0-957.12.2.el7.x86_64
+ Operating System: CentOS Linux 7 (Core)
+ OSType: linux
+ Architecture: x86_64
+ CPUs: 2
+ Total Memory: 2.732GiB
+ 
+ Name: docker1					#Node name
+ ID: FP2T:RX7B:IDJ2:OAMB:LSC7:TWSO:UIKM:FBBV:DVEM:BLPA:HV5G:RA2D
+ 
+ Docker Root Dir: /var/lib/docker		#Root docker directory
+ 
+ Debug Mode: false						#Lot of details below
+ Registry: https://index.docker.io/v1/	#Default registry.
+ 
+ Labels:
+ Experimental: false			#Run docker in Experimental mode. Dev./QA of Docker would be using this.
+ 
+ Insecure Registries:			#Recommendation: use a TLS certificate issued by a known CA
+  127.0.0.0/8					#But we can configure to use in secure registry.
+								# With insecure registries enabled, Docker goes through the following steps:
+								#	First, try using HTTPS.
+								#	If HTTPS is available but the certificate is invalid, ignore the error about the certificate.
+								#	If HTTPS is not available, fall back to HTTP.
+								#More details: https://docs.docker.com/registry/insecure/
+  
+ Live Restore Enabled: false	#Default when docker daemon is down - container are brought down. But we can retain 
+								#containers running while daemon is down by enabling this flag. More details: https://docs.docker.com/config/containers/live-restore/
+
+
+Docker Daemon can be configured in linux the location is (windows check docs)
+	/etc/docker/daemon.json
+	For e.g. can run docker in debug mode by adding
+	{
+		"debug": true
+	}
+
+	and bounce dockerd by doing
+	sudo kill -SIGHUP $(pidof dockerd)
+	logs on RHEL/CentOS/Oracle Linux would be in /var/log/messages
+	For other OS refer /var/log/messages https://docs.docker.com/config/daemon/
+	
+	
+	For other configurations refer 
+		https://docs.docker.com/config/daemon/
+		
+		
+
+
+--------------------------------------------------------------------------------------------------------------------------
+e.g of docker info on RHEL with devicemapper
+$ docker info
+Client:
+ Debug Mode: false
+
+Server:
+ Containers: 14
+  Running: 3
+  Paused: 1
+  Stopped: 10
+ Images: 52
+ Server Version: 1.10.3
+ Storage Driver: devicemapper
+  Pool Name: docker-202:2-25583803-pool
+  Pool Blocksize: 65.54 kB
+  Base Device Size: 10.74 GB
+  Backing Filesystem: xfs
+  Data file: /dev/loop0
+  Metadata file: /dev/loop1
+  Data Space Used: 1.68 GB
+  Data Space Total: 107.4 GB
+  Data Space Available: 7.548 GB
+  Metadata Space Used: 2.322 MB
+  Metadata Space Total: 2.147 GB
+  Metadata Space Available: 2.145 GB
+  Udev Sync Supported: true
+  Deferred Removal Enabled: false
+  Deferred Deletion Enabled: false
+  Deferred Deleted Device Count: 0
+  Data loop file: /var/lib/docker/devicemapper/devicemapper/data
+  Metadata loop file: /var/lib/docker/devicemapper/devicemapper/metadata
+  Library Version: 1.02.107-RHEL7 (2015-12-01)
+ Execution Driver: native-0.2
+ Logging Driver: json-file
+ Plugins:
+  Volume: local
+  Network: null host bridge
+ Kernel Version: 3.10.0-327.el7.x86_64
+ Operating System: Red Hat Enterprise Linux Server 7.2 (Maipo)
+ OSType: linux
+ Architecture: x86_64
+ CPUs: 1
+ Total Memory: 991.7 MiB
+ Name: ip-172-30-0-91.ec2.internal
+ ID: I54V:OLXT:HVMM:TPKO:JPHQ:CQCD:JNLC:O3BZ:4ZVJ:43XJ:PFHZ:6N2S
+ Docker Root Dir: /var/lib/docker
+ Debug Mode: false
+ Username: gordontheturtle
+ Registry: https://index.docker.io/v1/
+ Insecure registries:
+  myinsecurehost:5000
+  127.0.0.0/8
+--------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------
+			Image in-depth understanding.
+--------------------------------------------------------------------------------------------------------------------------
+https://www.freecodecamp.org/news/where-are-docker-images-stored-docker-container-paths-explained/
+
+	Connect to virtual image
+		docker run -it --privileged --pid=host <image name: e.g. nginx> nsenter -t 1 -m -u -i sh
+		
+	1. Docker Images
+		docker inspect <image name>	
+		will have an UpperDir - note this directory.
+		LoweDir: 
+			contains the read-only layers of an image
+		UpperDir: 
+			The read-write layer that represents changes
+			ls -la <upper dir for nginx> has the following folders.
+				access.log
+				error.log
+		MergedDir: 
+			Result of the computation between UpperDir and LowerDir - 
+			Used by Docker to run the container.
+		WorkDir: 
+			Internal directory for overlay2 and should be empty.
+		
+		
+		A Docker image 
+			Built up from a series of layers. 
+			Each layer represents an instruction in the image’s Dockerfile. 
+			Each layer except the very last one is read-only.
+		
+		For e.g.
+			FROM ubuntu:18.04		#Creates a new layer - Layer 1
+			COPY . /app				#Creates a new layer with the diff. from the Layer1. Depends on Layer1
+			RUN make /app			#Creates a new layer with the diff. from the Layer2. Depends on Layer2
+			CMD python /app/app.py	#Creates a new layer with the diff. from the Layer2. Depends on Layer2
+		
+
+		Each layer is only a set of differences from the layer before it. 
+		The layers are stacked on top of each other. 
+
+		When you create a new container, 
+			you add a new writable layer on top of the underlying layers. 
+			This layer is often called the “container layer”. 
+			All changes made to the running container, 
+				such as writing new files, 
+				modifying existing files, 
+				and deleting files, 
+				are written to this thin writable container layer. 
+
+		https://docs.docker.com/storage/storagedriver/
+		A storage driver handles the details about the way these layers interact with each other. 
+		Different storage drivers are available, 
+			Each has advantages and disadvantages in different situations.
+
+		Container and layers
+		--------------------
+	The major difference between a container and an image is the top writable layer. 
+	All writes to the container that 
+		add new or 
+		modify existing data 
+		are stored in this writable layer. 
+	When the container is deleted, 
+		the writable layer is also deleted. 
+		The underlying image remains unchanged.
+
+	Each container has its own writable container layer (created when containers are launched), 
+	All changes are stored in this container layer, 
+	Multiple containers can share access to the same underlying image 
+	Still have their own data state
+	
+	Docker uses storage drivers to manage the contents of 
+		the image layers and 
+		the writable container layer. 
+	Each storage driver handles the implementation differently, 
+		but all drivers use 
+			stackable image layers 
+			copy-on-write (CoW) strategy.
+
+		
+	Container size on disk
+	----------------------
+	To view the approximate size of a running container, 
+		use docker ps -s command. Two different columns relate to size.
+
+	size: the amount of data (on disk) that is used for the writable layer of each container.
+
+	Virtual size: 
+		read-only image data used by the container + the container’s writable layer size.
+		
+		Two containers started from the same image 
+			share 100% of the read-only data, 
+		Two containers with different images which have layers in common 
+			share those common layers. 
+		
+		So disk utilization <> sum (virtual size) of all containers.
+
+		Total disk space used by all running containers on disk 
+			Some combination of each container’s size and the virtual size values. 
+			
+		If multiple containers started from the same exact image
+			SUM (size of containers) plus one image size (virtual size- size).
+
+			Even that does not count the following additional ways a container can take up disk space:
+
+			Disk space used for log files if you use the json-file logging driver. 
+				This can be non-trivial if your container generates a large amount of logging data and log rotation is not configured.
+			Volumes and bind mounts used by the container.
+			Disk space used for the container’s configuration files, which are typically small.
+			Memory written to disk (if swapping is enabled).
+			Checkpoints, if you’re using the experimental checkpoint/restore feature.
+
+		
+	2. Understanding how images are stored.
+		docker inspect <image name e.g. nginx>
+			Note UpperDir
+		Execute the docker run command 	below
+			docker run -it --privileged --pid=host <image name: e.g. nginx> nsenter -t 1 -m -u -i sh
+			or directly go to that folder on the host machine.
+			
+		get inside the virtual image
+			cd to the <UpperDir> noted.
+		For nginx you would find an docker-entrypoint.sh file.
+		This file can be noted in https://github.com/nginxinc/docker-nginx/blob/master/stable/alpine/Dockerfile folder
+		If you look at the Dockerfile
+			Entrypoint definition (not the last command) is the command which can be observed as merged in the image towards the end.
+		
+
+	3. Docker Volumes
+
+		$ docker run --name nginx_container -v /var/log nginx	
+		Find the details of volume connected to by
+		docker inspect nginx_container (container inspect)
+			"Source": "/var/lib/docker/volumes/<unique name>/_data"
+			
+	4. Clean up space used by Docker
+		
+		Container, networks, images, and the build cache can be cleaned up by executing:
+		$ docker system prune -a
+		
+		Above doesn't do a volume prune as they are treated separately. So we can additionally execute 
+			docker volumes prune
+		
+	5. The copy-on-write (CoW) strategy
+		Strategy of 
+			sharing and 
+			copying files for maximum efficiency. 
+		If a file or directory exists in a lower layer within the image, 
+			and another layer (including the writable layer) needs read access to it, 
+			it just uses the existing file. 
+		The first time another layer needs to modify the file 
+			(when building the image or running the container), 
+			the file is copied into that layer and modified. 
+			This minimizes I/O and the size of each of the subsequent layers. 
+			Advantages of this.
+				Sharing promotes smaller images (image layers)
+				Quick response time.
+					Copying makes containers efficient
+		
+		
+		Sharing promotes smaller images (image layers)
+		----------------------------------------------
+		Do docker pull 
+			each layer is pulled down separately, 
+			and stored in Docker’s local storage area, 
+				usually /var/lib/docker/ on Linux hosts. 
+		
+	
+		Each of these layer is stored in its own directory 
+			inside the Docker host’s local storage area. 
+		ls -la /var/lib/docker/<storage-driver>
+			e.g. ls -la /var/lib/docker/overlay2
+			
+		Consider the following images	
+			
+			FROM ubuntu:18.04
+			COPY . /app
+
+		The second one is based on acme/my-base-image:1.0, but has some additional layers:
+
+			FROM acme/my-base-image:1.0 #Same as ubuntu:18.04. This is like vilasvarghse/ubuntu-with-java.
+			CMD /app/hello.sh
+			
+			
+		While creating second image 
+			Docker already has all the layers from the first image
+			So it will not pull them again. 
+		
+		The two images share all layers they have in common.
+			If you build images from the two Dockerfiles, you can use docker image ls and docker history commands to verify that the cryptographic IDs of the shared layers are the same.
+
+			1. Make a new directory cow-test/ and change into it.
+
+			2. Within cow-test/, create a new file called hello.sh with the following contents:
+
+				#!/bin/sh
+				echo "Hello world"
+				Save the file, and make it executable:
+
+				chmod +x hello.sh
+			3. Copy the contents of the first Dockerfile above into a new file called Dockerfile.base.
+
+			4. Copy the contents of the second Dockerfile above into a new file called Dockerfile.
+
+			5. Within the cow-test/ directory, build the first image. Don’t forget to include the final . in the command. That sets the PATH, which tells Docker where to look for any files that need to be added to the image.
+
+				$ docker build -t acme/my-base-image:1.0 -f Dockerfile.base .
+				Sending build context to Docker daemon  812.4MB
+				Step 1/2 : FROM ubuntu:18.04
+				 ---> d131e0fa2585
+				Step 2/2 : COPY . /app
+				 ---> Using cache
+				 ---> bd09118bcef6
+				Successfully built bd09118bcef6
+				Successfully tagged acme/my-base-image:1.0
+	
+			6. Build the second image.
+
+				$ docker build -t acme/my-final-image:1.0 -f Dockerfile .
+
+				Sending build context to Docker daemon  4.096kB
+				Step 1/2 : FROM acme/my-base-image:1.0
+				 ---> bd09118bcef6
+				Step 2/2 : CMD /app/hello.sh
+				 ---> Running in a07b694759ba
+				 ---> dbf995fc07ff
+				Removing intermediate container a07b694759ba
+				Successfully built dbf995fc07ff
+				Successfully tagged acme/my-final-image:1.0
+
+			7. Check out the sizes of the images:
+					docker image ls
+						Both should have same size.
+						
+			8. Check out the layers that comprise each image:
+				docker history <image id 1>
+				docker history <image id 2>
+				
+		Notice that all the layers are identical except the top layer of the second image. 
+		All the other layers are shared between the two images, 
+		Stored only once in /var/lib/docker/. 
+		The new layer actually doesn’t take any room at all
+			because it is not changing any files, 
+			but only running a command.
+
+
+			Note: The <missing> lines in the docker history output 
+				indicate that those layers were built on another system 
+				are not available locally. 
+				This can be safely ignored.
+				
+			
+		Copying makes containers efficient
+		----------------------------------
+		When you start a container, 
+			a thin writable container layer is added on top of the other layers. 
+		Changes made to container are stored in this layer.
+		Any files the container does not change do not get copied to this writable layer. 
+		This means that the writable layer is as small as possible.
+
+		When an existing file in a container is modified, 
+			the storage driver performs a copy-on-write operation. 
+		The specifics steps involved depend on the specific storage driver. 
+		
+		For the 
+			aufs, 
+			overlay, and 
+			overlay2 drivers, 
+			the copy-on-write operation follows this rough sequence:
+
+		Search through the image layers for the file to update. 
+		The process starts at the newest layer and works down to the base layer one layer at a time. 
+		When results are found, 
+			they are added to a cache to speed future operations.
+		
+		
+
+		Perform a copy_up operation 
+			on the first copy of the file that is found, 
+			to copy the file to the container’s writable layer.
+
+		Any modifications are made to this copy of the file, 
+			and the container cannot see the read-only copy of the file that exists in the lower layer.
+
+		Btrfs, ZFS, and other drivers 
+			handle the copy-on-write differently. 
+		Refer documentation for details
+		
+		Btrfs:
+			Modern copy on write (CoW) filesystem for Linux 
+			Aimed at implementing advanced features 
+			Still retain the focus on fault tolerance, repair and easy administration.
+			Refer: https://btrfs.wiki.kernel.org/index.php/Main_Page
+		
+		ZFS
+			Advanced file system. Some interesting features it supports
+				Pooled storage
+				Copy-on-write
+				Snapshots
+				Data integrity verification and automatic repair
+				RAID-Z
+				Maximum 16 Exabyte file size
+				Maximum 256 Quadrillion Zettabytes storage
+		
+		
+		Containers that write a lot of data 
+			consume more space than containers that do not. 
+		This is because most write operations consume new space in the container’s thin writable top layer.
+
+		Note: 
+			for write-heavy applications
+			you should not store the data in the container. 
+			Instead, 
+				use Docker volumes, 
+					which are independent of the running container and are designed to be efficient for I/O. 
+			In addition, 
+				volumes can be shared among containers and 
+				do not increase the size of your container’s writable layer.
+
+			A copy_up operation can incur a noticeable performance overhead. 
+			This overhead is different depending on which storage driver is in use. 
+			Large files, lots of layers, and deep directory trees can make the impact more noticeable. 
+			This is mitigated by the fact that each copy_up operation only occurs the first time a given file is modified.
+
+		To verify the way that copy-on-write works, 
+			the following procedures spins up 5 containers based on the acme/my-final-image:1.0 image we built earlier and examines how much room they take up.
+
+		Note: 
+			This procedure doesn’t work on Docker Desktop for Mac or Docker Desktop for Windows.
+
+		From a terminal on your Docker host, run the following docker run commands. The strings at the end are the IDs of each container.
+
+		Delete all containers 
+			docker stop <all contaienrs>
+			docker container prune
+			
+		$ docker run -dit --name my_container_1 acme/my-final-image:1.0 bash \
+		  && docker run -dit --name my_container_2 acme/my-final-image:1.0 bash \
+		  && docker run -dit --name my_container_3 acme/my-final-image:1.0 bash \
+		  && docker run -dit --name my_container_4 acme/my-final-image:1.0 bash \
+		  && docker run -dit --name my_container_5 acme/my-final-image:1.0 bash
+
+		$ docker ps 
+			- all 5 containers should be running.
+
+		$ sudo ls /var/lib/docker/containers
+
+			Now check out their sizes:
+
+		$ sudo du -sh /var/lib/docker/containers/*
+		
+		5 entries like below would be repeated.
+			32K  /var/lib/docker/containers/1a174fc216cccf18ec7d4fe14e008e30130b11ede0f0f94a87982e310cf2e765
+				5 ENTRIES.
+		
+		Each of these containers only takes up 32k (while image size was 103MB) of space on the filesystem.
+
+		copy-on-write 
+			save space, 
+			also reduces start-up time. 
+		
+		When you start a container (or multiple containers from the same image), 
+			Docker only needs to create the thin writable container layer.
+
+		If Docker had to make an entire copy of the underlying image stack each time it started a new container, 
+		container start times and disk space used would be significantly increased. 
+		This would be similar to the way that virtual machines work, 
+			with one or more virtual disks per virtual machine.
+	
+		
+		
+	The internal structure of the Docker root folder
+	------------------------------------------------
+	In docker info, we noted that the "Docker Root Dir" is /var/lib/docker
+	
+	Folders present in the "Docker Root Dir" (default /var/lib/docker)
+		builder   
+		containers	: Running containers data may be stored here.
+		network  	: Network related information
+		plugins   	: Plugins
+		swarm  		:
+		trust		
+		buildkit  	: Used for building images using buildkit. Details :
+						https://docs.docker.com/develop/develop-images/build_enhancements/
+						Images build using buildkit are more secured but consistent with normal build images.
+		image       : Metadata on images.
+		overlay2  	: images are stored, will change based on storage type.
+		runtimes  	: Internally used by docker
+		tmp    		: Internally used by docker
+		volumes		: Volumes
+		
+		
+	5. Storage Drivers	
+		https://docs.docker.com/storage/storagedriver/
+	
+		Storage drivers allow you to 
+			create data in the writable layer of your container. 
+		The files won’t be persisted after the container is deleted, 
+		Both read and write speeds are lower than native file system performance.
+		
+		
+--------------------------------------------------------------------------------------------------------------------------
+			Understanding /var/lib/docker.
+--------------------------------------------------------------------------------------------------------------------------		
+#####################################################################################################################################
+
+copy paste from host to vm.
+
+1. Talk about network, process and filesystem isolation in docker.
+	- Network and FS isolation is real
+	- Process isolation is psuedo
+		- Execute top
+	
+	
+containerd : Layer wrapping Kernel
+
+2. Should ephemeral process
+
+	By “ephemeral”, 
+		- container 
+			stopped  
+			destroyed .
+			kill 
+			die 
+		
+3. Explain Layered architecture 
+	Difference between Dockerfile, Docker Image and Container.
+
+	Images
+	------
+	After building few images do 
+	docker images -a #Should show the intermediate steps it took.
+	
+	
+
+4. Explain Dockerfile
+
+	Dockerfile 
+		Text file written in Dockerfile language 
+		Defines a Docker image. 
+	
+	
+	
+	
+	FROM, RUN, ADD, COPY, Expose, ENV, CMD, Entrypoint
+	
+	###############################################################
+	1. FROM
+	
+		docker build -t from . #from should be image name
+		docker run -it from bash
+		
+		Execute the Dockerfile1
+		FROM	
+			- start with FROM. 
+			#ARG is the only command that can appear before FROM.
+			- multiple times.
+			- clears state. 
+			- FROM xxx AS abc
+			- --from=<name|index> .
+			- FROM: tag/digest 
+		 
+		ARG  CODE_VERSION=latest
+		FROM base:${CODE_VERSION}
+		CMD  /code/run-app
+
+		FROM extras:${CODE_VERSION}
+		CMD  /code/run-extras
+
+		An ARG defined before FROM can't be used anywhere else other than FROM.
+
+	2. RUN
+		
+		docker build -t run-ex -f 2.Runfile .
+		docker run -it run-ex bash
+			-> javac
+			
+		RUN
+			- Execute the command
+			- while image is generated
+			- Check in back to image
+			- New layer
+			- Creates a new image
+			- 2 types
+				- command
+				- ["executable", "param", "param2"]
+					RUN ["/bin/bash", "-c", "echo hello"]
+					json array
+			- Default is shell
+
+	3. CMD
+		- adds default command
+		- overwritten from command line
+		- Executed when container runs
+		- Only one CMD
+		- Last one executed
+		
+		Refer -> 3.cmdDockerfile
+			-> docker build -t cmd-test -f 3.cmdDockerfile  .
+			-> docker run cmd-test ping google.com#ping might fail
+			-> docker run -it cmd-test ls -ltr # we can override the instruction.
+		
+		3 types
+		    - CMD ["<executable>","<param1>","<param2>"] 
+			
+			- CMD <command> <param1> <param2> (shell form)
+			
+			- Default to entrypoint
+				CMD ["<param1>","<param2>"] 
+
+
+	4. ENTRYPOINT
+	
+		- docker build -t entrypt -f 4.entrypoint .
+		- docker run entrypoint http://bencane.com/
+		
+		ENTRYPOINT 
+			- Configures container to run as an executable. 
+			- Execute a command in container.
+			- Override all elements in CMD
+			- Default shell
+			- Only one Entrypoint
+				- Last one
+			
+		Usage:
+		    ENTRYPOINT ["<executable>", "<param1>", "<param2>"] (exec form, preferred)
+		    
+			ENTRYPOINT <command> <param1> <param2> (shell form)
+
+####################################################
+We can do the same thing with CMD, so what is the diff.
+We'll create our own image and specify a new command:
+
+FROM ubuntu
+CMD sleep 10
+Now, we build the image:
+
+docker build -t custom_sleep .
+docker run custom_sleep
+# sleeps for 10 seconds and exits
+What if we want to change the number of seconds? We would have to change the Dockerfile as the value is hardcoded there, or override the command by providing a different one:
+
+docker run custom_sleep sleep 20
+While this works, it's not a good solution, as we have a redundant "sleep" command (the container's purpose is to sleep, so having to explicitly specify the sleep command is not a good practice).
+
+Now let's try using the ENTRYPOINT instruction:
+
+FROM ubuntu
+ENTRYPOINT sleep
+This instruction specifies the program that will be run when the container starts.
+
+Now we can run:
+
+docker run custom_sleep 20
+What about a default value? Well, you guessed it right:
+
+FROM ubuntu
+ENTRYPOINT ["sleep"]
+CMD ["10"]
+The ENTRYPOINT is the program that will be run, and the value passed to the container will be appended to it.
+
+The ENTRYPOINT can be overridden by specifying an --entrypoint flag, followed by the new entry point you want to use.
+------------------------------------------------------
+
+Docker has a default entrypoint which is /bin/sh -c but does not have a default command.
+
+When you run docker like this: docker run -i -t ubuntu bash the entrypoint is the default /bin/sh -c, the image is ubuntu and the command (param to entrypoint) is bash.
+
+The command is run via the entrypoint. i.e., the actual thing that gets executed is /bin/sh -c bash. This allowed Docker to implement RUN quickly by relying on the shell's parser.
+
+Later on, people asked to be able to customize this, so ENTRYPOINT and --entrypoint were introduced.
+
+Everything after ubuntu in the example above is the command and is passed to the entrypoint. When using the CMD instruction, it is exactly as if you were doing docker run -i -t ubuntu <cmd>. <cmd> will be the parameter of the entrypoint.
+
+You will also get the same result if you instead type this command docker run -i -t ubuntu. You will still start a bash shell in the container because of the ubuntu Dockerfile specified a default CMD: CMD ["bash"]
+
+As everything is passed to the entrypoint, you can have a very nice behavior from your images. @Jiri example is good, it shows how to use an image as a "binary". When using ["/bin/cat"] as entrypoint and then doing docker run img /etc/passwd, you get it, /etc/passwd is the command and is passed to the entrypoint so the end result execution is simply /bin/cat /etc/passwd.
+
+Another example would be to have any cli as entrypoint. For instance, if you have a redis image, instead of running docker run redisimg redis -H something -u toto get key, you can simply have ENTRYPOINT ["redis", "-H", "something", "-u", "toto"] and then run like this for the same result: docker run redisimg get key.
+
+
+####################################################
+
+	x. ENV
+	
+		docker build -t env -f 6.envDockerfile .
+		docker run -it env bash
+		
+		ENV abc=hello
+		ENV ghi=$abc
+		
+		CMD ["/bin/sh", "echo","$abc"] #will echo bye
+		CMD echo $abc #will echo bye
+		
+
+	6. COPY
+		
+
+		Usage:
+		    COPY <src> [<src> ...] <dest>
+		    COPY ["<src>", ... "<dest>"] 
+
+		    - Copies new files or directories
+			- from <src> to <dest>.
+			- may contain wildcards
+			- Match - Go’s filepath
+			- <src> : relative to the source 
+		    - <dest> : 
+				- absolute path, 
+				- relative to WORKDIR.
+		    - <dest> created if missing
+
+
+	7. ADD
+
+		Usage:
+		    ADD <src> [<src> ...] <dest>
+		    ADD ["<src>", ... "<dest>"] (this form is required for paths containing whitespace)
+
+		    - Copies 
+				new files, 
+				directories, or 
+				remote file URLs 
+			- from <src> to <dest>.
+		    - <src> wildcards and 
+			- matching : Go’s filepath.Match rules.
+		    - <src> : relative to the source directory 
+		    - <dest> : 
+				- absolute path, 
+				- relative to WORKDIR.
+		    - <dest> created if required
+
+	##################################################################################
+			Difference between ADD and COPY
+		
+		COPY takes in a (one or more) src and destination. 
+			- Copy 
+				- from host
+				- to destination in image
+			- For local files always use COPY.
+			
+		ADD lets you do that too, but it also supports 2 other sources.
+			- ADD 
+				- from 
+					- host 
+					- url (can be tar)
+					- tar file
+			- Instead use RUN with curl
+			- May be chain to make smaller docker image
+			
+	###############################################################
+
+
+	8. MAINTAINER
+		The MAINTAINER instruction allows you to set the Author field of the generated images.
+
+	9. EXPOSE
+
+		Usage:
+		    EXPOSE <port> [<port> ...]
+
+		    - Informs Docker container.
+			- does not make PORT accessible.
+		At runtime you can decide the network plugin.
+		
+######################################################
+This doesn't help in exposing on the host. Then why use it?
+
+It is used 
+	- internally by other containers
+	- reader of Dockerfile can quickly understand where the service refers?
+	
+Not mentioned anywhere else, by Vilas thinks so...
+	- this port should be used internally by Docker for health check and liveness check. (since other containers use it).
+	
+#######################################################		
+
+	10. VOLUME
+
+		Usage:
+		    VOLUME ["<path>", ...]
+		    VOLUME <path> [<path> ...]
+
+		- Defines mount point. 
+
+
+	11. USER
+
+		docker build -t user-eg -f 8.userDockerfile .
+		docker run -it user-eg bash
+			-> whoami
+			
+			
+		Usage:
+		    USER <username | UID>
+
+		- Sets the user name or UID 
+		- For 
+			- RUN, 
+			- CMD 
+			- ENTRYPOINT
+
+	12. WORKDIR
+
+		Usage:
+		    WORKDIR </path/to/workdir>
+
+		    Sets the working directory for 
+				RUN, 
+				CMD, 
+				ENTRYPOINT, 
+				COPY, and 
+				ADD .
+			- Multiple times . 
+			- relative path 
+				relative : previous WORKDIR instruction.
+
+	13. ARG
+
+		Usage:
+			ARG <name>[=<default value>]
+
+			- Defines a variable 
+					- Pass at build-time.
+			- Multiple variables
+			- Not for secret keys
+			- ENV override ARG instruction 
+			- Predefined
+				- HTTP_PROXY and http_proxy
+				- HTTPS_PROXY and https_proxy
+				- FTP_PROXY and ftp_proxy
+				- NO_PROXY and no_proxy
+
+	14. ONBUILD
+
+		Usage:
+
+		    ONBUILD <Dockerfile INSTRUCTION>
+
+		    - image trigger for later 
+			- when used as base executed for downstream build after FROM
+			- Not inherited by grand children
+			
+			
+	15. STOPSIGNAL
+
+		Usage:
+		    STOPSIGNAL <signal>
+
+				- system call signal to exit container.
+				- Unsigned number ,
+					- 9, 
+					- SIGNAME like SIGKILL.
+	
+https://medium.com/better-programming/docker-healthchecks-eb744bfe3f3b
+----------------------------------------------------------------------------
+
+----------------------------------------------------------------------------
+docker run -d nginx
+
+	ENTRYPOINT or CMD process 
+		runs as a PID (process identification)1.
+		ps -aux # Verify the command part of the output.
+		
+	PID 1 process is treated specially 
+		It ignores any signal
+			SIGINT or SIGTERM, 
+		Won’t terminate unless it’s coded to do so.
+		
+	When PID 1 running
+		Default: Docker engine reports the container as running. 
+		Pause the container via a docker pause, 
+			container still reported as Up but with a (Paused) flag		
+	For Docker 
+		Container is running
+		Cannot understand that actually didn't come up properly.
+		
+	However we can 
+		verify the container came up properly.
+		For e.g. if container come up properly 
+			we know that a catalina.sh should be present 
+		or
+			an endpoint like http://abc.com/test would be reachable
+		We can check (probably use HEALTHCHECK for this)
+			If it fails, then we can kill PID 1 using STOPSIGNAL.
+			
+
+	
+	Additional information
+		How docker stop works
+			executes STOPSIGNAL SIGTERM (Graceful shutdown - issue stop signal to each of the process).
+				Docker waits for 10 seconds
+				Kubernetes waits for 30 seconds.
+			If it doesn't get an exit response,
+				execute STOPSIGNAL SIGKILL
+					Hard shutdown - like poweroff.
+					
+				
+
+
+
+----------------------------------------------------------------------------
+
+
+----------------------------------------------------------------------------
+
+
+	16. HEALTHCHECK
+
+		Usage:
+
+		    HEALTHCHECK [<options>] CMD <command> 
+				- check container health
+				
+		    HEALTHCHECK NONE : disable healthcheck inherited from the base image
+
+				    Tells Docker 
+						- how to test
+						
+				    health check passes, 
+						- becomes healthy. 
+					
+					- consecutive failures, 
+						- it becomes unhealthy.
+				    
+					The <options> 
+					--interval=<duration> (default: 30s)
+					--timeout=<duration> (default: 30s)
+					--retries=<number> (default: 3)
+					
+				    first run 
+						- interval seconds after start.
+					second run
+						- interval seconds after previous 
+					
+					If longer than timeout 
+						- then failed. 
+						
+				    - Only one 
+					- last HEALTHCHECK will take effect.
+					
+			2 ways	
+			shell command 
+			exec JSON array.
+			
+			Exit status 
+					0: success 
+					1: unhealthy
+					2: reserved 
+
+
+
+	17. SHELL
+
+		Usage:
+			SHELL ["executable", "parameters"]
+			Default 
+				SHELL ["/bin/sh", "-c"]
+
+
+		Override default shell
+		
+
+############################################################################################
+					Docker Volumes
+****************************************************
+################################################################################################
+1. Containers are ephemeral
+2. Containers writable layer is tightly coupled to the host machine.
+3. Containers memory gets used.
+
+	Adv. of volumes
+	1. Easier to backup or migrate.
+	2. Can manage using docker cli commands or api.
+	3. Can be safely shared among multiple containers.
+	4. Works on linux and windows.
+	5. Can store on remote hosts or cloud providers.
+	6. New volumes can have their content pre-populated by containers.
+	7. Data persists outside the lifecycle of a container.
+
+	Docker has following options to persist the data, 
+		volumes
+		bind mounts. 
+		tmpfs mount on linux
+	or	
+		named pipe on windows (Reference https://docs.docker.com/storage/ - but debatable).
+
+	When do you use Volume?
+	
+	1. Persists data (may be on remote host like NFS)
+	2. Sharing among multiple containers
+	3. Decouple the configurations of Docker host from file system.
+		Reduce memory footprint
+		Keep something confidential
+	4. Backup
+	5. Restore
+	6. Migrate data
+	
+	
+	When to use Bind Mounts?
+	1. Sharing configuration files 
+		- from host to container.
+	2. Sharing source code or build artifacts from host to container. 
+		e.g. tar get build regularly on host - container gets access to it.
+	3. directory structure outside /var/lib/docker/volume
+	4. Manually manage the lifecycle of volumes.
+	
+	
+	Volumes
+	-------
+	1. stored part of the host filesystem which 
+		Docker (default: /var/lib/docker/volumes/ on Linux).
+	2. Non-Docker processes should not modify for invalid reasons.
+	3. Recommended way to persist data in Docker.
+	4. Supported since 0.9
+	5. Non-Docker processes should not modify this part of the filesystem. 
+	6. Created and managed by Docker. 
+	7. Explicitly create using the docker volume create command, 
+	8. Docker can create a volume during container (run/create) or service creation.
+	9. Volumes are managed by Docker 
+	10. Isolated from the core functionality of the host machine.
+
+	11. Volume can be mounted into multiple containers simultaneously. 
+	12. When no running container is using a volume, 
+			It is still available to Docker on the host 
+			Not removed automatically. 
+	13. Remove unused volumes by 
+		docker volume prune #all unused volumes
+		docker volume rm <vol name> #specific volume
+
+	14. mount volume can be
+			named 
+			or 
+			anonymous. 
+				not given an explicit name 
+				Docker gives them a random name
+					guaranteed to be unique 
+						within a given Docker host. 
+			
+			Besides the name
+				named and anonymous volumes behave in the same ways.
+
+	15. Volumes also support the use of volume drivers
+			Allow you to store your data on 
+				remote hosts or 
+				cloud providers
+
+	Bind mounts 
+	-----------
+	1. stored anywhere on the host system. 
+	2. Can be important system files or directories. 
+	3. Non-Docker processes on the Docker host or Docker container can modify them at any time.
+	4. Available since the early days of Docker. 
+	5. Limited functionality compared to volumes
+	6. File or directory on the host machine is mounted into a container. 
+	7. File or directory is referenced by its full path on the host machine. 
+	8. File or directory does not need to exist on the Docker host already. 
+	9. Created on demand if it does not yet exist. 
+	10. Very performant
+			but they rely on the host machine’s filesystem 
+			Specific directory structure available. 
+	11. Recommendation from Docker: 	
+			consider using named volumes instead.
+			since you can’t use Docker CLI commands to directly manage bind mounts.
+
+	12. Side effect of using bind mounts
+			you can change the host filesystem via processes running in a container, including 
+				creating, 
+				modifying, or 
+				deleting 
+					important system files or directories. 
+				Powerful ability which can have security implications, 
+					including impacting non-Docker processes on the host system.
+
+	tmpfs
+	-----
+	1. Mounts are stored in the host system’s memory only
+	2. Never written to host system’s filesystem.
+	3. used by A container 
+		during the lifetime of the container, 
+			to store non-persistent state or sensitive information. 
+		Can't be shared between containers 
+	4. For instance, internally, 
+			swarm services use tmpfs mounts to mount secrets into a service’s containers.
+	5. Available only on linux machines.
+
+
+	named pipes
+	-----------
+	1. An npipe mount can be used for communication between the Docker host and a container. 
+	2. Common use case is to run a third-party tool inside of a container and 
+			connect to the Docker Engine API using a named pipe.
+
+	Bind mounts and volumes 
+		both can be mounted into containers using the -v or --volume flag, 
+		For tmpfs mounts, you can use the --tmpfs flag. 
+		However, in Docker 17.06 and higher, 
+			recommend using the --mount flag for both containers and services, for bind mounts, volumes, or tmpfs mounts, as the syntax is more clear.
+
+
+	Good use cases for tmpfs mounts
+	-------------------------------
+	you do not want the data to persist either on the host machine or within the container. 
+		for security reasons or to 
+		protect the performance of the container 
+			when your application needs to write a large volume of non-persistent state data.
+
+
+
+	
+	Can be created using
+	1. -v or --volume. 
+	-v <vol name>:<directory mounted in container>:<comma seperated list of options>
+	
+	where vol name
+	1. If <vol name> is skipped it becomes anonymous volumes.
+	2. should be unique on a given host (among multiple containers).
+	
+
+
+	
+
+
+
+#####################################################
+
+
+	1. logical seperation of container and data
+	2. persist container crash 
+	3. volumes can be used to share between containers.
+
+	docker volume --help
+	docker volume ls
+	
+	Both Volumes and Bind mounts
+	1. Created on host machine
+	2. mounted to the container.
+	3. Full path required.
+	3. Will be created if it doesn't exist.
+	
+	Volumes
+	1. Created and managed by Docker.
+	2. Created on host system 
+		mounted into the countainer. 
+		Bind mount also works similarly. But location can be anywhere.
+	3. Managed by Docker 
+		isolated from host machine.
+	4. Volumes can be mounted into multiple containers.
+	5. Isolated volume are available to docker. Not automatically removed.
+	
+	Volumes are of two types
+		1. Named
+		2. Anonymous - docker gives a unique name.
+	
+	1. docker volume create
+	2. docker run -v or docker volume --mount
+	3. docker volume prune
+	
+	docker run -d -it --name devtest --mount type=bind,source=/home/vagrant/abc/target1,target=/app nginx:latest
+	
+	Bind Mounts
+	1. Created on host 
+		mounted to container. 
+		(Unlike docker : specific directory).
+	2. Very performant
+	3. Unlike volumes 
+		depends on host FS.
+	4. Directory is created if it doesn't exist.
+	
+	tmpfs mounts: 
+	1. Not persisted on the disk. 
+	2. Can be used to store non-persistent data.
+	3. Supported only on linux.
+	4. Stored on host memory.
+	5. When container stops, the tmpfs mount is removed and files written there won't be persisted.
+	6. Can't share between containers (unlike volume and bindmounts)
+	
+	
+	named pipes: An npipe can be used for communication between the Docker host and container.
+	
+	Syntax between volume and Bind mounts look very similar. So lets understand the difference better. 
+	For bind mounts we specify type=bind while --mount. But we don't do that when we -v.
+	
+	-v or --volume
+	
+		<<<Refer the slide>>>
+	
+	Volume								
+	First field : 						
+	1. name of the volume
+	2. Should be unique on host
+	3. Anonymous volumes, 
+		the first field is omitted.
+	
+	Bind Mounts
+	First field :
+	1. Path to the file or directory on the host machine.
+	
+	Volume 
+	Second field
+	path where the file or directory are mounted in the container.
+	
+	Bind Mounts
+	Second field
+	path where the file or directory is mounted in the container.
+	
+	Volume 
+	Third field 
+	optional, and is a comma-separated list of options, such as ro.
+	ro, rw are different options.
+	
+	Volume create instructions
+	--------------------------
+	
+	1. docker volume create my-vol
+	2. docker volume ls
+	3. docker volume inspect my-vol
+	4. docker volume rm my-vol
+	
+	For the rest in general you can do it 2 ways
+	1. Using -v or --volume 
+	2. Using --mount : More descriptive
+	
+	1. While creating container - create a named volume
+		a. Using --mount
+		
+		docker run -d  --name devtest  --mount source=<vol name>,target=/app nginx:latest
+	
+		docker volume inspect <vol name>
+		find the path on host
+		
+		docker run -it <container id> bash
+		make changes and see it can be observed.
+	
+		b. Using -v
+		docker run -d --name devtest -v myvol2:/app nginx:latest
+		
+	clean up the env.	
+		docker container stop <id>
+		docker rm <id>
+		docker volume rm <volume name>
+		
+	2. Populate a volume from container.
+		/usr/share/nginx/html is the directory to stop html content in nginx. This has default files
+		
+		a. --mount
+		docker run -d --name=nginxtest --mount source=<volume name>,destination=/usr/share/nginx/html nginx:latest
+  
+		b. -v
+		docker run -d --name=nginxtest -v nginx-vol:/usr/share/nginx/html nginx:latest
+		
+		Cleanup
+		docker container stop <id>
+		docker container rm <id>
+		docker volume rm nginx-vol
+		
+	3. Creating a read only volume
+	
+		a. --mount
+		docker run -d --name=nginxtest --mount source=nginx-vol,destination=/usr/share/nginx/html,readonly nginx:latest
+		
+		
+		b. -v (Use ro)
+		docker run -d --name=nginxtest -v nginx-vol:/usr/share/nginx/html:ro nginx:latest
+		
+		docker volume inspect <id>
+		go to the container 
+			cd /usr/share/nginx/html
+			echo test > test.html
+				#Error - readonly file system
+		got to the host
+		find the location - cd to the location
+		echo test > test.html # no error.
+		
+		docker stop <id>
+		docker rm <id>
+
+
+###################################
+
+Bonus Concept
+
+Docker Security
+---------------
+Reference: https://docs.docker.com/engine/security/security/
+
+Four major areas to consider when reviewing Docker security:
+
+	- The intrinsic security of the kernel and its support for namespaces and cgroups
+
+	- The attack surface of the Docker daemon itself;
+
+	- Loopholes in the container configuration profile, either by default, or when customized by users.
+
+	- the “hardening” security features of the kernel and how they interact with containers.
+
+
+Kernel namespaces security
+--------------------------
+Docker containers 
+	- very similar to LXC containers, 
+	- they have similar security features. 
+	
+When you start a container (docker run)
+	- Docker creates a set of 
+		- namespaces 
+			provides isolation
+		- control groups 
+		for the container.
+
+Namespaces isolation
+	- processes running within a container 
+		- cannot see, 
+		- affect, 
+		processes running in another container, or in the host system.
+
+Each container gets its own network stack
+	- a container doesn’t get privileged access to the sockets or interfaces of another container. 
+	- If the host system is setup accordingly, containers can interact with each other through their respective network interfaces — just like they can interact with external hosts. When you specify public ports for your containers or use links then IP traffic is allowed between containers. They can ping each other, send/receive UDP packets, and establish TCP connections, but that can be restricted if necessary. From a network architecture point of view, all containers on a given Docker host are sitting on bridge interfaces. This means that they are just like physical machines connected through a common Ethernet switch; no more, no less.
+
+Kernel: kernel namespaces and private networking
+--------------------------------------------------
+	- Kernel namespaces were introduced between kernel version 2.6.15 and 2.6.26. i.e. July 2008 (date of the 2.6.26 release ), 
+	- namespace code has been exercised and scrutinized on a large number of production systems. 
+	- the design and inspiration for the namespaces code are even older. 
+	- Namespaces are actually an effort to reimplement the features of OpenVZ in such a way that they could be merged within the mainstream kernel. And OpenVZ was initially released in 2005, so both the design and the implementation are pretty mature.
+
+Control groups
+--------------
+	- Implement resource accounting and limiting. 
+	- They provide many useful metrics
+	- Ensure that each container gets its fair share of memory, CPU, disk I/O; 
+	More important: a single container cannot bring the system down by exhausting one of those resources.
+
+Cgroups
+	- do not play a role in preventing one container from accessing or affecting the data and processes of another container
+	- But fend off some denial-of-service attacks. - They are particularly important on multi-tenant platforms, like public and private PaaS, to guarantee a consistent uptime (and performance) even when some applications start to misbehave.
+
+Control Groups have been around for a while - merged in kernel 2.6.24.
+
+Docker daemon attack surface
+----------------------------
+Running containers = running  applications = running Docker daemon. 
+Docker daemon requires root privileges unless you opt-in to Rootless mode(experimental), 
+So we should be aware of some important details.
+
+First - Very Imp.
+-----------------
+	- Only trusted users should be allowed to control your Docker daemon. 
+	Imp. features to take care. 
+	Docker allows you to share a directory between the Docker host and a guest container without limiting the access rights of the container. 
+	This means that you can start a container where the directory is on your host; and the container can alter your host filesystem without any restriction. This is similar to how virtualization systems allow filesystem resource sharing.
+	Security impact: 
+	For e.g. if we create Docker from a web server through an API, we should be even more careful than usual with parameter checking, to make sure that a malicious user cannot pass crafted parameters causing Docker to create arbitrary containers.
+
+	Docker security improvement: 
+	Docker used to use TCP socket till version "Docker 0.5.2". TCP sockets are prone to cross-site request forgery attacks.
+	So the REST API endpoint was changed in (0.5.2) to UNIX sockets. So traditional UNIX permission checks can be used to limit access to the control socket. 
+	N.B : We need to implement unix control checks in such cases.
+	
+	You can decide to expose the Docker REST API over HTTP. In such cases also ensure to take care of through UNIX security.
+	Note that even if you have a firewall to limit accesses to the REST API endpoint from other hosts in the network, the endpoint can be still accessible from containers, and it can easily result in the privilege escalation. Therefore it is mandatory to secure API endpoints with HTTPS and certificates and using UNIX privilege management. It is also recommended to ensure that it is reachable only from a trusted network or VPN.
+
+	We can also use ssh to docker like 
+	DOCKER_HOST=ssh://USER@HOST or ssh -L /path/to/docker.sock:/var/run/docker.sock instead if you prefer SSH over TLS.
+
+	Other daemon vulnerabilities
+	----------------------------
+	docker load/docker pull works with images. 
+	As of Docker 1.3.2, images were extracted in a seperate chrooted subprocess on Linux/Unix platforms. This is only the first step. More works are in progress.
+	
+	As of Docker 1.10.0, all images are stored and accessed by the cryptographic checksums of their contents, limiting the possibility of an attacker causing a collision with an existing image.
+
+	Imp:
+	While running Docker on a server, 
+		- Run Docker on the server.
+		- Move all other services within containers controlled by Docker. 
+		[Of course, it is fine to keep your favorite admin tools (probably at least an SSH server), as well as existing monitoring/supervision processes, such as NRPE and collectd.]
+
+Linux kernel capabilities
+-------------------------
+By default, Docker starts containers with a restricted set of capabilities. 
+What does that mean?
+
+Capabilities turn the binary “root/non-root” dichotomy into a fine-grained access control system. 
+Processes (like web servers) that just need to bind on a port below 1024 do not need to run as root: they can just be granted the net_bind_service capability instead. And there are many other capabilities, for almost all the specific areas where root privileges are usually needed.
+
+This means a lot for container security; let’s see why!
+
+Typical servers run several processes as root, including the SSH daemon, cron daemon, logging daemons, kernel modules, network configuration tools, and more. A container is different, because almost all of those tasks are handled by the infrastructure around the container:
+
+SSH access are typically managed by a single server running on the Docker host;
+cron, when necessary, should run as a user process, dedicated and tailored for the app that needs its scheduling service, rather than as a platform-wide facility;
+log management is also typically handed to Docker, or to third-party services like Loggly or Splunk;
+hardware management is irrelevant, meaning that you never need to run udevd or equivalent daemons within containers;
+fyi: systemd-udevd
+listens to kernel uevents. For every event, systemd-udevd executes matching instructions specified in udev rules.
+Read more at: https://www.commandlinux.com/man-page/man8/systemd-udevd.8.html
+network management happens outside of the containers, enforcing separation of concerns as much as possible, 
+So a container should never need to perform ifconfig, route, or ip commands (except when a container is specifically engineered to behave like a router or firewall, of course).
+This means that 
+	- in most cases, containers do not need “real” root privileges at all. 
+	- Containers can run with a reduced capability set; - “root” within a container has much less privileges than the real “root”. 
+	For instance, it is possible to:
+		- deny all “mount” operations;
+		- deny access to raw sockets (to prevent packet spoofing);
+		- deny access to some filesystem operations, like creating new device nodes, changing the owner of files, or altering attributes (including the immutable flag);
+		- deny module loading;
+and many others.
+	- So even if an intruder manages to escalate to root within a container, it is much harder to do serious damage, or to escalate to the host.
+
+This doesn’t affect regular web apps, 
+but reduces the vectors of attack by malicious users considerably. 
+By default Docker drops all capabilities except those needed, a whitelist instead of a blacklist approach. 
+You can see a full list of available capabilities in Linux manpages.
+Manpage details: http://man7.org/linux/man-pages/man7/capabilities.7.html
+
+One primary risk with running Docker containers is that the default set of capabilities and mounts given to a container may provide incomplete isolation, either independently, or when used in combination with kernel vulnerabilities.
+
+Docker supports the addition and removal of capabilities, allowing use of a non-default profile. This may make Docker more secure through capability removal, or less secure through the addition of capabilities. The best practice for users would be to remove all capabilities except those explicitly required for their processes.
+
+More on docker capabilities removal: https://www.redhat.com/en/blog/secure-your-containers-one-weird-trick
+
+Docker Content Trust Signature Verification
+--------------------------------------------
+	The Docker Engine can be configured to only run signed images.
+	The Docker Content Trust signature verification feature is built directly into the dockerd binary.
+	This is configured in the Dockerd configuration file.
+
+To enable this feature, 		
+	- trustpinning can be configured in daemon.json, whereby only repositories signed with a user-specified root key can be pulled and run.
+
+	This gives a lot of control to the administrators. 
+
+fyi : https://docs.docker.com/engine/security/trust/content_trust/
+
+
+Other kernel security features.
+	1. Capabilities (we already saw this.
+	
+	Only this that Docker currently does is enables capabilities, 
+	it doesn’t interfere with the other systems. 
+	This means that there are many different ways to harden a Docker host. 
+	Here are a few examples.
+
+	- Can run a kernel with GRSEC and PAX. 
+	This adds many safety checks, both at compile-time and run-time; 
+	it also defeats many exploits, thanks to techniques like address randomization. It doesn’t require Docker-specific configuration, since those security features apply system-wide, independent of containers.
+
+	If your distribution comes with security model templates for Docker containers, you can use them out of the box. For instance, we ship a template that works with AppArmor and Red Hat comes with SELinux policies for Docker. These templates provide an extra safety net (even though it overlaps greatly with capabilities).
+
+	You can define your own policies using your favorite access control mechanism.
+
+	Just as you can use third-party tools to augment Docker containers, including special network topologies or shared filesystems, tools exist to harden Docker containers without the need to modify Docker itself.
+
+As of Docker 1.10 User Namespaces are supported directly by the docker daemon. This feature allows for the root user in a container to be mapped to a non uid-0 user outside the container. 
+Very imp.
+This facility is available but not enabled by default.
+
+
+
+Conclusion
+-----------
+Docker has many features for security by default.
+	- Run docker containers as non-privileged user.
+	- Add an extra layer of safety by enabling AppArmor, SELinux, GRSEC, or another appropriate hardening system.
+
+More information on related links present at the bottom of 
+https://docs.docker.com/engine/security/security/
+
+
+####################################################################################################################
+			Additional Information
+####################################################################################################################
+
+
+	● Docker Daemon
+	---------------
+	https://docs.docker.com/engine/reference/commandline/dockerd/
+	
+	dockerd is the persistent process (daemon) that manages containers. 
+	Docker uses different binaries for the daemon and client
+	
+	systemctl stop docker
+	
+	
+	Start docker in attached mode.
+	dockerd
+	
+	Ctrl + C
+	
+	Start dockerd in debug mode.
+	dockerd -D 
+	
+	
+	Daemon socket option
+	--------------------
+	Docker daemon can listen for Docker Engine API requests via 
+		three different types of Socket: 
+			unix, 
+				Inter-process communication mechanism 
+				Allows bidirectional data exchange between processes running on the same machine.
+				https://en.wikipedia.org/wiki/Unix_domain_socket
+				Assumes that communications are on IPC.
+				Avoids certain security checks - they are faster.
+				Works with file system permissions
+				netstat -a -p --unix: shows all unix sockets - netstat needs to be installed.
+				Supported on Windows 10 and above. No support before that.
+				Can identify PID. So no authentication required.
+			tcp
+				TCP/IP sockets
+					Allows communication between processes over the network. 
+					TCP/IP sockets can talk with processes running on the same computer (by using the loopback interface).
+				https://en.wikipedia.org/wiki/Network_socket
+				TCP sockets can be controlled only on the packet filter level.
+				
+			file descriptor.
+				Used to access a file or other input/output resource
+					such as a pipe or network socket.
+				https://en.wikipedia.org/wiki/File_descriptor
+
+	Default, a unix domain socket (or IPC socket) is created at 
+		/var/run/docker.sock, 
+		requiring either root permission
+	or 
+		docker group membership.
+
+
+	To access the Docker daemon remotely,		
+		you need to enable the tcp Socket. 
+	Default setup provides 
+		un-encrypted and 
+		un-authenticated direct access to the Docker daemon 
+	We should secure 
+		either using the built in HTTPS encrypted socket, 
+	or 
+		by putting a secure web proxy in front of it. 
+	You can listen on port 2375 on a particular network interface using its IP address: 
+		-H tcp://192.168.59.103:2375. 
+	
+	Convention of the daemon port
+		2375 : un-encrypted communication
+		2376 : encrypted communication .
+
+	If using HTTPS encrypted socket
+		TLS1.0 and above
+			only protocol supported. 
+		SSLv3 and under 
+			not supported anymore for security reasons.
+
+	BIND DOCKER TO ANOTHER HOST/PORT OR A UNIX SOCKET
+	-------------------------------------------------
+	Warning: Changing the default docker will increase your security risks 
+		by allowing non-root users to gain root access on the host. 
+
+	On Systemd based systems
+		communicate with the daemon via Systemd socket activation, 
+		use dockerd -H fd://. 
+		
+		fd:// will work perfectly for most setups 
+		However individual sockets can be specified by: 
+			dockerd -H fd://3. 
+		If the specified socket activated files aren’t found, then Docker will exit. You can find examples of using Systemd socket activation with Docker and Systemd in the Docker source tree.
+
+	Configure the Docker daemon to listen to multiple sockets 
+		at the same time using multiple -H options:
+
+	# listen using the default unix socket, and on 2 specific IP addresses on this host.
+
+		$ sudo dockerd -H unix:///var/run/docker.sock -H tcp://192.168.59.106 -H tcp://10.10.10.2
+			The Docker client will honor the DOCKER_HOST environment variable to set the -H flag for the client. Use one of the following commands:
+
+			$ docker -H tcp://0.0.0.0:2375 ps
+			$ export DOCKER_HOST="tcp://0.0.0.0:2375"
+
+		$ docker ps
+		Setting the DOCKER_TLS_VERIFY environment variable to any value other than the empty string is equivalent to setting the --tlsverify flag. The following are equivalent:
+
+		$ docker --tlsverify ps
+		# or
+		$ export DOCKER_TLS_VERIFY=1
+		$ docker ps
+		The Docker client will honor the HTTP_PROXY, HTTPS_PROXY, and NO_PROXY environment variables (or the lowercase versions thereof). HTTPS_PROXY takes precedence over HTTP_PROXY.
+
+		Starting with Docker 18.09, the Docker client supports connecting to a remote daemon via SSH:
+
+		$ docker -H ssh://me@example.com:22 ps
+		$ docker -H ssh://me@example.com ps
+		$ docker -H ssh://example.com ps
+		To use SSH connection, you need to set up ssh so that it can reach the remote host with public key authentication. Password authentication is not supported. If your key is protected with passphrase, you need to set up ssh-agent.
+
+		Also, you need to have docker binary 18.09 or later on the daemon host.
+	
+		-H options
+			tcp://[host]:[port][path] or 
+			unix://path
+		
+		e.g.
+			tcp:// -> TCP connection to 127.0.0.1 on either port 2376 when TLS encryption is on, or port 2375 when communication is in plain text.
+			tcp://host:2375 -> TCP connection on host:2375
+			tcp://host:2375/path -> TCP connection on host:2375 and prepend path to all requests
+			unix://path/to/socket -> Unix socket located at path/to/socket
+			-H, when empty, will default to the same value as when no -H was passed in.
+			-H also accepts short form for TCP bindings: host: or host:port or :port
+	
+	
+		Run Docker in daemon mode:
+		--------------------------
+			$ sudo <path to>/dockerd -H 0.0.0.0:5555 &
+
+			Pull a docker image
+			docker -H :5555 pull ubuntu
+	
+		Can use multip -H options.
+		
+		
+		Daemon storage-driver
+		---------------------
+		On Linux, 
+			Docker daemon supports following image layer storage drivers: 
+				aufs, 
+				devicemapper, 
+				btrfs, 
+				zfs, 
+				overlay and 
+				overlay2.
+
+
+			aufs driver 
+			-----------
+			Oldest, 
+			but is based on a Linux kernel patch-set 
+				that is unlikely to be merged into the main kernel. 
+			known to cause some serious kernel crashes. 
+			aufs allows containers to share executable and shared library memory 
+				good choise when running thousands of containers 
+					with the same program or libraries.
+			Many Linux : e.g. CentOS, RHEL, Fedora
+				Doesn't support aufs.
+			
+			
+			devicemapper driver 
+			-------------------
+			uses thin provisioning and Copy on Write (CoW) snapshots. 
+			For each devicemapper graph location 
+				typically /var/lib/docker/devicemapper 
+				a thin pool is created based on two block devices
+					1. for data and 
+					2. for metadata. 
+				By default, 
+					these block devices are created automatically 
+						by using loopback mounts of automatically created sparse files. 
+				Devicemapper can be further configured (more details below).
+				how to tune your existing setup with device mapper can be read at 
+				https://jpetazzo.github.io/2014/01/29/docker-device-mapper-resize/
+				Warning: Docker has evolved since this writing.
+				
+				How DeviceMapper plugin works?
+					Based on the Device Mapper “thin target”. 
+					It’s actually a snapshot target, 
+						called “thin” because it allows thin provisioning. 
+					Thin provisioning (TP) means 
+						Method of optimizing the efficiency 
+							with which the available space is utilized in storage area networks (SAN). 
+						
+						TP operates by allocating disk storage space in a flexible manner among multiple users, 
+							based on the minimum space required by each user at any given time.
+						
+						hopefully we have a big pool of available storage blocks
+						we create block devices (virtual disks) of arbitrary size from that pool
+						but the blocks will be marked as used (or “taken” from the pool) 
+							only when we actually write to it.
+													
+						So we can oversubscribe the pool
+							e.g. create thousands of 10 GB volumes or 100 TB volume
+								in a 100/1 GB pool
+							As long as you don’t actually write more blocks than you actually have in the pool, 
+								everything will be fine.
+
+						Thin target can take snapshots. 
+						We can create a shallow copy (bitwise copy) of an existing volume. 
+						From a user point of view, 
+							it’s exactly as if you now had two identical volumes, 
+							that can be changed independently. 
+						As if you had made a full copy
+						They don’t use twice the storage. 
+						Additional storage is used only when changes are made in one of the volumes. 
+						Then the thin target allocates new blocks from the storage pool.
+
+						Under the hood by default devicemapper plugin uses “thin target”
+						Actually uses two storage devices: 
+							1. large storage device for data (/var/lib/docker/devicemapper/devicemapper/data)
+							2. smaller storage device for metadata. (/var/lib/docker/devicemapper/devicemapper/metadata)
+								contains information about 
+									volumes, 
+									snapshots, 
+									mapping between the blocks of each volume or snapshot, and the blocks in the storage pool.
+									
+						Advantage
+							No separate setup or partition required to 
+								store Docker containers
+								setup LVM 
+						Disavantages:
+							1. storage pool default size : 100 GB
+								backed by a sparse file, 
+									good from a disk usage point of view (because doesn't reserve unused space) 
+									Not good from performance point of view
+										because the VFS layer adds some overhead
+											especially for the “first write” scenario.
+										Before checking how to resize a container, we will see how to make more room in that pool.
+					
+
+
+
+			btrfs driver 
+			------------
+				is very fast for docker build 
+				does not share executable memory between devices. 
+				Configure it as follows
+					dockerd -s btrfs -g /mnt/btrfs_partition.
+
+			zfs driver 
+			----------
+			Not as fast as btrfs 
+			Has a longer track record on stability. 
+				Thanks to Single Copy ARC shared blocks between clones will be cached only once. Use dockerd -s zfs. To select a different zfs filesystem set zfs.fsname option as described in ZFS options.
+
+
+	Docker provides two storage drivers for OverlayFS: 
+		the original overlay, and the newer and more stable overlay2.
+
+			overlay 
+			-------
+			very fast union filesystem. 
+				Unionfs: filesystem service for Linux, FreeBSD and NetBSD 
+				Implements a union mount for other file systems. 
+				Allows files and directories of separate file systems, 
+					to be transparently overlaid, 
+					forming a single coherent file system. 
+				Now merged in the main Linux kernel as of 3.18.0. 
+				Supports page cache sharing, 
+					multiple containers accessing the same file can share a single page cache entry (or entries), 
+					Makes overlay as efficient with memory as aufs driver. 
+						Call dockerd -s overlay to use it.
+				Can cause excessive inode consumption 
+					(especially as the number of images grows). 
+				We recommend using the overlay2 storage driver instead.
+
+
+			Overlay2 
+			--------
+				Uses the same fast union filesystem 
+				Takes advantage of additional features added in Linux kernel 4.0 to avoid excessive inode consumption. 
+				Call dockerd -s overlay2 to use it.
+				More efficient than Overlay
+
+			
+			OverlayFS is supported if you meet the following prerequisites:
+
+			The overlay2 driver is supported on Docker Engine 
+				Community, and Docker EE 17.06.02-ee5 and up, and is the recommended storage driver.
+				Version 4.0 or higher of the Linux kernel, or 
+				RHEL or CentOS using version 3.10.0-514 of the kernel or higher. 
+				If you use an older kernel, you need to use the overlay driver, which is not recommended.
+
+			The overlay and overlay2 drivers are supported on 
+				xfs backing filesystems, but only with d_type=true enabled.
+
+			Warning: 
+			
+			1. Running on XFS without d_type support now causes Docker to skip the attempt to use the overlay or overlay2 driver. 
+			Existing installs will continue to run, but produce an error. This is to allow users to migrate their data. In a future version, this will be a fatal error, which will prevent Docker from starting.
+
+			2. Changing the storage driver makes existing containers and images inaccessible on the local system. 
+				Use docker save to save any images you have built or push them to Docker Hub or a private registry before changing the storage driver, so that you do not need to re-create them later.
+
+			
+			How Overlay2 driver works?
+			-------------------------
+			Use Overlay2 if possible. Older Kernel may not support Overlay2.
+			
+			OverlayFS layers two directories on a single Linux host presented in a single directory. 
+			These directories are called layers 
+			Unification process is referred to as a union mount. 
+			Refers to the 
+				lower directory as lowerdir - Read only layer.
+				upper directory a upperdir - Writable (Read/Write)
+				The unified view is exposed through its own directory called merged - MergedDir.
+
+			Natively supports up to 128 lower OverlayFS layers. 
+			This capability provides better performance 
+				for layer-related Docker commands such as 
+					docker build and 
+					docker commit
+				Consumes fewer inodes on the backing filesystem.
+				
+			i.e if a file is open in readonly mode, then it is not loaded to the writable layer.
+
+		Both overlay and overlay2 are currently unsupported on 
+			btrfs or any 
+			Copy on Write filesystem and should only be used over ext4 partitions.
+
+
+		Image and container layers on-disk
+		----------------------------------
+		Download five-layer image using docker pull ubuntu
+			you will see six directories under /var/lib/docker/overlay2 (including l not "one".)
+
+Warning: 
+	Do not directly manipulate any files or directories within /var/lib/docker/. 
+	These files and directories are managed by Docker.
+
+			$ ls -l /var/lib/docker/overlay2
+--------------------------------------------------------------------------------------------------------
+			$ ls -l /var/lib/docker/overlay2/l
+					total 20
+					lrwxrwxrwx 1 root root 72 Jun 20 07:36 6Y5IM2XC7TSNIJZZFLJCS6I4I4 -> ../3a36935c9df35472229c57f4a27105a136f5e4dbef0f87905b2e506e494e348b/diff
+					lrwxrwxrwx 1 root root 72 Jun 20 07:36 B3WWEFKBG3PLLV737KZFIASSW7 -> ../4e9fa83caff3e8f4cc83693fa407a4a9fac9573deaf481506c102d484dd1e6a1/diff
+					lrwxrwxrwx 1 root root 72 Jun 20 07:36 JEYMODZYFCZFYSDABYXD5MF6YO -> ../eca1e4e1694283e001f200a667bb3cb40853cf2d1b12c29feda7422fed78afed/diff
+					lrwxrwxrwx 1 root root 72 Jun 20 07:36 NFYKDW6APBCCUCTOUSYDH4DXAT -> ../223c2864175491657d238e2664251df13b63adb8d050924fd1bfcdb278b866f7/diff
+					lrwxrwxrwx 1 root root 72 Jun 20 07:36 UL2MW33MSE3Q5VYIKBRN4ZAGQP -> ../e8876a226237217ec61c4baf238a32992291d059fdac95ed6303bdff3f59cff5/diff
+					
+				6Y5IM2XC7TSNIJZZFLJCS6I4I4, B3WWEFKBG3PLLV737KZFIASSW7, JEYMODZYFCZFYSDABYXD5MF6YO, NFYKDW6APBCCUCTOUSYDH4DXAT etc
+					ImageID: Represented in files like lower, link - more details below.
+----------------------------------------------------------------------------------------------------------
+
+		The lowest layer contains 
+			(find it from docker image inspect image-name. LowerDir would be like Layer1:Layer2:...:LayerLast)
+			a file called link
+				this has name of the shortened identifier
+			a directory called diff 
+				contains the layer’s contents.
+		
+		$ ls /var/lib/docker/overlay2/3a36935c9df35472229c57f4a27105a136f5e4dbef0f87905b2e506e494e348b/
+			diff link
+
+		$ cat /var/lib/docker/overlay2/3a36935c9df35472229c57f4a27105a136f5e4dbef0f87905b2e506e494e348b/link
+			6Y5IM2XC7TSNIJZZFLJCS6I4I4
+
+		$ ls  /var/lib/docker/overlay2/3a36935c9df35472229c57f4a27105a136f5e4dbef0f87905b2e506e494e348b/diff
+			bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+
+
+		The second-lowest layer (second from last in LowerDir of image inspect image-name), 
+			and each higher layer, 
+			contain a file called lower, 
+			which denotes its parent, 
+			and a directory called diff which contains its contents. 
+		
+		It also contains a merged directory, 
+			which contains the unified contents of its parent layer and itself, 
+			and a work directory which is used internally by OverlayFS.
+
+		$ ls /var/lib/docker/overlay2/223c2864175491657d238e2664251df13b63adb8d050924fd1bfcdb278b866f7
+			diff  link  lower  merged  work
+
+		$ cat /var/lib/docker/overlay2/223c2864175491657d238e2664251df13b63adb8d050924fd1bfcdb278b866f7/lower
+			l/6Y5IM2XC7TSNIJZZFLJCS6I4I4
+
+		$ ls /var/lib/docker/overlay2/223c2864175491657d238e2664251df13b63adb8d050924fd1bfcdb278b866f7/diff/
+		etc  sbin  usr  var
+
+		To view the mounts which exist 
+			when you use the overlay storage driver with Docker, 
+			use the mount command. 
+			The output below is truncated for readability.
+---------------------------------------------------------------------------------------------------------------
+
+		$ mount | grep overlay
+
+		overlay on /var/lib/docker/overlay2/9186877cdf386d0a3b016149cf30c208f326dca307529e646afce5b3f83f5304/merged
+		type overlay (rw,relatime,		lowerdir=l/DJA75GUWHWG7EWICFYX54FIOVT:l/B3WWEFKBG3PLLV737KZFIASSW7:l/JEYMODZYFCZFYSDABYXD5MF6YO:l/UL2MW33MSE3Q5VYIKBRN4ZAGQP:l/NFYKDW6APBCCUCTOUSYDH4DXAT:l/6Y5IM2XC7TSNIJZZFLJCS6I4I4,
+		upperdir=9186877cdf386d0a3b016149cf30c208f326dca307529e646afce5b3f83f5304/diff,
+		workdir=9186877cdf386d0a3b016149cf30c208f326dca307529e646afce5b3f83f5304/work)
+
+		The rw on the second line shows that the overlay mount is read-write.
+				
+		For more details on how Overlay works etc. refer the documentation
+		https://docs.docker.com/storage/storagedriver/overlayfs-driver/
+	
+
+-----------------------------------------------------------------------------------------------------------------------------------
+	● Docker CLI
+	------------
+
+$ docker
+Usage: docker [OPTIONS] COMMAND [ARG...]
+       docker [ --help | -v | --version ]
+
+A self-sufficient runtime for containers.
+
+Options:
+      --config string      Location of client config files (default "/root/.docker")
+  -c, --context string     Name of the context to use to connect to the daemon (overrides DOCKER_HOST env var and default context set with "docker context use")
+  -D, --debug              Enable debug mode
+      --help               Print usage
+  -H, --host value         Daemon socket(s) to connect to (default [])
+  -l, --log-level string   Set the logging level ("debug"|"info"|"warn"|"error"|"fatal") (default "info")
+      --tls                Use TLS; implied by --tlsverify
+      --tlscacert string   Trust certs signed only by this CA (default "/root/.docker/ca.pem")
+      --tlscert string     Path to TLS certificate file (default "/root/.docker/cert.pem")
+      --tlskey string      Path to TLS key file (default "/root/.docker/key.pem")
+      --tlsverify          Use TLS and verify the remote
+  -v, --version            Print version information and quit
+
+Commands:
+    attach    Attach to a running container
+    # […]
+Description
+	By default following users can execute docker commands
+		root user
+		User belonging Unix group called docker.
+
+Environment variables
+For easy reference, the following list of environment variables are supported by the docker command line:
+
+	DOCKER_API_VERSION The API version to use (e.g. 1.19)
+	DOCKER_CONFIG The location of your client configuration files.
+	DOCKER_CLI_EXPERIMENTAL Enable experimental features for the cli (e.g. enabled or disabled)
+	DOCKER_HOST Daemon socket to connect to.
+	DOCKER_STACK_ORCHESTRATOR Configure the default orchestrator to use when using docker stack management commands.
+	DOCKER_CONTENT_TRUST When set Docker uses notary to sign and verify images. Equates to --disable-content-trust=false for build, create, pull, push, run.
+	DOCKER_CONTENT_TRUST_SERVER The URL of the Notary server to use. This defaults to the same URL as the registry.
+	DOCKER_HIDE_LEGACY_COMMANDS When set, Docker hides “legacy” top-level commands (such as docker rm, and docker pull) in docker help output, and only Management commands per object-type (e.g., docker container) are printed. This may become the default in a future release, at which point this environment-variable is removed.
+	DOCKER_CONTEXT Specify the context to use (overrides DOCKER_HOST env var and default context set with “docker context use”)
+	DOCKER_DEFAULT_PLATFORM Specify the default platform for the commands that take the --platform flag.
+	SHARED ENVIRONMENT VARIABLES
+	These environment variables can be used both with the docker command line and dockerd command line:
+
+	DOCKER_CERT_PATH The location of your authentication keys.
+	DOCKER_TLS_VERIFY When set Docker uses TLS and verifies the remote.
+	Because Docker is developed using Go, you can also use any environment variables used by the Go runtime. In particular, you may find these useful:
+
+	HTTP_PROXY
+	HTTPS_PROXY
+	NO_PROXY
+
+	Go environment variables 
+		case-insensitive. 
+		
+	Configuration files
+		By default, 
+			the Docker command line 
+				stores its configuration files in 
+					$HOME/.docker
+
+
+
+	Docker 
+		manages most of the files in the configuration directory 
+		you should not modify them. 
+		However You can modify the config.json file 
+			control certain aspects of how the docker command behaves.
+
+
+	We can modify the docker command behavior 
+		using environment variables 
+	or 
+		command-line options. 
+	We can also use options within config.json 
+		to modify some of the same behavior. 
+	If an environment variable and the --config flag are set, 
+		the flag takes precedent over the environment variable. 
+	Command line options override environment variables and environment variables override properties you specify in a config.json file.
+
+Change the .docker directory
+	To specify a different directory, 
+	use the DOCKER_CONFIG environment variable or the 
+	--config command line option. 
+	If both are specified, 
+		then the --config option overrides the DOCKER_CONFIG environment variable. 
+	Override the docker ps command using a config.json file located in the ~/testconfigs/ directory.
+		$ docker --config ~/testconfigs/ ps
+
+	For persistent configuration, 
+		set the DOCKER_CONFIG environment variable in your shell (e.g. ~/.profile or ~/.bashrc). 
+	The example below sets the new directory to be HOME/newdir/.docker.
+
+	echo export DOCKER_CONFIG=$HOME/newdir/.docker > ~/.profile
+		config.json properties
+
+	The config.json file 
+		stores a JSON encoding of several properties:
+
+	property HttpHeaders 
+		specifies a set of headers to include in all messages sent from the Docker client to the daemon. 
+		Docker does not try to interpret or understand these header; 
+		Simply puts them into the messages. 
+		Docker does not allow these headers to change any headers it sets for itself.
+
+	property psFormat 
+		specifies the default format for docker ps output. 
+		User --format along with docker ps and this property would be ingored.
+		flag is not provided with the docker ps command, Docker’s client uses this property. If this property is not set, the client falls back to the default table format. For a list of supported formatting directives, see the Formatting section in the docker ps documentation
+
+	imagesFormat 
+		specifies the default format for docker images output. 
+		When the --format flag is not provided with the docker images command, 
+		Docker’s client uses this property. If this property is not set, the client falls back to the default table format. For a list of supported formatting directives, see the Formatting section in the docker images documentation
+
+	pluginsFormat 
+		specifies the default format for docker plugin ls output. 
+		When the --format flag is not provided with the docker plugin ls command
+		Docker’s client uses this property. 
+		If this property is not set, the client falls back to the default table format. 
+		For a list of supported formatting directives, see the Formatting section in the docker plugin ls documentation
+
+	servicesFormat 
+		specifies the default format for docker service ls output. 
+		When the --format flag is not provided with the docker service ls command, Docker’s client uses this property. If this property is not set, the client falls back to the default json format. For a list of supported formatting directives, see the Formatting section in the docker service ls documentation
+
+	serviceInspectFormat 
+		specifies the default format for docker service inspect output. When the --format flag is not provided with the docker service inspect command, Docker’s client uses this property. If this property is not set, the client falls back to the default json format. For a list of supported formatting directives, see the Formatting section in the docker service inspect documentation
+
+	statsFormat 
+		specifies the default format for docker stats output. When the --format flag is not provided with the docker stats command, Docker’s client uses this property. If this property is not set, the client falls back to the default table format. For a list of supported formatting directives, see Formatting section in the docker stats documentation
+
+	secretFormat 
+		specifies the default format for docker secret ls output. When the --format flag is not provided with the docker secret ls command, Docker’s client uses this property. If this property is not set, the client falls back to the default table format. For a list of supported formatting directives, see Formatting section in the docker secret ls documentation
+
+	nodesFormat 
+		specifies the default format for docker node ls output. When the --format flag is not provided with the docker node ls command, Docker’s client uses the value of nodesFormat. If the value of nodesFormat is not set, the client uses the default table format. For a list of supported formatting directives, see the Formatting section in the docker node ls documentation
+
+	configFormat 
+		specifies the default format for docker config ls output. When the --format flag is not provided with the docker config ls command, Docker’s client uses this property. If this property is not set, the client falls back to the default table format. For a list of supported formatting directives, see Formatting section in the docker config ls documentation
+
+	credsStore 
+		specifies an external binary to serve as the default credential store. When this property is set, docker login will attempt to store credentials in the binary specified by docker-credential-<value> which is visible on $PATH. If this property is not set, credentials will be stored in the auths property of the config. For more information, see the Credentials store section in the docker login documentation
+
+	credHelpers 
+		specifies a set of credential helpers to use preferentially over credsStore or auths when storing and retrieving credentials for specific registries. If this property is set, the binary docker-credential-<value> will be used when storing or retrieving credentials for a specific registry. For more information, see the Credential helpers section in the docker login documentation
+
+	stackOrchestrator 
+		specifies the default orchestrator to use when running docker stack management commands. Valid values are "swarm", "kubernetes", and "all". This property can be overridden with the DOCKER_STACK_ORCHESTRATOR environment variable, or the --orchestrator flag.
+
+	proxies 
+		specifies proxy environment variables to be automatically set on containers
+		set as --build-arg on containers used during docker build. 
+		A "default" set of proxies can be configured, 
+			and will be used for any docker daemon that the client connects to
+			or a configuration per host (docker daemon), 
+			for example, “https://docker-daemon1.example.com”. 
+			The following properties can be set for each environment:
+
+		httpProxy (sets the value of HTTP_PROXY and http_proxy)
+		httpsProxy (sets the value of HTTPS_PROXY and https_proxy)
+		ftpProxy (sets the value of FTP_PROXY and ftp_proxy)
+		noProxy (sets the value of NO_PROXY and no_proxy)
+		Warning: Proxy settings may contain sensitive information (for example, if the proxy requires authentication). Environment variables are stored as plain text in the container’s configuration, and as such can be inspected through the remote API or committed to an image when using docker commit.
+
+		Once attached to a container, 
+			users detach from it and leave it running using the using CTRL-p CTRL-q key sequence. 
+			This detach key sequence is customizable using the detachKeys property. 
+			Specify a <sequence> value for the property. 
+			The format of the <sequence> is a comma-separated list of either a letter [a-Z], or the ctrl- combined with any of the following:
+
+			a-z (a single lowercase alpha character )
+			@ (at sign)
+			[ (left bracket)
+			\\ (two backward slashes)
+			_ (underscore)
+			^ (caret)
+			Your customization applies to all containers started in with your Docker client. Users can override your custom or the default key sequence on a per-container basis. To do this, the user specifies the --detach-keys flag with the docker attach, docker exec, docker run or docker start command.
+
+			The property plugins contains settings specific to CLI plugins. The key is the plugin name, while the value is a further map of options, which are specific to that plugin.
+
+		Following is a sample config.json file:
+
+
+		{
+		  "HttpHeaders": {
+			"MyHeader": "MyValue"
+		  },
+		  "psFormat": "table {{.ID}}\\t{{.Image}}\\t{{.Command}}\\t{{.Labels}}",
+		  "imagesFormat": "table {{.ID}}\\t{{.Repository}}\\t{{.Tag}}\\t{{.CreatedAt}}",
+		  "pluginsFormat": "table {{.ID}}\t{{.Name}}\t{{.Enabled}}",
+		  "statsFormat": "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}",
+		  "servicesFormat": "table {{.ID}}\t{{.Name}}\t{{.Mode}}",
+		  "secretFormat": "table {{.ID}}\t{{.Name}}\t{{.CreatedAt}}\t{{.UpdatedAt}}",
+		  "configFormat": "table {{.ID}}\t{{.Name}}\t{{.CreatedAt}}\t{{.UpdatedAt}}",
+		  "serviceInspectFormat": "pretty",
+		  "nodesFormat": "table {{.ID}}\t{{.Hostname}}\t{{.Availability}}",
+		  "detachKeys": "ctrl-e,e",
+		  "credsStore": "secretservice",
+		  "credHelpers": {
+			"awesomereg.example.org": "hip-star",
+			"unicorn.example.com": "vcbait"
+		  },
+		  "stackOrchestrator": "kubernetes",
+		  "plugins": {
+			"plugin1": {
+			  "option": "value"
+			},
+			"plugin2": {
+			  "anotheroption": "anothervalue",
+			  "athirdoption": "athirdvalue"
+			}
+		  },
+		  "proxies": {
+			"default": {
+			  "httpProxy":  "http://user:pass@example.com:3128",
+			  "httpsProxy": "http://user:pass@example.com:3128",
+			  "noProxy":    "http://user:pass@example.com:3128",
+			  "ftpProxy":   "http://user:pass@example.com:3128"
+			},
+			"https://manager1.mycorp.example.com:2377": {
+			  "httpProxy":  "http://user:pass@example.com:3128",
+			  "httpsProxy": "http://user:pass@example.com:3128"
+			},
+		  }
+		}
+
+	Experimental features
+	---------------------
+	Provide early access to future product functionality. 
+	These features are intended only for testing and feedback 
+	They may change between releases without warning 
+	Can be removed entirely from a future release.
+	Must not be used in production environments.
+
+	To enable add the following in config.json file. The example below enables experimental features in a config.json file that already enables a debug feature.
+
+		{
+		  "experimental": "enabled",
+		  "debug": true
+		}
+
+	You can also enable experimental features from the Docker Desktop menu. 
+
+	Notary
+	------
+	If using your own notary (CA) server and a self-signed certificate 
+		or an internal Certificate Authority, 
+	place the certificate at tls/<registry_url>/ca.crt in your docker config directory.
+
+	Trust the certificate globally by adding it to your system’s list of root Certificate Authorities.
+
+		Examples
+		Display help text
+		-----------------
+		To list the help on any command just execute the command, followed by the --help option.
+
+		$ docker run --help
+			Usage: docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
+
+		Run a command in a new container
+
+		Options:
+			  --add-host value             Add a custom host-to-IP mapping (host:ip) (default [])
+		  -a, --attach value               Attach to STDIN, STDOUT or STDERR (default [])
+		
+		Option types
+		Single character command line options can be combined
+		-----------------------------------------------------
+			docker run -i -t --name test busybox sh
+			can be repliaced with 
+			docker run -it --name test busybox sh.
+
+		BOOLEAN
+		-------
+			Boolean options which defaults to false -d=false. 
+			-------------------------------------------------
+				Skipping any boolean parameter is setting it to false.
+					[so not using -d is same as -d = false]
+				Using a boolean parameter without mentioning value is setting it to true
+					[so using -d without value is same as -d = true]
+					
+					
+			Boolean options which default to true (e.g., docker build --rm=true) 
+			-------------------------------------------------
+			can only be set to non-default value by explicitly setting them to false:
+				$ docker build --rm=false.
+				Simply mentioning --rm - will be considerered as --rm=false
+
+
+		MULTI
+		-----
+		You can specify options like -a=[] multiple times in a single command line, for example in these commands:
+		
+			$ docker run -a stdin -a stdout -i -t ubuntu /bin/bash
+			$ docker run -a stdin -a stdout -a stderr ubuntu /bin/ls
+
+		Do not use the -t and -a stderr options together due to limitations in the pty implementation. 
+		All stderr in pty mode simply goes to stdout.
+
+		STRINGS AND INTEGERS
+		--------------------
+			Options like --name="" expect a string
+				Can only be specified once. 
+			Options like -c=0 expect an integer
+				Can only be specified once.
+
+		Please refer for a comprehensive list of commands.
+		https://docs.docker.com/engine/reference/commandline/run/
+			(Not all of them i understand)
+			
+			
+-----------------------------------------------------------------------------------------------------------------------------------	
+	● Docker Registries
+	-------------------
+Hosting your own registry using the open source Docker Registry. 
+For information about Docker Hub, which offers a hosted registry with additional features such as teams, organizations, web hooks, automated builds, etc, see Docker Hub.
+
+
+	Stores and lets you distribute Docker images.
+	Stateless, 
+	highly scalable 
+		server side application 
+	The Registry is open-source, 
+		under the permissive Apache license.
+
+	Why use registries
+	------------------
+		Tightly control where your images are being stored
+		Fully own your images distribution pipeline
+		Integrate image storage and distribution tightly into your in-house development workflow
+		
+	Alternatives
+		Users looking for a zero maintenance, ready-to-go solution are encouraged to head-over to the Docker Hub, which provides a free-to-use, hosted Registry, plus additional features (organization accounts, automated builds, and more).
+
+	Requirements
+		The Registry is compatible with Docker engine version 1.6.0 or higher.
+
+	Basic commands
+	--------------
+	Start your registry
+		docker run -d -p 5000:5000 --name registry registry:2
+	
+	Pull (or build) some image from the hub
+		docker pull ubuntu #From dockerhub
+		
+	Tag the image so that it points to your registry
+		docker image tag ubuntu localhost:5000/myfirstimage	#tagged to registry in localhost.
+	
+	Push it
+		docker push localhost:5000/myfirstimage
+	
+	Pull it back
+		docker pull localhost:5000/myfirstimage
+	
+	Now stop your registry and remove all data
+		docker container stop registry && docker container rm -v registry
+		
+	Storage itself is delegated to drivers. 
+	The default storage driver is the local posix filesystem
+		good for development or small deployments. 
+	Additional cloud-based storage drivers like 
+	--------------------------------------
+		S3, 
+		Microsoft Azure, 
+		OpenStack Swift, and 
+		Aliyun OSS 
+		are also supported. 
+		
+		We should provide our own driver implementing the Storage API.
+
+		Since securing access to your hosted images is paramount
+			the Registry natively supports TLS and basic authentication.
+
+		The Registry GitHub repository includes additional information about advanced authentication and authorization methods. 
+		Only very large or public deployments are expected to extend the Registry in this way.
+
+		Finally, the Registry ships with a robust notification system, 
+			calling webhooks in response to activity, 
+			and both extensive logging and reporting, 
+			mostly useful for large installations that want to collect metrics.
+
+	Understanding image naming
+	--------------------------
+		docker pull ubuntu 
+			instructs docker to pull an image named ubuntu from the official Docker Hub. 
+			Simply a shortcut for the longer 
+		
+		docker pull docker.io/library/ubuntu command
+		
+		docker pull myregistrydomain:port/foo/bar 
+			instructs docker to contact the registry located at myregistrydomain:port 
+			to find the image foo/bar
+
+	Use case
+	--------
+	This can be really good in CI/CD. 
+	However expertise in go would help
+
+####################################################################################################################
+				
+				Docker certified images	
+				-----------------------
+
+Docker Hub lets you publish 
+	certified images 
+	plugins for logging, 
+	volumes, 
+	networks. 
+
+You must certify your own images and logging plugins with the 
+inspect tools as explained
+https://docs.docker.com/docker-hub/publish/certify-images
+
+The inspectDockerImage tool does the following:
+
+	Verifies that the Docker image was built from an image in the Docker Official Image
+	Inspects the Docker image for a Health Check. Although a Health Check is not required, it is recommended.
+	Checks if a Linux Docker image is running supervisord to launch multiple services.
+		DockerHub images should not be running with supervisord
+		split them into into separate Docker images 
+	Attempts to start a container from the Docker image to ensure that the image is functional.
+	Displays the running processes in the container.
+	Checks the running processes to see if any are running supervisord.
+	Verifies that the container is sending logs to stdout/stderr.
+	Attempts to stop the container to ensure that it can be stopped gracefully.
+	
+####################################################################################################################
+
+https://docs.docker.com/storage/
+
+			Manage data in Docker
+			--------------------
+By default all files created inside a container are stored on a writable container layer. 
+			
+			
+	The data doesn’t persist when that container no longer exists
+	It can be difficult to get the data out of the container if another process needs it.
+	A container’s writable layer is tightly coupled to the host machine where the container is running. 
+	You can’t easily move the data somewhere else.
+
+	Writing into a container’s writable layer requires a storage driver to manage the filesystem. 
+	The storage driver provides a union filesystem, using the Linux kernel. 
+	This extra abstraction reduces performance as compared to using data volumes, 
+		write directly to the host filesystem.
+
+##########################################################################################
+https://www.youtube.com/watch?v=GwXLNAcHk-k
+How docker internally works
+
+Start/Stop containers
+
+Docker CLI --- REST API --> Daemon
+Daemon ------- GRPC --------> ContainerD
+ContainerD -------------->  Shim 
+Shim ---------------> runC (Container Runtime)
+
+RelationShip
+-------------
+Shim 1 == 1 runC
+ContainerD/Daemon (only a single instance)
+
+##########################################################################################
+
+https://www.youtube.com/watch?v=KawKGsLR1V8&list=PLRG5QO3z4WLSElnCHCX5TyiJpSU4AV_Hr
+Important corrections
+
+1. 
+	(Docker) Containers 
+		doesn't run on docker.
+		are processes
+		run on Linux Kernel
+	Question: How about containers running on windows?
+
+	Docker Daemon	
+		one of the many user space tools/libraries 
+			talks to the kernel to setup containers
+		
+	
+
+##########################################################################################

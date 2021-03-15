@@ -1,0 +1,27 @@
+References
+
+Node Reference
+	https://medium.com/capital-one-tech/multi-stage-builds-and-dockerfile-b5866d9e2f84
+
+Python Reference
+	https://github.com/garethr/multi-stage-build-example
+	
+Java
+	https://codefresh.io/docker-tutorial/create-docker-images-for-java/
+	https://github.com/arun-gupta/docker-java-multistage/blob/master/Dockerfile
+	https://dzone.com/articles/multi-stage-docker-image-build-for-java-apps
+	
+
+-----------------------------------------------------------------------------------------
+
+Advantages of multi-stage-build
+	Results in a light-weight Docker image
+	Does not require the build tool or JDK to be installed on the host machine beforehand (Docker controls the build process)
+	Integrates well with services that automatically “just build” using the present Dockerfile
+	Only artifacts we need are copied from one stage to the next (i.e., our application’s dependencies are not packaged into the final image as in the previous method)
+	Create as many build stages as you need
+
+-----------------------------------------------------------------------------------------
+	Stop at any particular stage on an image build using the –target flag, i.e.
+	docker build --target MAVEN_BUILD -t anna/docker-multi-stage-build-demo:1.0-SNAPSHOT .
+-----------------------------------------------------------------------------------------
