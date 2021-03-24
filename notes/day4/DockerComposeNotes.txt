@@ -58,10 +58,16 @@ Compose has commands for managing the whole lifecycle of your application:
 	For dc1.yaml execution you should be in docker-k8s folder	
 		Create and start containers, network and volume
 			docker-compose up
+				build images
+				check image is present locally
+					if not present download images
+				launch container
 			docker-compose -f dc1.yaml up
 			
 		Stop and remove containers, networks, images, and volumes
 			docker-compose down
+				stop container 
+				remove container
 			docker-compose -f dc1.yaml down
 		
 		Build or rebuild services
@@ -121,7 +127,9 @@ Compose has commands for managing the whole lifecycle of your application:
 					It never creates new containers.
 		
 		N.B: docker-compose up Vs start Vs run ends
-		
+			Summary: 
+				start and run are docker equivalent.
+				up can build and run.
 		------------------------------------------------------------------
 	View the status of running services
 	-----------------------------------
@@ -195,7 +203,7 @@ If you use docker-compose on a Windows machine,
 Only recreate containers that have changed
 	Compose caches the configuration used to create a container. 
 	When you restart a service that has not changed, 
-	Compose re-uses the existing containers. 
+		Compose re-uses the existing containers. 
 	Re-using containers means that you can make changes to your environment very quickly.
 	
 	docker-compose start service

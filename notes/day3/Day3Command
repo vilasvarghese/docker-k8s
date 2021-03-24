@@ -14,7 +14,7 @@ bridge:
 			
 			
 			- Simple behavior and architecture. 
-			- Allows containers on the same network to communicate.
+			- Allows containers on the same machine to communicate.
 			- Offers local service discovery.
 			- Offers external access to containers through port mapping.
 			Refer images

@@ -236,10 +236,10 @@ Different ways to publish ports
 	2. docker network ls
 	3. docker network inspect mybridge
 	4. Create four containers.
-		docker run -dit --name alpine1 --network mybridge alpine ash
-		docker run -dit --name alpine2 --network mybridge alpine ash
-		docker run -dit --name alpine3 alpine ash #default to bridge
-		docker run -dit --name alpine4 --network mybridge alpine ash
+		docker run -it --name alpine1 --network mybridge alpine ash
+		docker run -it --name alpine2 --network mybridge alpine ash
+		docker run -it --name alpine3 alpine ash #default to bridge
+		docker run -it --name alpine4 --network mybridge alpine ash
 		
 	5. docker network connect bridge alpine4
 	6. docker container ls
