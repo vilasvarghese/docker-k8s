@@ -299,6 +299,11 @@ Differentiate container and image
 			
 		
 		6. docker ps -a
+		
+		7. 
+			docker run -m 512m --memory-reservation=256m nginx
+			docker run --cpus=2 nginx
+			docker run --cpus=2 --cpu-shares=2000 nginx
 
 		-m  or  --memory= : The maximum amount of memory the container can use. If you set this option, the minimum allowed value is 4m (4 megabyte).
 		 --memory-swap : The amount of memory this container is allowed to swap to disk.
