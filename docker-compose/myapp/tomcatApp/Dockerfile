@@ -9,4 +9,3 @@ COPY target/HelloWorld.war /usr/local/tomcat/webapps/
 COPY lib/mysql-connector-java-5.1.48.jar /usr/local/tomcat/lib/
 EXPOSE 8080
 CMD /usr/local/tomcat/bin/catalina.sh run
-
