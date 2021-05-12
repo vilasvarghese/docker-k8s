@@ -4,6 +4,7 @@
 
 ################################################################################################
 
+Reference: https://docs.docker.com/compose/
 
 -------------------------------------------------------------------
 Install Docker Compose
@@ -21,7 +22,7 @@ https://docs.docker.com/compose/install/
 ----------------------------------------------------------
 Compose 
 	Tool 
-		combine multiple images/live applicatons together in a single file.
+		combine multiple images/live applicatons together into a single file.
 		both build and run an application using a single command.
 		
 	YAML file is used to configure application’s services. 
@@ -62,6 +63,10 @@ Compose has commands for managing the whole lifecycle of your application:
 				check image is present locally
 					if not present download images
 				launch container
+				By default creates network (even if we don't specify)
+					Containers in this network can refer by name 
+						(as hostname in accessing code).
+					
 			docker-compose -f dc1.yaml up
 			
 		Stop and remove containers, networks, images, and volumes
@@ -119,6 +124,9 @@ Compose has commands for managing the whole lifecycle of your application:
 			Acts like docker run -it 
 				opens an interactive terminal to the container 
 				returns an exit status matching the exit status of the process in the container.
+			Run will not do a port mapping (mentioned in docker-compose file)
+			So if there is already a container running (from up), 
+				run would still be successful
 		
 		docker-compose start command 
 			useful only to restart containers 
@@ -188,7 +196,10 @@ Multiple isolated environments on a single host
 				run a stable copy for each feature branch of a project
 		on a CI server, to keep builds from interfering with each other, you can set the project name to a unique build number
 		on a shared host or dev host, to prevent different projects, which may use the same service names, from interfering with each other
-		The default project name is the basename of the project directory. You can set a custom project name by using the -p command line option or the COMPOSE_PROJECT_NAME environment variable.
+		The default project name is the basename of the project directory. 
+		Set a custom project name 
+			by using the -p command line option 
+			or the COMPOSE_PROJECT_NAME environment variable.
 
 Preserve volume data when containers are created
 	Compose preserves all volumes used by your services. 
