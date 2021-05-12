@@ -25,9 +25,3 @@ web:
    #- ./tomcat/webapps:/usr/local/tomcat/webapps
   links:
     - db
-    
-
-
-docker  build -f Dockerfile.dockerfile -t tomcat:8 .
-
-docker run -it -p 8888:8080 --link mysqlserver:mysqldb tomcat:8    
