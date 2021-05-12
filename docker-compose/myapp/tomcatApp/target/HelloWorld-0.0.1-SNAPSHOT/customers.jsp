@@ -12,7 +12,7 @@ try {
         //Class.forName("com.mysql.jdbc.Driver").newInstance(); 
         out.println("Loaded the mysqldb driver ....<br>");
         java.sql.Connection con =
-        DriverManager.getConnection("jdbc:mysql://mysqldb:3306/classicmodels","root","admin");
+        DriverManager.getConnection("jdbc:mysql://db:3306/classicmodels","root","admin");
         out.println("<br>Established the connection..<br>");
 
         Statement st= con.createStatement();
