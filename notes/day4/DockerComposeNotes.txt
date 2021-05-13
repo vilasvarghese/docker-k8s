@@ -6,6 +6,10 @@
 
 Reference: https://docs.docker.com/compose/
 Reference: https://www.educative.io/blog/docker-compose-tutorial
+
+Latest version was not stable 
+So reverted to 
+	sudo curl -L "https://github.com/docker/compose/releases/download/1.26.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 -------------------------------------------------------------------
 Install Docker Compose
 
@@ -142,7 +146,7 @@ Compose has commands for managing the whole lifecycle of your application:
 	View the status of running services
 	-----------------------------------
 		List containers
-			docker-compose ps
+			docker-compose -f dc1.yaml ps
 
 		
 		
