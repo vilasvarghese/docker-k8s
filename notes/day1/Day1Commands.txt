@@ -376,6 +376,109 @@ So for the fully history in a tabular format:
 	sudo systemctl enable docker
 	sudo systemctl status docker
 
+-----------------------------------------------------
+The Docker daemon and engine refer to the same dockerd process. 
+	https://docs.docker.com/engine/reference/commandline/dockerd/
+Docker doesn't contain the container runtime in the dockerd binary anymore. 
+That was moved out to the runc project long ago
+	you can replace it with other runtimes for your own use cases.
+
+Between that runtime and the docker daemon is containerd 
+	used to manage 
+		images, 
+		containers
+		filesystem layers. 
+
+Docker daemon as being broken apart into various microservices.
+	dockerd is the persistent process that manages containers. 
+	Docker uses different binaries for the daemon and client. 
+		Refer the installation section and note docker-cli and docker are separate installable.
+	To run the daemon you type dockerd.
+
+	Advanced use cases
+	1.	run the daemon with debug output, 
+			dockerd -D
+		or add "debug": true to the daemon.json file.
+		
+	2. Enable experimental features 
+		dockerd --experimental true
+		or adding "experimental": true to the daemon.json file.
+		
+	
+	
+Daemon socket option
+The Docker daemon can listen for Docker Engine API requests via three different types of Socket: unix, tcp, and fd.
+
+By default, a unix domain socket (or IPC socket) is created at /var/run/docker.sock, requiring either root permission, or docker group membership.
+
+If you need to access the Docker daemon remotely, you need to enable the tcp Socket. Beware that the default setup provides un-encrypted and un-authenticated direct access to the Docker daemon - and should be secured either using the built in HTTPS encrypted socket, or by putting a secure web proxy in front of it. You can listen on port 2375 on all network interfaces with -H tcp://0.0.0.0:2375, or on a particular network interface using its IP address: -H tcp://192.168.59.103:2375. It is conventional to use port 2375 for un-encrypted, and port 2376 for encrypted communication with the daemon.
+
+If you’re using an HTTPS encrypted socket, keep in mind that only TLS1.0 and greater are supported. Protocols SSLv3 and under are not supported anymore for security reasons.
+
+On Systemd based systems, you can communicate with the daemon via Systemd socket activation, use dockerd -H fd://. Using fd:// will work perfectly for most setups but you can also specify individual sockets: dockerd -H fd://3. If the specified socket activated files aren’t found, then Docker will exit. You can find examples of using Systemd socket activation with Docker and Systemd in the Docker source tree.
+
+You can configure the Docker daemon to listen to multiple sockets at the same time using multiple -H options:
+
+# listen using the default unix socket, and on 2 specific IP addresses on this host.
+
+$ sudo dockerd -H unix:///var/run/docker.sock -H tcp://192.168.59.106 -H tcp://10.10.10.2
+The Docker client will honor the DOCKER_HOST environment variable to set the -H flag for the client. Use one of the following commands:
+
+$ docker -H tcp://0.0.0.0:2375 ps
+$ export DOCKER_HOST="tcp://0.0.0.0:2375"
+
+$ docker ps
+Setting the DOCKER_TLS_VERIFY environment variable to any value other than the empty string is equivalent to setting the --tlsverify flag. The following are equivalent:
+
+$ docker --tlsverify ps
+# or
+$ export DOCKER_TLS_VERIFY=1
+$ docker ps
+The Docker client will honor the HTTP_PROXY, HTTPS_PROXY, and NO_PROXY environment variables (or the lowercase versions thereof). HTTPS_PROXY takes precedence over HTTP_PROXY.
+
+The Docker client supports connecting to a remote daemon via SSH:
+
+$ docker -H ssh://me@example.com:22 ps
+$ docker -H ssh://me@example.com ps
+$ docker -H ssh://example.com ps
+To use SSH connection, you need to set up ssh so that it can reach the remote host with public key authentication. Password authentication is not supported. If your key is protected with passphrase, you need to set up ssh-agent.
+
+Runc 
+	runtime container by Docker 
+	donated to the Open Container Project (OCP).
+	More details: https://blog.docker.com/2015/06/runc/	
+	lightweight universal run time container
+	abides by the OCI specification. 
+	runc is used by containerd for spawning and running containers according to OCI spec. 
+	It is also the repackaging of libcontainer.
+
+Containerd 
+	container runtime wrapper which has runc as a component in it. 
+	https://www.docker.com/blog/what-is-containerd-runtime/
+https://stackoverflow.com/questions/41645665/how-containerd-compares-to-runc	
+	container runtime 
+		manage a complete container lifecycle - 
+		from image transfer/storage to container execution, supervision and networking.
+
+container-shim 
+	handle headless containers, 
+	meaning once runc initializes the containers, it exits 
+		handing the containers over to the container-shim which acts as some middleman.
+
+grpc 
+	used for communication between containerd and docker-engine.
+
+OCI 
+	maintains the OCI specification for runtime and images. 
+	The current docker versions support OCI image and runtime specs.
+
+Further reads
+https://github.com/opencontainers/specs
+https://github.com/crosbymichael/dockercon-2016
+https://stackoverflow.com/questions/41645665/how-containerd-compares-to-runc
+ 
+------------------------------------------------------
+
 #####################################################
 Other helpful commands
 #####################################################
