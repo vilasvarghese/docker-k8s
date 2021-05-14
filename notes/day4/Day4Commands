@@ -44,3 +44,8 @@ Rollout history:
 
 Rollback:
 	- kubectl rollout undo deployment.v1.apps/nginx-deployment
+
+Scale out and scale in
+	kubectl scale deployment.v1.apps/nginx-deployment --replicas=2
+	kubectl scale deployment.v1.apps/nginx-deployment --replicas=1
+	
