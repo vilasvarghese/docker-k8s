@@ -1,0 +1,124 @@
+ docker-compose
+----------------
+Compose is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML file to configure your application's services.
+ Then, with a single command, you create and start all the services from your configuration. ... Run docker-compose up and Compose starts and runs your entire app
+
+
+https://docs.docker.com/samples/wordpress/
+
+we use one command docker-compose up -d
+
+every thing will be done
+
+1st install docker compose on server
+
+https://docs.docker.com/compose/install/
+
+
+
+now 
+
+cd /opt
+
+vi docker-compose.yaml
+
+
+docker-compose up -d
+
+now see docker images
+  
+docker ps
+ 
+
+goto google 
+ip:8000
+
+
+now docker-compose down
+
+
+
+
+=====================================================
+
+docker swarm
+-----------
+Docker Swarm is a clustering and scheduling tool for Docker containers. 
+With Swarm, IT administrators and developers can establish and manage a cluster of Docker nodes as a single virtual system.
+
+
+docker --version
+
+docker network ls
+
+
+Step4: Now we have to initilize Docker swarm in master Node
+https://docs.docker.com/engine/swarm/swarm-tutorial/create-swarm/
+
+
+Run the following command to create a new swarm:
+$ docker swarm init --advertise-addr 192.168.0.23
+
+docker network ls
+
+This command will list out how many nodes are available 
+docker node ls
+
+docker network ls
+
+
+Creating service 
+docker service create --replicas 6 -p 80:80 --name service1 nginx
+docker service ls
+
+If u want to know about the service indetail
+docker service ps service1
+
+To Manage load we have a scaling option
+docker service scale service1=15
+
+Scale down the services
+docker service scale service=5
+
+
+updating service version
+Updating new version:
+docker pull nginx:1.14.0
+docker service update --image nginx  service1
+
+
+To know about the service indetail
+docker service ps service
+
+If you want to Remove any service
+docker service rm service name
+
+docker service rm service1
+
+
+If you want to leave swarm cluster
+docker swarm leave
+
+
+If you want to remove node completely
+docker node ls
+
+docker node rm node2
+
+
+Now checkk node info master
+docker node ls
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
