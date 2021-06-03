@@ -52,8 +52,8 @@ net.bridge.bridge-nf-call-iptables = 1
 ### install kubelet, kubeadm and kubectl; start kubelet daemon
 ### Do it on both master as welll as worker nodes 
 
-    yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
-	
+    #yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+	yum install -y -q kubeadm-1.18.9 kubelet-1.18.9 kubectl-1.18.9 
 	
     yum remove -y kubelet kubeadm kubectl 
 
