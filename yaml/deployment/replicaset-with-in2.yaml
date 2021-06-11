@@ -1,0 +1,27 @@
+apiVersion: extensions/v1beta1
+kind: ReplicaSet
+metadata:
+   name: Tomcat-ReplicaSet
+spec:
+   replicas: 3
+   selector:
+      matchLables:
+         tier: Backend
+      matchExpression:
+         key: tier
+         operation: In
+         values: Backend
+  template:
+      metadata:
+      lables:
+         app: Tomcat-ReplicaSet
+         tier: Backend
+      labels:
+         app: App
+         component: neo4j
+   spec:
+      containers:
+      - name: Tomcat
+        image: tomcat
+        ports:
+        - containerPort: 8080

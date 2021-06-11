@@ -595,14 +595,17 @@ Namespaces
 
 kubectl get namespaces
 
-default: default namespace for objects with no other namespace
+default: 
+	default namespace for objects with no other namespace
 
-kube-system: The namespace for objects created by the Kubernetes system
+kube-system: 
+	The namespace for objects created by the Kubernetes system
 
 kube-public: 
 	reserved for cluster usage. Can be used for objects which needs to be shared across ns.
 
-kube-node-lese: Node specific objects 
+kube-node-lese: 
+	Node specific objects 
 
 
 
@@ -621,6 +624,8 @@ create
 	kubectl create ns <name>
 view
 	kubectl get ns
+	kubectl get <object> -o wide
+	kubectl get pod -n <namespace>
 edit
 	kubectl edit ns <name>
 describe ns
@@ -628,6 +633,8 @@ describe ns
 	
 delete 
 	kubectl delete ns <name>
+	
+	kubectl delete -f <filename>
 --------------------------------------------
 We can see object belonging to a namespace by giving -n <namespace>
 kubectl get svc -n kube-system
