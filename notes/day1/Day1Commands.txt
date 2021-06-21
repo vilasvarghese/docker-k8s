@@ -589,3 +589,6 @@ Containerd
 		Plugin architecture built
 	Container Runtime Interface
 		Containerd scope increased to match 
+
+Interesting read on dockershim and internals of docker and k8s impact.
+https://dev.to/inductor/wait-docker-is-deprecated-in-kubernetes-now-what-do-i-do-e4m
