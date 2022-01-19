@@ -383,11 +383,23 @@ Docker doesn't contain the container runtime in the dockerd binary anymore.
 That was moved out to the runc project long ago
 	you can replace it with other runtimes for your own use cases.
 
-Between that runtime and the docker daemon is containerd 
+Between that runtime (runc) and the docker daemon is containerd 
 	used to manage 
 		images, 
 		containers
-		filesystem layers. 
+		filesystem layers.
+
+containerd (source containerd.io)
+	is a daemon in linux and windows
+	manages the complete container lifecycle 
+		image transfer 
+		storage 
+		container execution 
+		supervision 
+		low-level storage 
+		network attachments 
+		ect.
+	
 
 Docker daemon as being broken apart into various microservices.
 	dockerd is the persistent process that manages containers. 
@@ -447,7 +459,7 @@ Runc
 	runtime container by Docker 
 	donated to the Open Container Project (OCP).
 	More details: https://blog.docker.com/2015/06/runc/	
-	lightweight universal run time container
+	lightweight universal runtime container
 	abides by the OCI specification. 
 	runc is used by containerd for spawning and running containers according to OCI spec. 
 	It is also the repackaging of libcontainer.
@@ -551,7 +563,7 @@ Secure: Containers apply aggressive constraints and isolations to processes with
 
 ########################################################
 
-Doker 
+Docker 
 
 https://docs.mirantis.com/docker-enterprise/v3.0/dockeree-products/dtr/dtr-user/access-dtr/configure-your-docker-engine.html
 
@@ -589,3 +601,24 @@ Containerd
 		Plugin architecture built
 	Container Runtime Interface
 		Containerd scope increased to match 
+
+
+https://www.youtube.com/watch?v=RyXL1zOa8Bw
+Other options to docker (Competetors of docker)
+---------------------------------------------------
+	1. rkt
+	2. containerd
+	3. cri-o
+	4. cloudfoundry
+	
+	
+OCI
+---
+	Common specification between containers.
+		what is an image
+		what is a running container
+		etc
+	Linux foundation collaborative project
+	open source
+	
+	

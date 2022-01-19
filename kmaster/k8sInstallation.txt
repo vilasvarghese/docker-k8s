@@ -1,4 +1,16 @@
 
+# Update hosts file
+echo "[TASK 1] Update /etc/hosts file"
+cat >>/etc/hosts<<EOF
+192.168.76.151 ckahamaster1 ckahamaster1
+192.168.76.152 ckahamaster2 ckahamaster2
+192.168.76.153 ckahamaster3 ckahamaster3
+192.168.76.154 ckahaworker1 ckahaworker1
+192.168.76.155 ckahaworker2 ckahaworker2
+
+EOF
+
+
 
 For Amazon Linux 2 systems
 Launch 2 amazon linux 2 machines
@@ -10,7 +22,7 @@ On both master and slave nodes :
     yum install docker -y 
     systemctl enable docker && systemctl start docker
 ------------------------------------------------------------------
-Only for installing Docker CE on CentOS 7 on AWS
+Only for installing Docker CE on CentOS 7 on AWS/Azure
 	1. sudo yum install -y yum-utils device-mapper-persistent-data lvm2
   
 	2. sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
@@ -18,6 +30,9 @@ Only for installing Docker CE on CentOS 7 on AWS
 	3. sudo yum-config-manager --enable docker-ce-edge
 	4. sudo yum-config-manager --enable docker-ce-test
 	5. sudo yum install -y https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.6-3.3.el7.x86_64.rpm
+	
+	or easy installation
+	
 	6. sudo yum install docker-ce
 	7. systemctl start docker
 	8. systemctl enable docker
@@ -38,35 +53,68 @@ EOF
 
 cat /etc/yum.repos.d/kubernetes.repo
 
-    cat <<EOF >  /etc/sysctl.d/k8s.conf
+cat <<EOF >  /etc/sysctl.d/k8s.conf
 net.bridge.bridge-nf-call-ip6tables = 1
 net.bridge.bridge-nf-call-iptables = 1
-    EOF
+EOF
 	
-	 cat /etc/sysctl.d/k8s.conf
+cat /etc/sysctl.d/k8s.conf
 	
-    sysctl --system
+sysctl --system
 
-    setenforce 0
+setenforce 0
 
 ### install kubelet, kubeadm and kubectl; start kubelet daemon
 ### Do it on both master as welll as worker nodes 
 
-    #yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
-	yum install -y -q kubeadm-1.18.9 kubelet-1.18.9 kubectl-1.18.9 
+    yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+	#Below installable is no more available
+	#yum install -y -q kubeadm-1.18.9 kubelet-1.18.9 kubectl-1.18.9 
 	
-    yum remove -y kubelet kubeadm kubectl 
+    #yum remove -y kubelet kubeadm kubectl 
 
 
     systemctl enable kubelet && systemctl start kubelet
+	#This may give error even after starting. Wait until the proccess is done.
 
 ### On master node  initialize the cluster 
 
     sudo kubeadm init --pod-network-cidr=192.168.0.0/16 --ignore-preflight-errors=NumCPU
+	#On cloud
+	sudo kubeadm init --ignore-preflight-errors=NumCPU
     #  sudo kubeadm init --pod-network-cidr=192.168.0.0/16 #Do this only if proper CPU cores are available
-    mkdir -p $HOME/.kube
+-------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------
+#if init fails 
+#This was tested on centos
+sudo rm -rf /etc/kubernetes/manifests
+sudo kubeadm reset -f
+sudo iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X
+
+cat > /etc/docker/daemon.json <<EOF
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2"
+}
+EOF
+
+sudo systemctl daemon-reload
+systemctl restart docker
+
+swapoff -a
+systemctl start kubelet
+sudo kubeadm init --ignore-preflight-errors=NumCPU
+----------------------------------------------------------------------------------------------------------------------------------    
+-------------------------------------------------------------------------------------------------------	
+	mkdir -p $HOME/.kube
     sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
     sudo chown $(id -u):$(id -g) $HOME/.kube/config
+	
+	Only for admin
     export KUBECONFIG=/etc/kubernetes/kubelet.conf
 
 ## On Worker nodes, Switch to the root mode

@@ -1,0 +1,2 @@
+FROM tomcat:jre8
+COPY Helloworld.war /usr/local/tomcat/webapps/
