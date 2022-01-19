@@ -602,6 +602,7 @@ Containerd
 	Container Runtime Interface
 		Containerd scope increased to match 
 
+<<<<<<< HEAD
 
 https://www.youtube.com/watch?v=RyXL1zOa8Bw
 Other options to docker (Competetors of docker)
@@ -622,3 +623,7 @@ OCI
 	open source
 	
 	
+=======
+Interesting read on dockershim and internals of docker and k8s impact.
+https://dev.to/inductor/wait-docker-is-deprecated-in-kubernetes-now-what-do-i-do-e4m
+>>>>>>> 5620b94f3e39a68af769741b1b9573eada6595ea
