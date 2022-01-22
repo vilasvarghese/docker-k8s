@@ -1,3 +1,14 @@
+#############################################
+Jenkins installation on the latest is noted to be failing with java 8.
+So instead of below doc. you may follow 
+	- https://www.jenkins.io/doc/book/installing/linux/#red-hat-centos
+	- https://pkg.jenkins.io/redhat/
+	
+Ensure to install java 11 and if java 8 is there on the machine try 
+	alternatives --config java  
+	alternatives --config javac
+#############################################
+
 Java Installation
 sudo yum install -y java-1.8.0-openjdk-devel
 
