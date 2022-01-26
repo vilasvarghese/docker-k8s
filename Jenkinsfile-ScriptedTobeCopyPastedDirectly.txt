@@ -44,6 +44,7 @@ pipeline {
         }
         stage ('Push docker image to Docker Hub') {  
             steps{
+				//Install Docker plugin and Docker Pipeline before executing this
                 /*
                 Go to credentials > System > Global credentials > Add credentials a page will open.
                     In Kind drop-down select Username and password.
