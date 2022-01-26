@@ -2,13 +2,15 @@ pipeline {
     agent any  
     
     stages {  
-        stage ('Git-Checkout') {  
+        /*
+		Jenkinsfile is coming from this gitrepo. Hence below step not required.
+		stage ('Git-Checkout') {  
             steps{
                 git  url: 'https://github.com/vilasvarghese/docker-k8s.git' 
                 //credentialsId: 'myrandomid like e6757c46-0750-4ab1-8cd4-c569efcbbdb1',
                 echo "Checkout successful";
             } 
-        }
+        }*/
         stage ('Compile') {  
             steps{
                 //bat label: '', script: 'mvn compile'
@@ -44,6 +46,7 @@ pipeline {
         }
         stage ('Push docker image to Docker Hub') {  
             steps{
+				//Install Docker plugin and Docker Pipeline before executing this
                 /*
                 Go to credentials > System > Global credentials > Add credentials a page will open.
                     In Kind drop-down select Username and password.
