@@ -150,3 +150,22 @@ on all the worker nodes do
 
     mkdir -p $HOME/.kube
     export KUBECONFIG=/etc/kubernetes/kubelet.conf
+	
+Regenerate join command	
+	
+To print a join command for worker/slave node,
+kubeadm token create --print-join-command
+
+But if you need to join a new control plane node, that won't work as you need to recreate a new key for the control plane join command. This can be done with three simple steps.
+
+01.) re upload certs in the already working master node
+sudo kubeadm init phase upload-certs --upload-certs
+it will generate a new certificate key.
+
+02.) print join command in the already working master node
+kubeadm token create --print-join-command
+
+03.) Add the --control-plane --certificate-key and execute.
+ <join command from step 02> --certificate-key <key from step 01>
+
+Done.	

@@ -1,0 +1,70 @@
+https://www.udemy.com/course/helm-package-manager-for-kubernetes-complete-master-course/
+
+
+Getting started with Helm
+	Introduction to Helm
+	Why do we need a Package manager?
+	Helm component introduction
+	Helm V3 installation - Difference between Helm V2 and Helm V3
+	Repository quick introduction
+	Chart install - quick introduction
+	Create new Helm chart
+
+
+Chart Templates
+	Introduction to Chart templates
+	Built-in objects
+	Values for templates
+		Read values
+		Set values 
+	Template functions
+	Template pipeline and default values
+	Control flow if-else
+	Defining scope using with
+	Range
+	Variables
+	Include content from same file
+	Include scope
+	Include template using keyword include
+	Notes
+	Sub Charts
+
+
+Repository management
+	Repository Workflow
+	Repository hosting options
+	Chartmuseum installation
+	Add Chartmuseum repository
+	Add Chart to Chartmuseum repository
+	Maintain Chart version
+	Maintain multiple Charts
+	Chart push plugin
+	Maintain github as repository
+	Add Charts to github repository
+
+
+Testing and Verification
+	Helm Lint
+	Helm Hook test
+	Helm Get and Status
+	Provenance and Integrity
+
+
+Chart Management
+	Upgrade Helm Installed Chart
+	Rollback Helm Installed Chart
+	Helm Dependency
+	Chart Hook
+		Pre Install Hook
+		Post Install Hook
+	Kubernetes Job as Hooks
+	Hook Execution using Weight
+
+
+
+Other references: 
+https://thorsten-hans.com/getting-started-with-helm3
+https://www.freecodecamp.org/news/helm-charts-tutorial-the-kubernetes-package-manager-explained/
+https://www.digitalocean.com/community/tutorials/how-to-install-software-on-kubernetes-clusters-with-the-helm-3-package-manager
+https://codefresh.io/helm-tutorial/getting-started-with-helm-3/
+https://codefresh.io/helm-tutorial/taking-helm-3-spin/

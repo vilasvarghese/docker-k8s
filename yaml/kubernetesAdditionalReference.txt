@@ -1,0 +1,335 @@
+●	Config Maps
+	https://kubernetes.io/docs/concepts/configuration/configmap/
+
+	A ConfigMap 
+		API object 
+		lets you store configuration for other objects to use. 
+		Unlike most Kubernetes objects that have a spec
+		ConfigMap has 
+			data and binaryData fields. 
+		These fields accept key-value pairs as their values. 
+		Both the data field and the binaryData are optional. 
+		The data field is designed to contain UTF-8 byte sequences while the binaryData field is designed to contain binary data as base64-encoded strings.
+
+The name of a ConfigMap must be a valid DNS subdomain name.
+
+Each key under the data or the binaryData field must consist of alphanumeric characters, -, _ or .. The keys stored in data must not overlap with the keys in the binaryData field.
+
+Starting from v1.19, you can add an immutable field to a ConfigMap definition to create an immutable ConfigMap.
+
+ConfigMaps and Pods
+	You can write a Pod spec that refers to a ConfigMap and configures the container(s) in that Pod based on the data in the ConfigMap. The Pod and the ConfigMap must be in the same namespace.
+
+Mounted ConfigMaps are updated automatically
+	When a ConfigMap currently consumed in a volume is updated, projected keys are eventually updated as well. The kubelet checks whether the mounted ConfigMap is fresh on every periodic sync. However, the kubelet uses its local cache for getting the current value of the ConfigMap. The type of the cache is configurable using the ConfigMapAndSecretChangeDetectionStrategy field in the KubeletConfiguration struct. A ConfigMap can be either propagated by watch (default), ttl-based, or by redirecting all requests directly to the API server. As a result, the total delay from the moment when the ConfigMap is updated to the moment when new keys are projected to the Pod can be as long as the kubelet sync period + cache propagation delay, where the cache propagation delay depends on the chosen cache type (it equals to watch propagation delay, ttl of cache, or zero correspondingly).
+
+
+
+
+●	Resource Limits & Pod Scheduling
+	https://www.magalix.com/blog/kubernetes-resource-requests-and-limits-101
+	https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	https://itnext.io/dive-deep-into-resource-requests-and-limits-in-kubernetes-3e99030697ec
+	https://www.containiq.com/post/setting-and-rightsizing-kubernetes-resource-limits
+	
+●	Manually Scheduling Pods
+	
+	https://patroware.medium.com/how-to-schedule-a-pod-manually-685dbbc457e6
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  labels:
+    app: myapp
+spec:
+  nodeName: ip-10-0-139-120.us-east-2.compute.internal 
+  containers:
+  - name: myapp-container
+    image: busybox
+    command: ['sh', '-c', 'echo Hello Kubernetes! && sleep 3600']	
+--------------------------------------------------------------------------------	
+Parallel processing and running multiple pods in a job
+https://kubernetes.io/docs/concepts/workloads/controllers/job/#completion-mode
+completions: 5
+	#runs multiple pods
+parallelism: 2 
+	#runs the job in parallel
+	
+	
+●	Label a Node & Schedule a Pod
+
+https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+	kubectl label nodes kubernetes-foo-node-1.c.a-robinson.internal disktype=ssd
+--------------------------------------------------------------------------------	
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    env: test
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    imagePullPolicy: IfNotPresent
+  nodeSelector:
+    disktype: ssd
+--------------------------------------------------------------------------------	
+
+●	Multiple Scheduler
+https://jamesdefabia.github.io/docs/admin/multiple-schedulers/
+https://kubernetes.io/docs/tasks/extend-kubernetes/configure-multiple-schedulers/
+
+
+●	Annotations
+https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+https://kubernetes.io/docs/reference/labels-annotations-taints/
+
+●	Monitoring Cluster Components and Applications
+	https://www.youtube.com/watch?v=w8FZDvQdZdw
+	D:\PraiseTheLord\HSBGInfotech\Others\vilas\dockerswarm\Exercises\Prometheus\
+		 
+		 
+	The resource metrics pipeline provides a limited set of metrics related to cluster components such as the Horizontal Pod Autoscaler controller, as well as the kubectl top utility. These metrics are collected by the lightweight, short-term, in-memory metrics-server and are exposed via the metrics.k8s.io API.
+
+	metrics-server 
+		https://docs.aws.amazon.com/eks/latest/userguide/metrics-server.html
+		/metrics should be the url. haven't checked though.
+		discovers all nodes on the cluster 
+		queries each node's kubelet for 
+			CPU and 
+			memory usage. 
+	The kubelet acts as a bridge between the Kubernetes master and the nodes
+		managing the pods and containers running on a machine. 
+		translates each pod into its constituent containers and fetches individual container usage statistics from the container runtime 
+			through the container runtime interface. 
+		The kubelet fetches this information from the integrated cAdvisor for the legacy Docker integration. 
+		It then exposes the aggregated pod resource usage statistics through the metrics-server Resource Metrics API. 
+		This API is served at /metrics/resource/v1beta1 on the kubelet's authenticated and read-only ports
+	 
+	https://logz.io/blog/kubernetes-monitoring/
+	
+	
+●	View the Logs
+
+	kubectl logs
+	https://www.cloudsavvyit.com/14512/how-to-view-kubernetes-pod-logs-with-kubectl/
+	
+	
+●	Managing Logs
+https://kubernetes.io/docs/concepts/cluster-administration/logging/
+
+●	Liveness Probe
+●	Readiness Probe
+	https://www.youtube.com/watch?v=mxEvAPQRwhw
+	Readyness probe
+		Is the pod ready to serve traffic.
+		k8s will not forward traffic to the pod until readiness probe suceeds
+		(but will not kill or restart)
+	Liveness probe
+		Is pod live?
+		k8s will restart pod if liveness probe fails.
+		
+●	Logging/Monitoring
+	https://kubernetes.io/docs/tasks/debug-application-cluster/
+	https://kubernetes.io/docs/tasks/debug-application-cluster/_print/
+	
+	
+	
+
+●	Namespaces
+	Refer day 4 notes
+●	Authentication
+●	RBAC
+	Refer rbac folder
+	Roles or ClusterRole
+	bound to subject or user or group.
+	subject/user/group can 
+●	Quotas
+	https://kubernetes.io/docs/concepts/policy/resource-quotas/
+●	Network Policies
+	https://kubernetes.io/docs/concepts/services-networking/network-policies/
+●	Upgrading Kubernetes Components
+	https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/
+	
+	install old version
+	https://stackoverflow.com/questions/49721708/how-to-install-specific-version-of-kubernetes
+
+
+Kubernetes Storage
+------------------
+●	Applications & Persistent Storage
+	Introduction
+●	Persistent Volumes (PV)
+	https://kubernetes.io/docs/concepts/storage/persistent-volumes/
+	https://kubernetes.io/docs/tasks/configure-pod-container/configure-persistent-volume-storage/
+●	Volumes and their Access Modes
+	https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
+●	Kubernetes storage classes.
+	https://kubernetes.io/docs/concepts/storage/storage-classes/
+●	Storage with cloud (AWS)
+	https://kubernetes.io/docs/concepts/storage/volumes/#awselasticblockstore
+	How do I use persistent storage in Amazon EKS?
+	https://aws.amazon.com/premiumsupport/knowledge-center/eks-persistent-storage/
+●	Persistent volume claims (PVC)
+	https://medium.com/avmconsulting-blog/persistent-volumes-pv-and-claims-pvc-in-kubernetes-bd76923a61f6
+
+
+Kubernetes Networking
+---------------------
+●	Node Network Configuration
+	https://cloud.google.com/kubernetes-engine/docs/concepts/network-overview
+	https://sookocheff.com/post/kubernetes/understanding-kubernetes-networking-model/
+●	Service Networking
+	Above links cover it completly. Yet there are some extra information in the below links
+	https://oteemo.com/kubernetes-networking-and-services-101/
+	https://cloud.google.com/kubernetes-engine/docs/concepts/service-networking
+	https://medium.com/google-cloud/understanding-kubernetes-networking-services-f0cb48e4cc82
+	
+●	Deploying a Load Balancer
+	Already covered.
+●	Configure & Use Cluster DNS
+	https://www.youtube.com/watch?v=OKnOc4I-7sA
+----------------------------------------------------------
+N.B: the actual example executed using weave-kube.yaml
+	   kubectl get nodes
+	9  kubectl get pod
+   10  kubectl get pod -o wide
+   11  curl http://10.32.0.193
+   12  kubectl get svc
+   13  kubectl get svc -n kube-system
+   14  kubectl exec -it nginx -- sh
+   15  kubectl describe pod nginx
+   18  kubectl describe pod nginx
+   19  vi svc.yml
+   20  kubectl apply -f svc.yml 
+   21  kubectl get svc
+   22  curl http://10.110.77.76
+   23  curl http://my-cluster-ip
+   24  kubectl get svc
+   25  kubectl exec -it nginx -- sh
+   26  kubectl run tomcat --image=tomcat --restart=Never
+   27  kubectl describe pod tomcat
+   29  vi svc1.yml
+   30  kubectl describe pod tomcat
+   31  kubectl get svc
+   32  vi svc1.yml 
+		modify app: nginx to run: nginx
+   33  kubectl apply -f svc1.yml 
+   34  kubectl get svc
+   35  kubectl exec -it nginx -- sh
+		cat /etc/resolv.conf
+		curl http://my-cluster-ip/
+		
+   36  kubectl delete svc my-cluster-ip1
+   37  vi svc1.yml 
+		modify app: nginx to run: tomcat and port to 8080
+   38  kubectl apply -f svc1.yml 
+		
+   39  kubectl get svc
+   40  kubectl exec -it nginx -- sh
+		cat /etc/resolv.conf
+		curl http://tomcat's service:8080/
+		error message of tomcat. But tomcat is reachable.
+----------------------------------------------------------
+
+		
+	
+		https://www.infracloud.io/blogs/using-coredns-effectively-kubernetes/
+		https://www.freecodecamp.org/news/how-to-setup-dns-for-a-website-using-kubernetes-eks-and-nginx/
+		https://dev.to/mrkaran/dns-lookups-in-kubernetes-5cm1
+		https://coredns.io/2018/11/27/cluster-dns-coredns-vs-kube-dns/
+		https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/
+		https://tech.findmypast.com/k8s-dns-lookup/
+		
+●	Container Network Interface (CNI)
+	https://kubernetes.io/docs/concepts/cluster-administration/networking/
+●	Calico
+		https://www.youtube.com/watch?v=vOo__3GqyxM
+		
+		uses dynamic subnet allocation scheme
+		uses either k8s etcd or it's own etcd.
+		Assigns each node a subnet.
+			ip's are assigned fromt he subnet to the node.
+		Default calico implementation
+			IP-in-IP protocol
+			wraps layer 3 IP packet inside extra IP header.
+		Uses Border gateway protocol (BGP) to share and exchange routes info between nodes.
+			facilitates POD network communication.
+
+		ip addr
+		ip link show  type veth
+		ip link show type ipip
+		ip route get <ip>
+		
+		
+		sudo calicoctl node status
+		calicoctl get ipPool
+		calicoctl get ipPool default-
+		
+
+●	Network Policy (With Demo or Lab)
+	https://docs.projectcalico.org/security/tutorials/kubernetes-policy-basic
+
+
+Kubernetes on aws
+-----------------
+●	Install AWS CLI
+●	Install kubectl CLI
+●	Install eksctl CLI
+●	EKS Cluster Introduction
+	https://eksctl.io/usage/creating-and-managing-clusters/
+●	Create EKS Cluster
+	https://www.magalix.com/blog/deploying-kubernetes-cluster-with-eks
+	
+●	Create EKS Managed Node Group 
+	
+●	Verify EKS Cluster Nodes
+	
+●	EKS Delete Cluster
+	eksctl delete cluster --name cluster_name
+
+●	Kubernetes vs AWS EKS Architecture
+●	EKS Storage Introduction
+	https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html
+	
+Day - 9
+
+●	Create Kubernetes Manifests for Storage Class, PVC, PV
+	already covered
+●	Load balancing in EKS 
+	D:\PraiseTheLord\HSBGInfotech\Others\vilas\aws\Notes\AWSLoadBalancer.txt
+	https://blog.sivamuthukumar.com/aws-load-balancer-controller-on-eks-cluster
+	https://aws.amazon.com/blogs/containers/introducing-aws-load-balancer-controller/
+●	Network loadbalancing
+		https://docs.aws.amazon.com/eks/latest/userguide/network-load-balancing.html
+		https://docs.aws.amazon.com/eks/latest/userguide/network-load-balancing.html
+		
+		https://kubernetes-sigs.github.io/aws-load-balancer-controller/
+		
+		
+●	Application loadbalancing
+●	EKS Fargate - Serverless
+●	Fargate Introduction
+●	Deploy to EKS Fargate
+●	EKS with ECR
+●	Create and push docker image to ECR
+●	Deploy from ECR to EKS
+●	EKS Devops
+
+	https://docs.aws.amazon.com/prescriptive-guidance/latest/patterns/automatically-build-and-deploy-a-java-application-to-amazon-eks-using-a-ci-cd-pipeline.html
+	○	Code Commit
+	○	Code Build
+	○	Code Pipeline
+●	EKS Autoscaling
+	○	Horizontal Pod autoscaler
+		https://docs.aws.amazon.com/eks/latest/userguide/horizontal-pod-autoscaler.html
+	○	Vertical Pod autoscaler
+		
+
+Day – 10
+○	Implementing an End to end CI/CD from scratch based utilizing all learning
+
+
+
+https://kubernetes.io/blog/2016/12/container-runtime-interface-cri-in-kubernetes/
