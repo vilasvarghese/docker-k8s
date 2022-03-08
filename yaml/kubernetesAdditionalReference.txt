@@ -281,9 +281,8 @@ Kubernetes on aws
 	https://eksctl.io/usage/creating-and-managing-clusters/
 ●	Create EKS Cluster
 	https://www.magalix.com/blog/deploying-kubernetes-cluster-with-eks
-	
+
 ●	Create EKS Managed Node Group 
-	
 ●	Verify EKS Cluster Nodes
 	
 ●	EKS Delete Cluster
@@ -304,9 +303,7 @@ Day - 9
 ●	Network loadbalancing
 		https://docs.aws.amazon.com/eks/latest/userguide/network-load-balancing.html
 		https://docs.aws.amazon.com/eks/latest/userguide/network-load-balancing.html
-		
 		https://kubernetes-sigs.github.io/aws-load-balancer-controller/
-		
 		
 ●	Application loadbalancing
 ●	EKS Fargate - Serverless

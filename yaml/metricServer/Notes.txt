@@ -1,0 +1,27 @@
+
+https://github.com/kubernetes-sigs/metrics-server
+--kubelet-preferred-address-types InternalIP,Hostname,InternalDNS,ExternalDNS,ExternalIP
+e.g. for virtulabox
+	--kubelet-preferred-address-types=InternalIP
+
+	Add 
+		- --kubelet-insecure-tls in the args section of deployment
+		
+		
+		kubectl top pods -n kube-system
+		
+		kubectl top nodes
+		
+		
+Prometheus
+	Install helm
+		helm install stable/prometheus-operator
+		https://github.com/helm/charts/tree/master/stable/prometheus-operator
+		
+		
+		helm repo add stable https://charts.helm.sh/stable
+		helm repo update
+		helm search repo prometheus-community
+		helm install [pod name] prometheus-community/kube-prometheus-stack
+		helm install myprometheus prometheus-community/kube-prometheus-stack
+		helm install prometheus-community/prometheus --generate-name
