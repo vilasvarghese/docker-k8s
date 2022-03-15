@@ -1,0 +1,1609 @@
+4
+• Software development lifecycle
+• The Waterfall approach : Advantages & Disadvantages
+• Agile Methodology
+• Operational Methodologies: ITIL
+• Problems of Delivering Software
+• Principles of Software Delivery
+• About DevOps
+• Need for DevOps
+• DevOps Practices in Organization
+• The Continuous DevOps Life Cycle Process
+• Evolution of DevOps
+• Case studies
+Introduction
+Agenda
+
+
+5
+
+Software Development Life Cycle
+SDLC Phases
+Diagram of our day-to-day activity
+as software engineers
+
+
+6
+
+Software Development Life Cycle
+• Encounter majority of problems
+• Find common language between
+people outside of IT and people in IT
+• Leads to different problems around
+terminology
+• Business flow being capture
+incorrectly
+• Iterative approach
+Requirement Analysis
+Requirement Analysis
+
+8
+
+Software Development Life Cycle
+• Design our flows in language that IT
+crowd can understand straight away
+• Overlaps with requirement analysis
+• Desirable as diagrams are perfect
+middle language that we are looking
+for
+• Minimal Value Product
+Design
+Design
+
+9
+
+Software Development Life Cycle
+• Software is built
+• Builds technical artifacts that work and
+according to potentially flawed
+specification
+• Our software is going to be imperfect
+• Deliver early and deliver often is mantra
+followed to minimize impact of wrong
+specification
+• Stakeholders can test product before
+problem is too big to be tackled
+• Involving stakeholders early enough is
+good strategy
+• No matter what we do, our software has
+to be modular so we can plug and play
+modules in order to accommodate new
+requirements
+Development
+Development
+
+
+10
+
+Software Development Life Cycle
+• Continuous Integration server will
+run testing and inform us about
+potential problems in application
+• Depending on complexity of
+software, testing can be very
+extensive
+• Continuous integration server
+focuses on running integration and
+acceptance
+Testing
+Testing
+
+11
+
+Software Development Life Cycle
+• Deliver software to what we call
+production
+• There will be bugs and reason why
+we planned our software to be able
+to fix problems quickly
+• Create something called as
+Continuous delivery pipelines
+• Enables developers to execute buildtest-
+deploy cycle very quickly
+• Deploy = Release
+Release
+Release
+
+
+12
+
+Software Development Life Cycle
+• There are two types of maintenance
+evolutive and corrective
+• Evolutive maintenance – evolve
+software by adding new
+functionalities or improving business
+flows to suit business needs
+• Corrective maintenance – One
+where we fix bugs and
+misconceptions
+• Minimize latter but we can not totally
+avoid
+Maintenance
+Maintenance
+
+
+13
+
+Case Study
+• Large team dedicated to release
+• High level of intervention
+• Automated build, deploy, test and release system
+• Only seven seconds to deploy the application into production
+• Successful deployment of the system
+• Roll back the change in the same amount of time
+The Power of Automated Deployment form Continuous Delivery Book
+
+
+14
+
+Waterfall Model
+Waterfall Model and Feedback Amendment in Waterfall Model
+• Classical Life cycle /Black
+Box Model
+• Sequential in Nature
+• Systematic, sequential
+approach to software
+development that begins
+with customer specification
+of requirements and
+progresses through
+planning, modeling,
+construction, and
+deployment, culminating in
+ongoing support of the
+completed software
+
+15
+
+Waterfall Model Contd..
+Advantages
+
+• Easy to use and follow
+• Cost effective
+• Each phase completely developed
+• Development processed in sequential manner, so very less chance of rework
+• Easy to manage the project
+• Easy documentation
+
+
+16
+
+Waterfall Model Contd..
+• The main drawback of the waterfall model is the difficulty of accommodating change after the
+process is underway
+• In principle, a phase has to be complete before moving onto the next phase
+• Inflexible partitioning of the project into distinct stages makes it difficult to respond to changing
+customer requirements
+• Therefore, this model is only appropriate when the requirements are well-understood and changes will
+be fairly limited during the design process
+• Few business systems have stable requirements
+• Does Waterfall ends????
+• The waterfall model is mostly used for large systems engineering projects where a system is
+developed at several sites
+• In those circumstances, the plan-driven nature of the waterfall model helps coordinate the work
+Waterfall Model Problems
+
+
+17
+
+Waterfall Model Contd..
+• Does Waterfall ends????
+• The waterfall model is mostly used for large systems engineering projects where a system is
+developed at several sites
+• In those circumstances, the plan-driven nature of the waterfall model helps coordinate the work
+Waterfall Model Problems
+Stable Requirements
+Fixed Schedule
+Fixed Budget
+Waterfall
+(Linear)
+
+
+18
+
+Need of Agile
+• The project will produce the wrong product
+• The project will produce a product of inferior quality
+• The project will be late
+• We’ll have to work 80 hour weeks
+• We’ll have to break commitments
+• We won’t be having fun
+• Storm called Agile
+• According to VersionOne's State of Agile Report in 2017 says 94% of organizations practice
+Agile, and in 2018 it reported 97% organizations practice agile development methods
+Why Agile?
+
+19
+
+Principles of Agile Methodology
+1. Our highest priority is to satisfy the customer through early and continuous delivery of valuable
+software
+2. Welcome changing requirements, even late in development. Agile processes harness change for the
+customer's competitive advantage
+3. Deliver working software frequently, from a couple of weeks to a couple of months, with a preference
+to the shorter timescale
+4. Business people and developers must work together daily throughout the project
+5. Build projects around motivated individuals. Give them the environment and support they need, and
+trust them to get the job done
+6. The most efficient and effective method of conveying information to and within a development team
+is face-to-face conversation
+7. Working software is the primary measure of progress
+8. Agile processes promote sustainable development. The sponsors, developers, and users should be
+able to maintain a constant pace indefinitely
+9. Continuous attention to technical excellence and good design enhances agility
+10. Simplicity--the art of maximizing the amount of work not done--is essential
+11. The best architectures, requirements, and designs emerge from self-organizing teams
+12. At regular intervals, the team reflects on how to become more effective, then tunes and adjusts its
+behavior accordingly
+Twelve Principles
+
+
+20
+
+Pillars of Agile Methodology
+Agile focuses on
+Individuals
+and
+interactions Processes and
+tools
+Working
+software Comprehensive
+documentation
+Customer
+Collaboration Contract
+negotiation
+Responding
+to change Following a
+plan
+
+21
+
+Agile Brings What??
+• Effective (rapid and
+adaptive) response to
+change
+• Effective communication
+among all stakeholders
+• Drawing the customer onto
+the team
+• Organizing a team so that it
+is in control of the work
+performed
+Being Agile
+
+22
+
+Agile Methodologies
+• Scrum
+• Extreme Programming [XP]
+• Test driven Development [TDD]
+• Feature Driven Development [FDD]
+• Behavior-driven development [BDD]
+Few of Agile Methodologies
+
+23
+Roles in Agile
+• User
+• Product Owner
+• Software Development Team
+Basic roles involved
+
+
+25
+
+Operational Methodology
+• ITIL is a framework of best practices for delivering IT services
+• The ITIL processes within IT Service Management (ITSM) ensure that IT Services are provided
+in a focused, client-friendly and cost-optimized manner
+• ITIL’s systematic approach to IT service management can help businesses
+• Manage risk
+• Strengthen customer relations
+• Establish cost-effective practices
+• And build a stable IT environment
+• that allows for
+• Growth
+• Scale and
+• Change
+ITIL
+
+
+26
+IT Service Management (ITSM)
+• ITIL views ITSM as a lifecycle
+• Five Phases:
+• Service Strategy
+• Service Design
+• Service Transition
+• Service Operation
+• Service Improvement [create and maintain value]
+Lifecycle
+
+Diagram
+
+27 - diagrams
+
+ITIL
+Framework Service
+Strategy
+Demand
+Management
+Service
+portfolio
+Management
+Financial
+Management
+Business
+Relationship
+management
+Service
+Design
+Service level
+Management
+Supplier
+Management
+Capacity
+Management
+Availability
+management
+Continuity
+Management
+Information
+Security
+Management
+Service
+catalogue
+Management
+Design
+Coordination
+Service
+Transition
+Transition
+Planning and
+support
+Change
+Management
+Asset and
+Configuration
+management
+Service
+validation and
+testing
+Release and
+Deployment
+Management
+Evaluation
+Knowledge
+Management
+Service
+Operation
+Event
+Management
+Incident
+Management
+Problem
+Management
+Request
+Fulfilment
+Access
+Management
+Service Desk
+Technical
+Management
+Application
+Management
+IT Operations
+CSI
+
+
+28
+
+ITIL
+• ITIL is not a “Project”
+• ITIL is ongoing journey
+• Benefits of ITIL:
+• Pink Elephant reports that Procter and Gamble saved about $500 million over four years by reducing
+help desk calls and improving operating procedures
+• Nationwide Insurance achieved a 40 percent reduction in system outages and estimates a $4.3 million
+ROI over three years
+• Capital One reduced its "business critical" incidents by 92 percent over two years
+Is a Project???
+
+
+
+30
+
+DevOps
+• “DevOps is a set of practices intended to reduce the time between committing a change to a
+system and the change being placed into normal production, while ensuring high quality”
+Implications of this definition
+- Practices and tools
+- Do not restricted scope of DevOps to testing and development
+Definition
+
+
+31
+
+DevOps
+Perspective involved
+Business
+Ideas
+High Service Level
+Expectation
+Dev
+Speed
+Ops
+Stabilize
+Quality:
+• Checklist
+• Approval
+• Release Note
+• Audit
+• Compliance
+Trust
+
+
+32
+
+Problems of Delivering Software
+• Converting Idea to Product / Service?
+• Reliable, rapid, low-risk software releases
+• Ideal Environment
+• Generic Methodologies for Software Methodologies
+• More focus on Requirement Gathering
+• Understanding the Value Stream Map 1
+2
+3
+4
+
+33
+
+Common Release Antipatterns
+• Extensive and detailed documentation
+• Reliance on manual testing
+• Frequent calls to the development team to explain
+• Frequent corrections to the release process
+• Sitting bleary-eyed in front of a monitor at 2 A.M
+Deploying Software Manually
+
+
+
+34
+
+Common Release Antipatterns
+• Tester tested the system on development machines
+• Releasing into staging is the first time that operations people interact with the new release
+• Who Assembles? The Development Team
+• Collaboration between development and Operations?
+Deploying to a Production-like Environment Only after Development Is Complete
+
+
+35
+Common Release Antipatterns
+• Difference in Deployment to Stage and Production
+• Different host behave differently
+• Long time to prepare an environment
+• Cannot step back to an earlier configuration of your system
+• Modification to Configuration Directly
+Manual Configuration Management of Production Environments
+
+
+36
+
+Principles of Software Delivery
+• Create a Repeatable, Reliable Process for Releasing Software
+• Automate Almost Everything
+• Keep Everything in Version Control
+• If It Hurts, Do It More Frequently, and Bring the Pain Forward
+• Build Quality In
+• “The Earlier you catch the defects, the cheaper they are to fix”
+• Done, Means Released
+• Everybody Is Responsible for the Delivery Process
+• Continuous Improvement
+
+37
+
+DevOps Practices
+• Treat Ops as first-class citizens from the point of view of requirements
+• Make Dev more responsible for relevant incident handling
+• Enforce the deployment process used by all, including Dev and Ops personnel
+• Use continuous deployment
+• Develop infrastructure code, such as deployment scripts
+Five different categories of DevOps practices
+
+
+38
+Need for DevOps
+Timelines
+BUG
+FIX
+When
+Developer Tester Operator
+
+
+39
+Need for DevOps
+Imbalance
+New
+Features
+Bug
+Fix
+• Feature A
+• Feature B
+Product
+Release
+• Bug 1
+• Bug 2
+Existing
+Bugs
+
+40
+
+Need for DevOps
+• Development is All Well (Waterfall, Agile)
+• Where is Operations?
+Where is Operations?
+
+
+41
+The evolution of DevOps
+• Back in 2007
+• Patrick Debois [Belgian Engineer]
+• Initially it was Agile Infrastructure but later coined the phrase DevOps
+• Velocity conference in 2008
+• And if you see you may come across more tangential DevOps Initiative
+• WinOps
+• DevSecOps
+• BizDevOps
+History
+
+
+42 - 43
+The old world before DevOps
+More Handshakes
+
+Problems: diagram
+
+
+46
+Case Study
+• Netflix's streaming service is a large distributed system hosted on Amazon Web Services (AWS)
+• So many components that have to work together to provide reliable video streams to customers
+across a wide range of devices
+• Netflix engineers needed to focus heavily on the quality attributes of reliability and robustness
+for both server- and client-side components
+• Achieved this with DevOps by introducing a tool called Chaos Monkey
+• Chaos Monkey is basically a script that runs continually in all Netflix environments, causing
+chaos by randomly shutting down server instances
+• Thus, while writing code, Netflix developers are constantly operating in an environment of
+unreliable services and unexpected outages
+• Unique opportunity to test their software in unexpected failure conditions
+Netflix
+
+
+51
+
+
+DevOps Misconception
+• DevOps is a Team
+• CI/CD is all about DevOps
+• Non-Compliant to Industry Standards
+DevOps Myths & Misconception An additional team is likely
+to cause more
+communication issues
+Scalability
+Consistency
+Reliability
+Regulations implement
+control in order to be
+compliant
+Controls reduce the risk
+that may affect the
+confidentiality, integrity,
+and availability of
+information
+
+
+52
+
+
+
+DevOps Misconception
+• Automation eliminates ALL bottlenecks
+• “Universal" Continuous Delivery pipeline
+• All about Tools
+• Release as fast as Amazon / Facebook
+DevOps Myths & Misconception It increases feedback loops
+However Hand off processes can
+often add to process wait states
+Processes to fit
+organizational and business
+needs — not vice-versa
+Mandating tools developers
+can use.
+Prioritizing tools over people
+Improve the
+partnership b/w dev
+test & Ops
+Empowered smaller
+self-sufficient teams
+and Continuous
+Delivery Engineer
+
+
+
+53
+DevOps Anti-Patterns
+Anti-Patterns
+• Blame Culture
+• A blame culture is one that tends toward blaming and punishing people when mistakes are made,
+either at an individual or an organizational level
+• Silos
+• A departmental or organizational silo describes the mentality of teams that do not share their
+knowledge with other teams in the same company
+• Root Cause Analysis
+• Root cause analysis (RCA) is a method to identify contributing and “root” causes of events or nearmisses/
+close calls and the appropriate actions to prevent recurrence
+• Human Errors
+• Human error, the idea that a human being made a mistake that directly caused a failure, is often cited
+as the root cause in a root cause analysis
+
+
+
+
+55
+DevOps Dimensions
+• People
+• Process
+• Tools / Technology
+Three dimensions of DevOps
+
+Diagram on devops dimensions 
+
+
+56
+
+DevOps - Process
+• We need processes and policies for doing things in a proper way and standardized across the
+projects so the sequence of operations, constraints, rules and so on are well defined to measure
+success
+• One of the characterizations of DevOps emphasizes the relationship of DevOps practices to
+agile practices
+• We will focus on what is added by DevOps
+• We interpret transition as deployment
+DevOps and Agile
+
+57
+
+DevOps and Agile
+• Inception phase : During the inception phase, release planning and initial requirements
+specification are done
+• Considerations of Ops will add some requirements for the developers
+• Release planning includes feature prioritization but it also includes coordination with operations
+personnel
+• Construction phase: During the construction phase, key elements of the DevOps practices are
+the management of the code branches,
+• the use of continuous integration
+• continuous deployment
+• incorporation of test cases for automated testing
+• Transition phase: In the transition phase, the solution is deployed and the development team is
+responsible for the deployment, monitoring the process of the deployment, deciding whether to
+roll back and when, and monitoring the execution after deployment
+DevOps practices impact all three phases
+
+
+58
+Flow based vs non flow based
+
+
+59
+
+DevOps – Process
+• Choosing appropriate team structure (Resource planning)
+Team Structure
+Component Team Structure
+Vs
+Feature Team Structure
+
+
+60
+
+DevOps – Process
+• Made up of experts that specialize in a specific domain
+• Architecture diagram can be represented as layer of the system
+• Advantages:
+• work is always done by people specifically qualified to do the work
+• work is done efficiently with a low defect density
+• Disadvantages
+• Working as Component Teams increases the amount of time it
+takes to deliver
+• working in Component Teams will have a negative effect on
+productivity that cannot be over emphasized
+Component teams
+
+
+61
+DevOps – Process
+• Feature Teams contain multi-disciplined individuals that have the
+ability and freedom to work in any area of the system
+• Feature Team usually has at least one member with specialist
+knowledge for each layer of the system
+• This allows Feature Teams to work on what are known as
+‘vertical slices’ of the architecture
+Feature teams
+
+
+62
+
+DevOps – Process
+• The characteristics of a feature team are listed below:
+• long-lived—the team stays together so that they can ‘jell’ for higher performance; they take on
+new features over time
+• co-located
+• work on a complete customer-centric feature, across all components and disciplines (analysis,
+programming, testing, …)
+• composed of generalizing specialists
+• in Scrum, typically 7 ± 2 people
+• Disadvantages
+• untrained or inexperienced employee to deliver a poorly designed piece of work into a live
+environment
+• Where do you get the personnel (‘generalizing specialists’)?
+Feature teams
+
+
+63
+DevOps: Process
+• Prerequisite :: XP
+TDD
+
+
+64
+TDD
+• Many Names
+• Test driven development
+• Test drive design
+• Emergent design
+• Test first development
+• TDD Quotes
+• Kent Beck said “Test-first code tends to be more cohesive and less coupled than code in which testing
+isn’t a part of the intimate coding cycle”
+• “If you can’t write a test for what you are about to code, then you shouldn’t even be thinking about
+coding”
+Understanding
+
+
+
+
+65
+TDD
+• RED
+• Write a new TEST which fails
+• GREEN
+• Write simplest possible code to make it succeed
+• REFACTOR
+• Refactor the code (including test code)
+TDD Three steps
+
+
+66
+
+TDD
+• In Extreme Programming Explored (The Green Book), Bill Wake describes the test / code cycle:
+1. Write a single test
+2. Compile it. It shouldn’t compile because you’ve not written the implementation code
+3. Implement just enough code to get the test to compile
+4. Run the test and see it fail
+5. Implement just enough code to get the test to pass
+6. Run the test and see it pass
+7. Refactor for clarity
+8. Repeat
+TDD Overview
+
+
+67
+
+TDD
+• TDD can lead to more modularized, flexible, and extensible code
+• Clean code
+• Better code documentation
+• More productive
+• Good design
+Why TDD
+
+
+68
+TDD
+Test First vs. Test Last image
+
+
+70
+
+DevOps: Process
+• What is a Feature?
+• Definition: small function expressed in client-valued terms
+• FDD’s form of a customer requirement
+FDD
+
+
+71
+
+FDD
+• Project Manager
+• Chief Architect
+• Development Manager
+• Domain Experts
+• Class Owners
+• This concept differs FDD over XP
+• Benefits
+• Someone responsible for integrity of each class
+• Each class will have an expert available
+• Class owners can make changes much quicker, if needed anytime
+• Easily lends to notion of code ownership
+• Assists in FDD scaling to larger teams, as we have one person available for complete ownership of feature.
+• Chief Programmers
+FDD Primary Roles
+
+
+72
+
+FDD
+• Release Manager
+• Language Guru
+• Build Engineer
+• Toolsmith
+• System Administrator
+• Tester
+• Deployers
+• Technical Writer
+FDD Primary Roles
+
+
+73
+
+FDD
+• Process #1: Develop an Overall Model
+• Process #2: Build a Features List
+• Process #3: Plan By Feature
+• Constructing the initial schedule, Forming level of individual features, Prioritizing by business value ,
+As we work on above factors we do consider dependencies, difficulty, and risks.
+• These factors will help us on Assigning responsibilities to team members, Determining Class Owners ,
+Assigning feature sets to chief programmers
+• Process #4: Design By Feature
+• Goal: not to design the system in its entirety but instead is to do just enough initial design that you are
+able to build on
+• This is more about Form Feature Teams: Where team members collaborate on the full low level
+analysis and design.
+• Process #5: Build By Feature
+• Goal: Deliver real, completed, client-valued function as often as possible
+Feature Driven Development Process
+
+74
+
+FDD
+Feature Driven Development Process
+image
+
+75
+
+DevOps: Process
+• What is BDD?:
+• General Technique of TDD
+• Follows same principle as TDD
+• Shared tools
+• Shared Process
+BDD
+https://www.youtube.com/watch?v=4QFYTQy47yA
+
+image
+
+76
+
+BDD
+• User story:
+• As someone interested in using
+the Mobile app, I want to sign
+up in from the app so that I can
+enjoy my membership.
+BDD Basic structure : Example
+• Mobile App Signup:
+• Scenario 1:
+• Given that I am on the app's
+"Create new account" screen
+• Then I should see a "Sign up
+using Facebook" button
+• And I should see a "Sign up
+using Twitter" button
+• And I should see a "Sign up with
+email" form field
+• Then I should see a new screen
+that asks permission to use my
+Facebook account data to
+create my new Mobile app
+account
+
+
+78
+
+Scrum image
+
+79
+
+
+80
+
+81
+
+• DevOps Misconception
+• DevOps Anti-Patterns
+• Three Dimensions of DevOps
+• Process
+• People
+• Tools
+• DevOps : Process Dimension
+• DevOps and Agile
+• Team Structure
+• Agile Methodology
+• TDD
+• BDD
+• FDD
+DevOps : Process Dimension
+Review CS#2
+
+
+82
+• Transformation to Enterprise DevOps culture
+• DevOps - People
+• DevOps – Tools
+• Cloud as a catalyst for DevOps
+• Transition in IT
+• Building competencies, Full Stack Developers
+• Self-organized teams, Intrinsic Motivation
+• Technologies in DevOps
+DevOps : People & Tools Dimension
+Agenda
+
+83
+
+Transformation to Enterprise DevOps culture
+Anti-Patterns
+• Constraints of Large Enterprise :: DevOps Transformation
+• Organization Structure
+• Legacy Technology Stack
+• Organization Culture
+Start with the “Why” – The Golden Circle
+Why
+How
+What
+
+84
+
+Transformation to Enterprise DevOps culture
+DevOps Values
+More than anything else,
+DevOps is a culture
+movement based on human
+and technical interaction to
+improve relationships and
+results
+CULTURE
+Automation
+Measurement
+Sharing
+Lean
+
+85
+
+Transformation to Enterprise DevOps culture
+• Participants should absolutely include all the towers that make up the solution delivery
+• Design Thinking : It is a great method; it leverages the expertise of all stakeholders, enables
+them to come to a common understanding
+• High Level Output
+Initial Planning for Enterprise Readiness
+Participant
+& Inputs
+Design
+Thinking
+High Level
+Outputs
+
+
+86
+
+Transformation to Enterprise DevOps culture
+• At the right organizational level and enterprise authority
+• Create a Face: It has to be led by an enterprise leader who has the support and buy-in from all
+the towers
+• Active Participant from All Towers of Delivery & Participants must be chosen wisely
+• These phases help concrete the vision and strategies of organization and help in setup the best
+practices to support cultural movement
+Establish a DevOps Centre of Excellence
+Authority Create a
+Face Involve All
+
+
+87
+
+Transformation to Enterprise DevOps culture
+• Agile and DevOps, practitioners’ roles and responsibilities will change
+• Need awareness, enablement and empowerment to succeed
+• KPIs must shift from individual metrics to holistic customer business outcomes
+Establish Program Governance
+Create
+Communication
+Plan
+Enablement
+Program
+Establish
+Program KPI’s
+
+
+88
+
+Transformation to Enterprise DevOps culture
+• DevOps SME’s conduct in-take workshops for Scrum Teams
+• Automation scripts, Infrastructure assets
+• Test Automation, Branching and Merging & Lessons Learned
+• Fit for purpose tool selection and Application Criticality
+Establish Project In-take Process
+Reusable
+Assets
+Best
+Practices
+Right
+Sizing
+
+
+89
+
+Transformation to Enterprise DevOps culture
+• Value stream-mapping exercise
+• Level of detail necessary:
+• To identify end to end as-is process, tooling, manual and automated processes
+• And skills and people
+Identify and Initiate Pilots
+
+
+90
+
+Transformation to Enterprise DevOps culture
+• Onboard Parallel Release Trains
+• Apply Intake Process
+• Support, Monitor and Manage
+Scale Out DevOps Program
+
+91
+DevOps - People
+• DevOps is a cultural movement; it’s all about people
+• Building a DevOps culture, therefore, is at the core of DevOps adoption
+An organization may adopt the most efficient processes or automated tools possible, but
+they’re useless without the people who eventually must execute those processes and use
+those tools
+• DevOps culture is characterized by a high degree of collaboration across roles, focus on
+business instead of departmental objectives, trust, and high value placed on learning through
+experimentation
+• Building a culture isn’t like adopting a process or a tool
+• It requires social engineering of teams of people, each with unique predispositions, experiences,
+and biases
+• This diversity can make culture-building challenging and difficult
+People
+
+92
+
+DevOps – People
+“Managing teams would be easy if it wasn’t for the people you have to deal with”
+• Calling people as resources
+• A resource is something you can manage without much tailoring
+• With people, that is never true
+• For an Example: We have probably all been planning for projects and creating a plan that
+includes a certain amount of “anonymous full-time equivalents (FTEs).” Then a bit later, we start
+putting names to it and realize that we need more or less effort based on the actual people we
+have available for the project
+• One Java developer is just not the same as another; and honestly, we would never consider
+ourselves to be just a resource whose job someone else could do with the same efficiency and
+effectiveness
+Managing People, Not Resources
+Vs
+
+93
+
+DevOps – People
+• You will not be able to get the organization to change
+• But what you can do is change your part of the organization
+• Manage your teams the way that you would like to be treated
+• As you climb higher in the hierarchy, your area of influence will increase and, with that, a larger
+and larger part of the organization will work the way you would like it to
+• Ex. “Jack Welch” he was the CEO of General Electric till 2001, his cabin was of all transparent
+glass; And this cabin did not have any door. So, it was an open-door cabin. And the label on the
+door was “PLEASE DISTRUB ME”.
+Don’t change Organization; Change your self
+
+94
+
+DevOps – People
+• Getting everyone headed in the same direction
+• And working toward the same goal
+“Identify Common Business Objective for the Team and Organization”
+• Incent the entire team based on business outcomes versus conflicting team incentives
+• Easy to measure progress of goal for team and organization
+DevOps isn’t the goal. It helps you reach your goals
+Identifying Business Objective
+
+95
+
+Effective Management of People
+• Regular one-on-one meetings with the people who report directly to you
+• Don’t be Anonymous
+• Having an open-door policy is NOT the same as setting up one-on-ones
+• Let feel people are important to you
+• You are making time for them
+• Best Practices : have weekly or bi weekly 30 minutes one-on –one, learn more about person,
+let them raise first and provide your updates
+• Benefit to Manager?
+• Benefit to Employee?
+One-On-Ones
+
+96
+Effective Management of People
+• Everyone would like to get more feedback from his or her boss
+• Dan Pink’s mastery, autonomy, and purpose : “When you do x, y happens, which is not optimal.
+Can you find a way to do it differently next time to lead to a better outcome? “
+What You hear in your Feedback?
+• Focus on feedback?
+Feedback
+
+
+97
+
+Effective Management of People
+• Feel on delegation of JOB to others?
+Managerial Economics 101
+Delegation
+
+98
+
+Effective Management of People
+• Who is being blamed?
+• You will have to cover it without delegating the blame to the person in your team who is
+responsible
+• The team will appreciate this
+• The more you share with the rest of the organization the positive impact a member of your team
+has made, the better you will look too
+• These two practices empower the people on your team to do the best job they can for you
+• Whenever you have failures or problems, your root-cause analysis should not focus on who did
+what but on how we need to change the system so that the next person is able to avoid making
+the mistake again
+Creating a Blameless Culture
+
+
+99
+
+Effective Management of People
+• There are a few different ways to measure culture
+• The Westrum survey measures
+• On my team, information is actively sought
+• On my team, failures are learning opportunities, and messengers of them are not punished
+• On my team, responsibilities are shared
+• On my team, cross-functional collaboration is encouraged and rewarded
+• On my team, failure causes inquiry
+• On my team, new ideas are welcomed
+• There are few more suggestions:
+• I would recommend the team to my friends as a good place to work
+• I have the tools and resources to do my role well
+• I rarely think about leaving this team or my company
+• My role makes good use of my skills and abilities
+Remember that advice stated before: you can only control your part of the organization
+Measuring Your Organizational Culture
+
+100
+DevOps – Tools
+• Tools can be used to improve and maintain various aspects of culture
+• Software development tools help with the process of programming, documenting, testing, and
+fixing bugs in applications and services
+• Not restricted to specific roles, these tools are important to anyone who works on software in
+some capacity
+• Local development environment,
+• Version control,
+• Artifact Management,
+• Automation and Monitoring
+What is DevOps Tools:
+
+
+101
+DevOps Tools
+• A consistent local development environment is critical to quickly get employees started
+contributing to your product
+• Don’t Consider this as limitation:
+• This is not to say that individuals should be locked into a single standard editor with no flexibility or
+customization, but rather it means ensuring that they have the tools needed to get their jobs done
+effectively
+• Minimal requirements may vary in your environment depending on individual preferences:
+• Multiple Displays
+• High-Resolution Displays
+• Specific Keyboards, Mice, and other Input Devices
+Local Development Environment
+
+102
+
+DevOps Tools
+• Having the ability to commit, compare, merge, and restore past revisions of objects to the
+repository allows for richer cooperation and collaboration within and between teams
+• Version control enables teams to deal with conflicts that result from having multiple people
+working on the same file or project at the same time, and provides a safe way to make changes
+and roll them back if necessary
+• When choosing the appropriate version control system (VCS) for your environment, look for one
+that encourages the sort of collaboration in your organization that you want to see
+• Opening and forking repositories;
+• Contributing back to repositories;
+• Contributions to your own repositories;
+• Defining processes for contributing; and
+• Sharing commit rights
+Version Control
+
+
+103
+
+DevOps Tools
+• An artifact is the output of any step in the software development process
+• When choosing between a simple repository and more complex feature-full repository,
+understand the cost of supporting additional services as well as inherent security concerns
+• An artifact repository should be:
+• Secure;
+• Trusted;
+• Stable;
+• Accessible; and
+• Versioned
+• You can store a versioned common library as an artifact separate from your software version
+control, allowing all teams to use the exact same shared library
+Artifact Management
+
+104
+
+DevOps Tools
+• Automation tools reduce labor, energy, and/or materials used with a goal of improving quality,
+precision, and accuracy of outcomes
+• Server Installation
+• Server installation is the automation of configuring and setting up individual servers
+• Infrastructure Automation
+• Configuration Management
+• Capacity Management
+• System Provisioning
+• Test and Build Automation
+• On-demand automation
+• Scheduled automation
+• Triggered automation
+• Smoke testing
+• Regression testing
+• Usability testing
+Other Automation Tools
+
+
+105
+
+DevOps Tools
+• Metrics
+• Metrics are the collection of qualitative and quantitative measurements
+• Generally they are compared against some benchmark or established standard, tracked for analytics,
+or tracked for historical purposes
+• Logging
+• Logging is the generation, filtering, recording, and analysis of events that occur on a system due to
+operating system or software messages
+• When tracking down the source of a software issue, one of the first things that engineers often do is to
+check the logs for any relevant error messages
+• A single system can generate hundreds or even thousands of lines of logs a day
+Monitoring
+
+106
+
+DevOps Tools
+• Alerting
+• Monitoring and alerting are important not only from a performance perspective, but also from a
+preventative one, in that they help you find out about potential issues before they become actual issues
+for your customers
+• Impact
+• Urgency
+• Interested party
+• Resources
+• Cost
+• Events
+• Event management is the element of monitoring that acts on existing knowledge around impacts to
+systems and services
+• This generally reflects the need for real-time information about the status of all of the different
+components of infrastructure
+• A system is configured to monitor a specific metric or log based on a defined event and to signal or
+alert if a threshold is crossed or an alert condition has been met
+• Many alerting and monitoring systems have built-in ways to automatically respond to a given event
+• Nagios, Zabbix, etc.
+Monitoring Contd..
+
+
+107
+
+Evolution of the Ecosystem
+• There is a trend to simplify and remove the repetitive tasks that can be subject to human error
+• As automation is added to the different parts of the environment, new patterns are discovered
+• Continuous delivery and continuous deployment have freed humans up to focus on what
+matters
+• Automated shortened feedback cycles through build automation, tests automation give us
+additional confidence and insight into our systems
+• The ecosystem will continue to evolve as application development adopts increased operability
+• These trends bring into focus the tools that stress the “we” over “me,” building understanding
+across teams and encouraging time spent on valuable outcomes
+DevOps Ecosystem
+
+
+109
+
+DevOps Tools
+• Characterization of the cloud by National Institute of Standards and Technology (NIST)
+• On-demand self-service
+• Broad network access
+• Resource pooling
+• Rapid elasticity
+• It is the Capabilities can be elastically provisioned and released
+• Measured service
+• Software as a Service (SaaS)
+• Platform as a Service (PaaS)
+• Infrastructure as a Service (IaaS)
+Cloud as a Catalyst for DevOps
+
+
+110
+
+Cloud as a Catalyst for DevOps
+• In this the consumer is provided the capability to use the provider’s applications running on a
+cloud infrastructure
+• The applications are accessible from various client devices through either a thin client interface,
+such as a web browser (e.g., web-based e-mail) or an application interface
+• The consumer does not manage or control the underlying cloud infrastructure including
+networks, servers, operating systems, storage.
+• For an example, you can relate google apps, Cisco WebEx, as a Service, Office 365 service,
+where Provider deals with the licensing of software’s
+Software as a Service (SaaS)
+
+
+111
+
+Cloud as a Catalyst for DevOps
+• The consumer is provided the capability to deploy onto the cloud infrastructure consumercreated
+or acquired applications created using programming languages, libraries, services, and
+tools supported by the provider
+• The consumer does not manage or control the underlying cloud infrastructure including
+networks, servers, operating systems, or storage, but consumer has control over the deployed
+applications and possibly configuration settings for the application-hosting environment
+• For an Example: .NET Development platform is considered as a platform
+Platform as a Service (PaaS)
+
+
+112
+
+Cloud as a Catalyst for DevOps
+• The consumer is provided the capability to provision processing, storage, networks, and other
+fundamental computing resources where the consumer is able to deploy and run arbitrary
+software, which can include operating systems and applications
+• The consumer does not manage or control the underlying cloud infrastructure but consumer has
+control over operating systems, storage, and deployed applications; and possibly limited control
+of select networking components (e.g., host firewalls). For this you can consider any Server
+Provisioning is IaaS,
+Infrastructure as a Service (IaaS)
+
+
+
+113
+Cloud as a Catalyst for DevOps
+• Three of the unique aspects of the cloud that impact DevOps:
+• The ability to create and switch environments simply
+• Simply create and migrate environments is—as is the ease of cloning new instances
+• The ability to create VMs easily
+• Administering the running VMs are important to find out for which VM we are paying but not using it
+• Tool such as, Janitor Monkey to scan an account
+• The management of databases
+Three of the unique aspects of the cloud that impact DevOps
+
+
+Transition in IT due to Agile
+114 - 118
+
+
+
+VSS
+
+124
+Why Version Control?
+Lets find out the problem
+XYZ Corp Team: Tiger
+(4 members)
+Shared Folder structure development
+Business Challenges:
+1) Reduce Cost
+2) Hire People
+3) Get right Speed
+Issue: Open Heart Surgery
+
+
+125
+
+Why Version Control?
+Lets find out the problem : Scenario 2
+XYZ Corp Team: Tiger
+(4 members)
+Shared Folder structure development
+Team: Tiger 2
+(offshore)
+Challenges:
+1) Speed
+2) Identification of changes
+3) Tracking history
+4) Collaboration
+
+126
+
+Evolution of Version Control
+• What is “version control”, and why should you care?
+• Definition: Version control is a system that records changes to a file or set of files over time so
+that you can recall specific versions later
+• The history of version control tools can be divided into three generations
+Generations of VCS
+Generation Networking Operations Concurrency Example Tool
+First Generation None One file at a time Locks RCS, SCCS
+Second Generation Centralized Multi-file Merge before commit CVS, Subversion
+Third Generation Distributed Changesets Commit before merge Bazaar, Git
+
+
+127
+
+Version Control System
+• Change history
+• Concurrent working (Collaboration)
+• Traceability
+• Backup & Restoration
+Benefits
+
+
+128
+
+Version Control System Types
+Centralized source code management System
+V1
+V2
+
+129
+
+Version Control System Types
+Distributed source code management System
+
+
+130
+CVCS Vs. DVCS
+CVCS
+• Sigle point of failure
+• Remote commits are slow
+• Continuous connection
+Lets discuss con’s
+DVCS
+• Need more space
+• Bandwidth for large project
+
+
+
+131
+Available Tools
+• Open source:
+• Subversion (SVN)
+• Concurrent Versions System (CVS)
+• Vesta
+• OpenCVS
+• Commercial:
+• AccuRev
+• Helix Core
+• IBM Rational ClearCase
+• Team Foundation Server (TFS)
+CVCS DVCS
+• Open source:
+• Git
+• Bazaar
+• Mercurial
+• Commercial:
+• Visual Studio: Team Services
+• Sun WorkShop: TeamWare
+• Plastic SCM – by Codice Software, Inc
+• Code Co-op
+
+
+132
+Git & GitHub
+• Git & GitHub relationship
+• Prerequisite
+• Foundation of Git
+What we will learn in this session
+Concept of Git Understanding GitHub Beyond the basics
+
+
+133
+Git
+What is Git
+Popular Source Control system
+Distributed system
+Free (Open Source tool)
+
+134
+Git
+Why use Git
+Fast Disconnected Powerful yet easy
+Branching Pull Requests
+
+
+135
+
+GitHub
+What is GitHub?
+Hosting service on Git
+More than just source control for your code
+• Issue management, Working with Teams, etc.,
+Free & Paid options
+
+
+136
+
+Git & GitHub
+Relationship
+V1
+V1 V1
+Central server: GitHub
+Local version control : Git bash, Git Desktop
+
+137
+Git
+Working with Git
+Console
+We will use this
+GUI
+GitHub Desktop
+Source tree
+
+
+138
+
+Git & GitHub
+• Install appropriate Git bash form official site
+• Command line (Git bash)
+• Server account (GitHub account)
+Getting your system ready
+Windows Mac Linux
+Support for all platform
+
+139
+
+Git Foundation
+The 3 State of Git
+Modified
+Staged
+Committed
+
+
+140
+
+Git Foundation
+The 3 areas of Git
+Working
+directory
+Staging
+area
+.git
+repo
+Remote repo
+GitHub
+
+
+141 - 142
+Git Foundation
+Traditional Source Management
+First
+version Version 2 Version 3 Version 4
+Change Set
+
+143
+Git Foundation
+Commits in Git
+Snapshot A Snapshot B Snapshot C
+
+

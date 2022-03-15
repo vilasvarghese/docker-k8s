@@ -1,0 +1,71 @@
+Session Plan.
+ Each day we will have 4 Hours of session which includes Lecture, demo & Important Labs
+ Every day session would be handled as follows; this may vary based on day’s progress
+o Session 1: 90 Mins Lecture Demo followed by 20 Mins Lab and 10 MinsQ&A
+o Session 2: 90 Mins Lecture Demo followed by 20 Mins Lab and 10 MinsQ&A
+ Post the session, All the participants will receive a Self-practiced hands-on task sheet for
+daily practice.
+ During the session 2 Q & A, participant would be briefed about self-practiced tasks for the day
+ Day 1 Session, first 15 Min will be spent on setting up objective, expectation and walk through of
+Essentials programs, followed by day’s session
+ Day 2, Day 3 & Day 4 – First 15 Min will be spent on clarification on previous day self - practiced
+tasks completion.
+ Any issues during the session lab, will be clarified, but if any troubleshooting required due to Hardware
+or Software issues will not be addressed as part of the program due to time constraints.
+ There will be a MCQ based Assessment on the final day
+Prerequisites
+1. Good knowledge on Linux, Containers & Kubernetes basics.
+2. Candidates Must have completed Container Essentials training earlier.
+3. All participants must have a laptop with good internet connection.
+4. All required software must be loaded as given in the Lab setup requirements – Page 3.
+Note: • Candidates are eligible for completion certificate only upon successful completion of
+assessment as part of the training with 80% and above.
+
+
+
+--------------------------------------------------------------------------
+Kubeadm based installation of Kubernetes on Azure VM
+Understanding the installation.
+Understanding how pod works.
+Understanding how networking works in Kubernetes
+--------------------------------------------------------------------------
+
+--------------------------------------------------------------------------
+
+Kubernetes volumes
+PV
+PVC
+Dynamic provisioning using Storage Classes
+Volume mode, access modes and reclaim policies
+--------------------------------------------------------------------------
+
+--------------------------------------------------------------------------
+Kubernetes RBAC
+Namespaces
+Role
+RoleBinding
+ClusterRole
+ClusterRoleBinding
+--------------------------------------------------------------------------
+
+ Liveness Probe
+ Readiness Probe
+--------------------------------------------------------------------------
+
+ Backup and Restore ETCD.
+ Undersanding ETCD better
+ ETCD in production
+ Taking a backup of etcd and restoring
+--------------------------------------------------------------------------
+
+--------------------------------------------------------------------------
+ Helm
+ Introducing Helm
+ Kubernetes Distro Notes
+ Using Helm
+ Plugins
+ Understanding the folders
+ Deep Dive into Charts
+ Creating our own charts
+ Self-Practice Tasks
+--------------------------------------------------------------------------

@@ -19,7 +19,7 @@ Helm package
 
 Charts 
 	Help define, install and upgrade complex kuberetes application.
-	Helm packages that contain at least two things:
+	Helm packages that contain at least the below:
 		Chart.yaml
 		templates folder with Kubernetes manifest files
 		values.yaml
@@ -55,7 +55,8 @@ Helm
 	
 ----------------------------------------------------------------------------------------	
 	helm search hub
-		Searches in https://hub.helm.sh/
+		Searches in https://artifacthub.io/(now - earlier https://hub.helm.sh/)
+		list all helm charts available in that location.
 	helm search repo 
 		searches the repositories that you have added to your local helm client
 		
@@ -64,14 +65,31 @@ Helm
 		can mention parts of words or phrases
 ----------------------------------------------------------------------------------------		
 		
+	#check helm is working
+	helm
+		#this will print lot of information including
+			default configuration path
+			default cache path
+			default data path
+----------------------------------------------------------------------------------------		
 		-> helm search hub wordpress
 		#This would search it in the helm hub (similar to docker hub)
-	
-		helm repo add stable https://kubernetes-charts.storage.googleapis.com/		
 		
-	
-	To find list of repo's added
-		helm repo list
+		There are multiple chart repo's available publicly
+			helm search repo (not hub)
+
+		But if you want to search in other repo's you should add them
+		To add stable
+			helm repo add stable https://charts.helm.sh/stable	
+
+			Repository added will go the cache.
+			location of cache can be seen by executing 
+				helm
+
+
+		To find list of repo's added
+			helm repo list
+		
 	
 	Search Redis in the repo already added.
 		helm search repo wordpress
@@ -90,7 +108,7 @@ Helm
 
 	
 	Update the repo to ensure you get the latest chart version:
-		helm repo update
+		helm repo update #Similar to apt update or yum update.
 	
 	Create a namespace for the installation target.
 		kubectl create namespace helm
@@ -243,6 +261,7 @@ Package Structure
 			
 		.helmignore
 		LICENSE
+		README.md
 ------------------------------------------------
 	templates/
 		_helpers.tpl
@@ -328,3 +347,15 @@ Package Structure
 	
 	helm uninstall my-app
 	
+	
+	
+### Chart repositories and registeries
+	Charts are maintained in repositories
+	Registeries - OCI container registeries like dokerhub.
+		images are maintained in registeries
+		
+		
+		
+		
+### Create our own chart
+	https://phoenixnap.com/kb/create-helm-chart

@@ -12,6 +12,13 @@ What is kubernetes?
 Refer linux notes before you start with this.
 #########################################################	
 	
+
+################################################
+kubectl command references. There are lot of kubectl commands. This site has a good reference
+https://jamesdefabia.github.io/docs/user-guide/kubectl/kubectl_edit/
+#########################################################	
+		
+	
 adv
 ---
 1. 	Orchestrate containers across multiple hosts
@@ -1481,7 +1488,7 @@ There are two ways to create secrets
 		- echo -n 'mypassword' > ./password.txt
 		
 		- kubectl create secret <type> <name> --from-file=<user name filename> --from-file=<password file name>
-		e.g. kubectl create secret generic user-pass --from-file=./username.txt --from-file=./password.txt
+		e.g. s
 		
 		- kubectl get secrets
 		- kubectl describe secret user-pass
