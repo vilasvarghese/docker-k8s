@@ -352,11 +352,16 @@ Package Structure
 	Registeries - OCI container registeries like dokerhub.
 		images are maintained in registeries
 		
+
+###Plugins 
+https://jhooq.com/helm-chart-plugin/
 		
 		
 		
 ### Create our own chart
 	https://phoenixnap.com/kb/create-helm-chart
+	
+	
 	
 	
 Additional content
