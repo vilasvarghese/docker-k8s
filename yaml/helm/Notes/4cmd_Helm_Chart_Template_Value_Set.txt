@@ -1,0 +1,15 @@
+ helm install --dry-run --debug --set Name=mytest mytester ./htest
+ 
+ helm install --dry-run --debug --set <keyOfvalueToModify>=<value> <chartName> ./mychart
+ 
+ 
+ helm install mytester ./htest --set Name=myname
+ 
+ helm get manifest mytester
+ 
+ kubectl get configmap
+ kubectl describe configmaps myname-configmap
+ 
+ helm ls
+ 
+helm uninstall mytester

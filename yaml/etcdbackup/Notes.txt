@@ -22,18 +22,24 @@ Before installing
 		--cert=/etc/kubernetes/pki/etcd/server.crt \
 		--key=/etc/kubernetes/pki/etcd/server.key \
 		member list
+	
+	ETCDCTL_API=3 etcdctl --endpoints=https://[127.0.0.1]:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key member list
+		
 2. Stop apiserver - mv the
 	apiserver and other services are deployed as static pods
 	You cannot stop it
 	so mv /etc/kubernetes/manifests/*.yaml /tmp
 	This would stop kubernetes control node services
 
+
+
 3. Take a back up on each node
 	ETCDCTL_API=3 etcdctl \
 		--endpoints=https://[127.0.0.1]:2379 \
 		--cacert=/etc/kubernetes/pki/etcd/ca.crt \
 		--cert=/etc/kubernetes/pki/etcd/server.crt \
-		--key=/etc/kubernetes/pki/etcd/server.key snapshot save /backup/snapshot.db  
+		--key=/etc/kubernetes/pki/etcd/server.key snapshot save /tmp/snapshot.db  
+
 
 	ETCDCTL_API=3 etcdctl --endpoints=https://[127.0.0.1]:2379 --cert=/etc/kubernetes/pki/etcd/server.crt  --key=/etc/kubernetes/pki/etcd/server.key --cacert=/etc/kubernetes/pki/etcd/ca.crt snapshot save /tmp/snapshot.db
 
@@ -44,10 +50,33 @@ Verify the status
 	--cacert=/etc/kubernetes/pki/etcd/ca.crt \
 	--cert=/etc/kubernetes/pki/etcd/server.crt \
 	--key=/etc/kubernetes/pki/etcd/server.key \
-	snapshot status /backup/snapshot.db  
+	snapshot status /tmp/snapshot.db  
+
+ETCDCTL_API=3 etcdctl --endpoints=https://[127.0.0.1]:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key snapshot status /tmp/snapshot.db 
 
 4. copy the back up to the server where it has to be restored.
 	ETCDCTL_API=3 etcdctl snapshot restore /tmp/snapshot.db --endpoints=https://127.0.0.1:2379 --name=master --data-dir=/var/lib/etcd-backup --initial-cluster=master=https://127.0.0.1:2380 --initial-cluster-token=etcd-cluster-1 --initial-advertise-peer-urls=https://127.0.0.1:2380 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key 
+
+
+
+Restore
+5. Restore	refer configuration from /etc/kubernetes/manifests/etcd.yaml and
+	add in --initial-cluster-token=etcd-cluster-1
+	and
+	modifying all occurance of /var/lib/etcd to /var/lib/etcd-backup
+		--data-dir=/var/lib/etcd to point to a new location: --data-dir=/var/lib/etcd-backup
+
+
+ps -ef | grep apiserver #two process should come up
+ps -ef | grep etcd		#two process should come up
+docker ps | grep apiserver
+docker ps | grep etcd
+kubectl get all
+
+
+
+----------------------------------------------------------------------
+
 
 5. Restore backup
 ETCDCTL_API=3 etcdctl snapshot restore /tmp/snapshot.db --endpoints=https://127.0.0.1:2379 --name=master --data-dir=/var/lib/etcd-backup --initial-cluster=master=https://127.0.0.1:2380 --initial-cluster-token=etcd-cluster-1 --initial-advertise-peer-urls=https://127.0.0.1:2380 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key 
@@ -66,12 +95,6 @@ ETCDCTL_API=3 etcdctl snapshot restore /tmp/snapshot.db \
 	--initial-advertise-peer-urls=https://127.0.0.1:2380
 	
 
-
-ps -ef | grep apiserver #two process should come up
-ps -ef | grep etcd		#two process should come up
-docker ps | grep apiserver
-docker ps | grep etcd
-kubectl get all
 
 
 

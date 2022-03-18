@@ -1,0 +1,48 @@
+helm create mychart
+	#template created
+
+ls
+cd templates
+vi deployment.yaml
+------------------
+	name comes from values
+------------------
+cd ..
+
+vi values.yaml
+vi chart.yaml
+
+
+#helm create mycharttemp
+
+rm -rf mychart/templates/*
+
+
+create a config map within templates folder
+configmap.yaml
+~~~~~~~~~~~~~
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vilas-configmap
+data:
+  myvalue: "Vilas Config Map"
+  
+  
+  
+helm install htest ./mychart
+
+
+helm ls
+
+
+kubectl get all
+
+
+helm get manifest htest
+
+kubectl get configmap
+kubectl describe configmap vilas-configmap
+
+helm uninstall htest

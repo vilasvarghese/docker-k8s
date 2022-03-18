@@ -1,0 +1,18 @@
+ mychart/values.yaml
+ 
+ 
+ name: myname
+ 
+edit configmap.yaml in templates 
+ code: {{ .Values.name }}
+ 
+ helm install --debug --dry-run firstdryrun ./mychart
+ 
+ 
+ helm install htest ./mychart
+ 
+ 
+ helm get manifest htest
+ 
+kubectl get configmap
+kubectl describe configmaps htest-configmap

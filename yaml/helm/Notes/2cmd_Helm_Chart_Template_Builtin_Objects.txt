@@ -1,0 +1,29 @@
+Values can be injected into a template using two different ways
+ - built-in objects
+ - values file
+
+
+ built-in objects
+ 
+https://helm.sh/docs/chart_template_guide/builtin_objects/
+
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configmap
+data:
+  myvalue: "Sample Config Map"
+
+
+helm install htest ./mychart
+
+  
+helm get manifest htest
+
+helm install --debug --dry-run dryrun-test ./mychart
+
+kubectl get configmap
+kubectl describe configmaps htest-configmap
+
+helm uninstall htest

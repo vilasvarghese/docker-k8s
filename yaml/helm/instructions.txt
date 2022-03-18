@@ -119,8 +119,6 @@ Helm
 	Deploy a chart to a cluster if you know the name
 		helm install dashboard-demo stable/kubernetes-dashboard --set rbac.clusterAdminRole=true -n helm 
 		
-		helm install myhelm bitnami/nginx -n helm
-		
 		Helm will return before the command is done.
 		
 	With the install command Helm can launch the required 
@@ -359,3 +357,28 @@ Package Structure
 		
 ### Create our own chart
 	https://phoenixnap.com/kb/create-helm-chart
+	
+	
+Additional content
+------------------
+
+Hooks
+-----
+
+Helm provides a hook mechanism to allow chart developers to intervene at certain points in a release's life cycle. For example, you can use hooks to:
+
+    Load a ConfigMap or Secret during install before any other charts are loaded.
+    Execute a Job to back up a database before installing a new chart, and then execute a second job after the upgrade in order to restore data.
+    Run a Job before deleting a release to gracefully take a service out of rotation before removing it.
+
+Hooks work like regular templates, but they have special annotations that cause Helm to utilize them differently. In this section, we cover the basic usage pattern for hooks.	
+
+
+https://helm.sh/docs/topics/charts_hooks/
+
+These are coded inside the templates folder
+
+
+Plugins
+-------
+https://helm.sh/docs/topics/plugins/
