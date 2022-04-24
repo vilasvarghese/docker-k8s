@@ -7,7 +7,7 @@
 <title>Hello World web application</title>
 </head>
 <body>
-   Hello how are you???? Today is 1st October.
+   Hello how are you???? Today is 24th April.
 	<h1>Thanks a lot for being so patient through the session!</h1>
     	<form action="helloServlet" method="post">
     	Enter your name: <input type="text" name="username" size="20">
