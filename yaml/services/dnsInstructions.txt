@@ -1,0 +1,38 @@
+kubectl apply -f ng-pod.yaml
+kubectl apply -f my-cluster-ip.yaml
+
+kubectl apply -f dns.yaml
+kubectl exec -it busybox -- /bin/sh
+	cd /etc
+	cat resolv.conf
+ kubectl get svc -n kube-system
+ 
+ kubectl exec busybox -- nslookup kube-dns.kube-system.svc.cluster.local
+ 
+ search default.svc.cluster.local svc.cluster.local cluster.local us-east-2.compute.internal
+options ndots:5 
+
+kubectl get pod --namespace=kube-system | grep dns
+
+kubectl exec busybox -- nslookup <private ip from ip a_
+	#create my-cluster-ip service before this
+	wget http://my-cluster-ip/
+
+----
+kubectl get pod -n kube-system
+kubectl get svc -n kube-system
+kubectl describe service -n kube-system
+	note: ip address
+kubectl get svc
+
+kubectl exec -it busybox -- sh
+	cd /etc/resolv.conf
+	
+kubectl get svc -n kube-system
+
+
+ kubectl describe svc kube-dns -n kube-system
+	TargetPort: 53/TCP
+	Endpoints: 10.244....	_ ns
+ 
+ 

@@ -33,19 +33,19 @@ Understanding how networking works in Kubernetes
 --------------------------------------------------------------------------
 
 Kubernetes volumes
-PV
-PVC
-Dynamic provisioning using Storage Classes
-Volume mode, access modes and reclaim policies
+	PV
+	PVC
+	Dynamic provisioning using Storage Classes
+	Volume mode, access modes and reclaim policies
 --------------------------------------------------------------------------
 
 --------------------------------------------------------------------------
 Kubernetes RBAC
-Namespaces
-Role
-RoleBinding
-ClusterRole
-ClusterRoleBinding
+	Namespaces
+	Role
+	RoleBinding
+	ClusterRole
+	ClusterRoleBinding
 --------------------------------------------------------------------------
 
  Liveness Probe
