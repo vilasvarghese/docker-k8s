@@ -16,13 +16,28 @@ repo_gpgcheck=0
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 EOF	
 
+
+
+sudo yum -y install epel-release curl kubelet kubeadm kubectl --disableexcludes=kubernetes
+----------------------------------------------------------
+E0608/E0609 error
 1.24.0 kubeadm init issue
 	https://github.com/containerd/containerd/issues/4581
 	mv /etc/containerd/config.toml /tmp/
 	systemctl restart containerd
 	kubeadm init
 
+----------------------------------------------------
+if kubelet fails to come up after upgrade to 1.24.1
+	journalctl -u kubelet
+	remove –network-plugin=cni in 
+		: /var/lib/kubelet/kubeadm-flags.env
 
+	systemctl restart kubelet
+	kubeadm reset
+	kubead join
+		join may run into E0608/0609 - do what is mentioned above.
+----------------------------------------------------
 
 1. 
 sudo yum -y update

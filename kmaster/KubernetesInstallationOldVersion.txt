@@ -1,14 +1,14 @@
 https://github.com/vilasvarghese/CKA/blob/master/exercises/VagrantScripts/kmaster-1.8/bootstrap.sh
 https://www.liquidweb.com/kb/how-to-install-kubernetes-using-kubeadm-on-ubuntu-18/
 
-sudo hostnamectl set-hostname kmaster
+sudo hostnamectl set-hostname kmaster1
 sudo hostnamectl set-hostname kworker1
 sudo hostnamectl set-hostname kworker2	
 
 /etc/hosts
-172.31.76.177 	kmaster 	kmaster
-172.31.71.180 	kworker1 	kworker1
-172.31.72.165 	kworker2 	kworker2
+172.31.89.190 	kmaster 	kmaster
+172.31.87.125 	kworker1 	kworker1
+172.31.88.67	kworker2 	kworker2
 
 172.31.76.177	
 
@@ -30,4 +30,4 @@ kubeadm join 172.31.76.177:6443 --token vmouxw.le19mdwmss6m939r \
 ------------------------------------
 
 apt list -a kubeadm
-apt install -y kubeadm=1.19.2-00 kubelet=1.19.2-00 kubectl=1.19.2-00
+apt install -y kubeadm=1.23.7-00 kubelet=1.23.7-00 kubectl=1.23.7-00
