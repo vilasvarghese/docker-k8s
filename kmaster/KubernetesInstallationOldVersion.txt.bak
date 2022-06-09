@@ -26,8 +26,3 @@ Then you can join any number of worker nodes by running the following on each as
 
 kubeadm join 172.31.76.177:6443 --token vmouxw.le19mdwmss6m939r \
     --discovery-token-ca-cert-hash sha256:539c695ddb4b6b6a6a1b70bed426691763b3871a8eda4ba63746c51e4a807073
-
-------------------------------------
-
-apt list -a kubeadm
-apt install -y kubeadm=1.19.2-00 kubelet=1.19.2-00 kubectl=1.19.2-00

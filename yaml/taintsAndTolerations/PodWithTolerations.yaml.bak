@@ -13,4 +13,3 @@ spec:
   - key: "example-key"
     operator: "Exists"
     effect: "NoSchedule"
-##kubectl taint nodes kworker1 app=DBNode:NoSchedule

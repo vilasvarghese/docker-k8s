@@ -181,7 +181,9 @@ Step 9 - Creating a Cluster Context for the New User
 
 	Step b: Create a new Kubernetes context
 
+		kubectl config get-contexts
 		kubectl config set-context ${MAGIC_USER}@kubernetes --cluster=kubernetes --user=${MAGIC_USER}@kubernetes
+		kubectl config get-contexts
 		You'll get output similar to the following:
 		Context "dicktracy@kubernetes" created.
 
@@ -259,6 +261,8 @@ Step 12 - Creating Roles and RoleBindings for Groups
 		
 		kubectl delete pod --all -n test
 		
+		
+		kubectl config get-contexts
 ------------------------------------------------------------------------------------------------------------------
 Reminder		
 		We assigned the user dicktracy to the group devs when we created dicktracy's security certificates back in Step 8, in this command:

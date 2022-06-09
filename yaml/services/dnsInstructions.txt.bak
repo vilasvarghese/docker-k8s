@@ -26,8 +26,6 @@ kubectl exec -it busybox -- /bin/sh
 	#create my-cluster-ip service before this
 	wget http://my-cluster-ip/
 
-
-[below are deprecated]
 ----
 kubectl get pod -n kube-system
 kubectl get svc -n kube-system

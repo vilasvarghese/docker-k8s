@@ -1,7 +1,5 @@
 For latest refer : https://computingforgeeks.com/install-kubernetes-cluster-on-centos-with-kubeadm/
 
-hostnamectl set-hostname k8s-m1 --static
-
 
 # Update hosts file
 echo "[TASK 1] Update /etc/hosts file"
@@ -87,7 +85,7 @@ setenforce 0
     sudo kubeadm init --pod-network-cidr=192.168.0.0/16 --ignore-preflight-errors=NumCPU
 	#--ignore-preflight-errors=NumCPU  --ignore-preflight-errors=Mem - it is fine to repeat ignore-preflight-errors
 	#On cloud
-	sudo kubeadm init --ignore-preflight-errors=NumCPU  --ignore-preflight-errors=Mem
+	sudo kubeadm init --ignore-preflight-errors=NumCPU
     #  sudo kubeadm init --pod-network-cidr=192.168.0.0/16 #Do this only if proper CPU cores are available
 -------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------

@@ -27,7 +27,6 @@ Before installing
 		
 2. Stop apiserver - mv the
 	apiserver and other services are deployed as static pods
-	Stop routing traffic into it.
 	You cannot stop it
 	so mv /etc/kubernetes/manifests/*.yaml /tmp
 	This would stop kubernetes control node services

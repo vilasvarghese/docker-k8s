@@ -4,17 +4,6 @@ https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-ku
 Disable gpgcheck 
 	gpgcheck=0
 	repo_gpgcheck=0
-	
-	
-sudo tee /etc/yum.repos.d/kubernetes.repo<<EOF
-[kubernetes]
-name=Kubernetes
-baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
-enabled=1
-gpgcheck=0
-repo_gpgcheck=0
-gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
-EOF	
 
 1.24.0 kubeadm init issue
 	https://github.com/containerd/containerd/issues/4581

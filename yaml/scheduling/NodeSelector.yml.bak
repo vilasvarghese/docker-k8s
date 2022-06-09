@@ -1,7 +1,7 @@
-#kubectl label nodes <your-node-name> engineer=vilas
-#kubectl get nodes --show-labels
+kubectl label nodes <your-node-name> engineer=vilas
+kubectl get nodes --show-labels
 
-#We can use the 'nodeSelector' property on the Pod YAML:
+We can use the 'nodeSelector' property on the Pod YAML:
 
 apiVersion: v1
 kind: Pod

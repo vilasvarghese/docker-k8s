@@ -1577,7 +1577,7 @@ There are two ways to create secrets
 		- echo -n 'mypassword' > ./password.txt
 		
 		- kubectl create secret <type> <name> --from-file=<user name filename> --from-file=<password file name>
-		  kubectl create secret generic mysecret --from-file=./username.txt --from-file=./password.txt
+		kubectl create secret generic mysecret --from-file=./username.txt --from-file=./password.txt
 		e.g. s
 		
 		- kubectl get secrets
