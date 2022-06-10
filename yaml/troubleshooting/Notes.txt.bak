@@ -1,0 +1,36 @@
+Application failure
+	db
+	web
+	ui
+	
+	Many operations can be in a specific namespace
+		kubectl set-context --current --namespace=<ns1>
+	
+	curl http://ip:port
+	kubectl get pod
+	kubectl describe service web-service
+		restart
+	kubectl describe pod
+	kubectl logs web
+	kubectl logs web -f
+		watch pod
+	
+
+Control plane failures
+	kubectl get pod -n kube-system
+	kubectl logs kube-apiserver-master -n kube-system
+	journalctl -u kube-apiserver
+	
+	service start kubelet
+	systemctl start kubelet
+	journalctl -u kubelet
+	
+	/var/lib/kubelet/config.yaml
+	
+abhinava_s@yahoo.com
+
+Application debugging
+	1. Application environment name can 
+		mis match with database service name.
+		mis match with dtabase port
+		

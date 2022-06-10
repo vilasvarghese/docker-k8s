@@ -21,7 +21,6 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 EOF
 sudo yum clean all
 sudo yum -y makecache
-sudo yum -y install epel-release kubelet kubeadm kubectl --disableexcludes=kubernetes
 Disable SELinux
  sudo sed -i 's/^SELINUX=.*/SELINUX=permissive/g' /etc/selinux/config
  sudo setenforce 0
