@@ -1,0 +1,14 @@
+https://blogs.oracle.com/virtualization/post/install-docker-on-oracle-linux-7
+
+https://oracle-base.com/articles/linux/docker-install-docker-on-oracle-linux-ol8
+sudo su
+yum update -y
+ sudo dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+  sudo dnf install docker-ce --nobest
+  systemctl enable docker
+  systemctl start docker
+  systemctl status docker
+  
+
+Install kubernetes on Oracle linux 8
+	https://techviewleo.com/deploy-kubernetes-cluster-on-oracle-linux-with-kubeadm/

@@ -1,3 +1,5 @@
+Reference: https://computingforgeeks.com/install-kubernetes-cluster-on-centos-with-kubeadm/
+
 Kubernetes 1.24.1 installation.
 Assumption there is one kubernetes master called kmaster and two worker nodes called kworker1 and kworker2.
 hostnamectl set-hostname kmaster on the node identified for kmaster
@@ -5,79 +7,121 @@ hostnamectl set-hostname kworker1 on the node identified for kworker1
 hostnamectl set-hostname kworker2 on the node identified for kworker2
 Update the /etc/hosts as follows on all nodes
 
-kmaster private-ip
-kworker1 private-ip
-kworker2 private-ip
+private-ip	kmaster 
+private-ip	kworker1 
+private-ip	kworker2 
 Following has to be executed on all nodes unless mentioned otherwise (till init)
-sudo yum -y update
-sudo tee /etc/yum.repos.d/kubernetes.repo<<EOF
+
+1. yum update
+	sudo yum -y update
+
+2. Update kubernetes.repo
+
+cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
 name=Kubernetes
-baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
 enabled=1
 gpgcheck=1
-repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+exclude=kubelet kubeadm kubectl
 EOF
-sudo yum clean all
-sudo yum -y makecache
-sudo yum -y install epel-release kubelet kubeadm kubectl --disableexcludes=kubernetes
-Disable SELinux
- sudo sed -i 's/^SELINUX=.*/SELINUX=permissive/g' /etc/selinux/config
- sudo setenforce 0
-Disable Swap 
- sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
- sudo swapoff -a
-Enable the required modules
- sudo modprobe overlay
- sudo modprobe br_netfilter
-Configure kubernetes
+
+3. sudo yum clean all
+4. sudo yum -y makecache
+
+5. sudo yum -y install epel-release kubelet kubeadm kubectl --disableexcludes=kubernetes
+Test
+	kubeadm  version
+	kubectl version --client
+
+6. Disable SELinux
+sudo sed -i 's/^SELINUX=.*/SELINUX=permissive/g' /etc/selinux/config
+sudo setenforce 0
+
+7. Disable Swap 
+sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+sudo swapoff -a
+
+8. Enable the required modules
+sudo modprobe overlay
+sudo modprobe br_netfilter
+
+9. Configure kubernetes
 sudo tee /etc/sysctl.d/kubernetes.conf<<EOF
 net.bridge.bridge-nf-call-ip6tables = 1
 net.bridge.bridge-nf-call-iptables = 1
 net.ipv4.ip_forward = 1
 EOF
-Reload it sudo sysctl --system
-Install Docker runtime
+
+10. Reload it 
+sudo sysctl --system
+
+11. Install Docker runtime
 curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
-Configure docker to work with kubernetes
+
+12. Configure docker to work with kubernetes
 sudo mkdir /etc/docker
 sudo mkdir -p /etc/systemd/system/docker.service.d
-Update daemon json 
+
+13. Update daemon json 
 sudo tee /etc/docker/daemon.json <<EOF
 {
- "exec-opts": ["native.cgroupdriver=systemd"],
- "log-driver": "json-file",
- "log-opts": {
- "max-size": "100m"
- },
- "storage-driver": "overlay2",
- "storage-opts": [
- "overlay2.override_kernel_check=true"
- ]
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2"
 }
 EOF
 
-Reload services
+14. Reload services
 sudo systemctl daemon-reload 
 sudo systemctl restart docker
 sudo systemctl enable docker
-Ensure all required firewalls are open between all the different nodes.
+
+15. Ensure all required firewalls are open between all the different nodes.
+master
+sudo firewall-cmd --add-port={80,8080,6443,2379-2380,10250,10251,10252,5473,179,5473}/tcp --permanent
+sudo firewall-cmd --add-port={4789,8285,8472}/udp --permanent
+sudo firewall-cmd --reload
+
+worker
+sudo firewall-cmd --add-port={10250,30000-32767,5473,179,5473}/tcp --permanent
+sudo firewall-cmd --add-port={4789,8285,8472}/udp --permanent
+sudo firewall-cmd --reload
+
+
+
+16. Enable kubelet
 sudo systemctl enable kubelet
+
+17. kubeadm init
 sudo kubeadm init
-N.B: kubeadm init is seen failing due to E0608/E0609 error, the workaround to fix this is..
+
+
+18. N.B: kubeadm init is seen failing due to E0608/E0609 error, the workaround to fix this is..
 Reference: https://github.com/containerd/containerd/issues/4581
- mv /etc/containerd/config.toml /tmp/
- systemctl restart containerd
- kubeadm init
+mv /etc/containerd/config.toml /tmp/
+systemctl restart containerd
+
+19. kubeadm init
+
+20. 
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+21. 
 Execute the join command retrieved from the init command on the worker node.
-Add calico network plugin 
+
+22. Add calico network plugin 
 kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
-kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml 
+kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
 kubectl create -f https://docs.projectcalico.org/manifests/custom-resources.yaml
-kubectl run nginx - -image=nginx
+
+23. Test
+kubectl run nginx --image=nginx
 kubectl get pod

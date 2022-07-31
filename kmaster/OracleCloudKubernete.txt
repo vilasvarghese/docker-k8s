@@ -1,0 +1,10 @@
+calico doesn't work well.
+
+https://stackoverflow.com/questions/53247682/kubernetes-calico-on-oracle-cloud-vms
+
+iptables -t filter -L KUBE-FORWARD --line-numbers -n
+
+create busybox
+	kubectl apply -f dns.yaml
+	
+kubectl exec -it busybox -- ping <ip of other pod>
