@@ -1,0 +1,125 @@
+• Creating an EKS cluster
+	
+• Creating a docker image from a simple java application
+• Pushing it to Docker hub.
+• Deploying to Kubernetes cluster from the docker image
+	
+• Update and rollback
+• Scale out and scale in deployment
+• Kubernetes Networking
+▪ Cluster IP
+▪ Node Port
+▪ Load balancer
+	• Automatically creating a load balancer in AWS.
+▪ Kubernetes ingress
+	https://www.youtube.com/watch?v=u948CURLDJA
+		Accept/Deny traffic
+		SSL termination 
+			accept on 443
+			talk on 8080.80
+		60% to service a and 40% to b
+		https://github.com/marcel-dempers/docker-development-youtube-series
+		
+		Setting up an application
+		
+		kubectl get nodes
+		kubectl get ns
+		kubectl create ns example-app
+		kubectl apply -n example-app -f .\kubernetes\deployments\deployment.yaml
+		kubectl apply -n example-app -f .\kubernetes\configmaps\configmap.yaml
+		kubectl apply -n example-app -f .\kubernetes\secrets\secret.yaml		
+		kubectl apply -n example-app -f .\kubernetes\services\service.yaml		
+		kubectl -n example-app get pods
+		kubectl -n example-app port-forward example-deploy..... <pod from above> 5000
+		http://host-ip:5000/	#this may not work on aws
+		
+		setting up ingress controller
+		kubectl apply -f .\kubernetes\ingress\controller\nginx\namespace.yaml	
+		kubectl apply -f .\kubernetes\ingress\controller\nginx\service-account.yaml
+		kubectl apply -f .\kubernetes\ingress\controller\nginx\cluster-role.yaml
+		kubectl apply -f .\kubernetes\ingress\controller\nginx\cluster-role-binding.yaml
+		kubectl apply -f .\kubernetes\ingress\controller\nginx\configMap.yaml
+		kubectl apply -f .\kubernetes\ingress\controller\nginx\custom-snippets.configmap.yaml
+		kubectl apply -f .\kubernetes\ingress\controller\nginx\deployment.yaml
+		kubectl apply -f .\kubernetes\ingress\controller\nginx\service.yaml
+		kubectl apply -f .\kubernetes\ingress\controller\nginx\tls-secret.yaml
+
+		kubectl apply -f .\kubernetes\ingress\ingress-nginx-example.yaml
+
+		setting up ingress rules
+	Modify the hostname in the file below. setup dns for this name.
+kubectl apply -f .\kubernetes\ingress\ingress-nginx-eample.yaml		
+	https://devopscube.com/kubernetes-ingress-tutorial/
+
+example 2
+https://www.youtube.com/watch?v=WNZ9qOoJ0II
+https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/
+
+
+simple: 
+
+	D:\PraiseTheLord\HSBGInfotech\Others\vilas\docker-k8s\yaml\deployment\deploy-ng.yaml
+	D:\PraiseTheLord\HSBGInfotech\Others\vilas\docker-k8s\yaml\services\nodeport.yaml
+		services\ingress.yml
+
+with minikube/
+https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/
+
+▪ Kubernetes volumes with EFS
+	https://medium.com/survata-engineering-blog/using-efs-storage-in-kubernetes-e9c22ce9b500
+	https://aws.amazon.com/blogs/opensource/kubernetes-ingress-aws-alb-ingress-controller/
+	
+	https://docs.giantswarm.io/advanced/storage/efs/
+	
+	https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html
+	https://medium.com/survata-engineering-blog/using-efs-storage-in-kubernetes-e9c22ce9b500
+	
+	
+	1. Goto eks and find the region and security group it is using
+		eks -> eks instance -> Networking - 
+			note
+				cluster security group
+				subnets
+				region - can be noted from the top
+			ec2 instance -> find region in list itself
+		
+		Identify the IP address of the right efs instance
+			ip region matching where the instance is running
+	
+	
+	
+	git clone https://github.com/antonputra/tutorials
+	cd  .\lessons\041\efs
+	kubectl apply 1 - 8....yaml
+	kubectl get pod -n storage
+	kubectl describe pod -n storage
+		There should be a failure
+		
+	Find the subnet group of the instance
+	Update efs to use the same sec
+	
+	References
+		https://ripon-banik.medium.com/efs-as-storageclass-for-eks-k8s-cluster-604bdcdba8ac
+		https://github.com/antonputra/tutorials/tree/main/lessons/041/efs
+		https://www.youtube.com/watch?v=Sj0MVk0jM_4
+		https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner
+		
+		
+• Spark with Kubernetes
+	https://github.com/big-data-europe/docker-spark
+docker pull adoptopenjdk/openjdk11
+
+	https://spark.apache.org/docs/latest/running-on-kubernetes.html
+	https://www.youtube.com/results?sp=mAEB&search_query=spark+on+kubernetes
+	
+	o Dockerize a simple application using Spark
+		https://spot.io/blog/tutorial-running-pyspark-inside-docker-containers/
+		https://github.com/datamechanics/examples
+		D:\PraiseTheLord\HSBGInfotech\Others\examples\pyspark-example
+		docker build -t spark .
+		
+	o Deploy a spark master and client
+		https://github.com/big-data-europe/docker-spark
+	o Define services to interact between them
+		https://github.com/big-data-europe/docker-spark
+	o Define ingress to access all services.

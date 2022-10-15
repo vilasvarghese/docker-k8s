@@ -1,0 +1,18 @@
+	install docker
+	--------------
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+systemctl start docker
+systemctl enable docker
+
+	kind install
+	------------
+https://kind.sigs.k8s.io/docs/user/quick-start/
+curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.14.0/kind-linux-amd64
+mv ./kind /usr/lib/kind
+chmod +x /usr/lib/kind
+
+	create k8s cluster
+	------------------
+kind create cluster --name kcluster --image kindest/node:v1.19.1
+

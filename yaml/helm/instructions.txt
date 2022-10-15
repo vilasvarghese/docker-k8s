@@ -13,17 +13,29 @@ Helm
 	
 
 Helm package 
-	contains all of the resource definitions necessary to run an application, tool, or service inside of a Kubernetes cluster. 
+	contains 
+		resource definitions to run an 
+			application, 
+			tool, or 
+			service 
+				inside of a Kubernetes cluster. 
 	streamlines installing and managing Kubernetes applications. 
 	Think of it like apt/yum/homebrew for Kubernetes.
 
 Charts 
-	Help define, install and upgrade complex kuberetes application.
+	Help 
+		define, 
+		install and 
+		upgrade 
+			complex kuberetes application.
 	Helm packages that contain at least the below:
 		Chart.yaml
 		templates folder with Kubernetes manifest files
 		values.yaml
-	Can be stored on disk, or fetched from remote chart repositories (like Debian or RedHat packages)
+	Can be 
+		stored on disk, or 
+		fetched from remote chart repositories 
+			(like Debian or RedHat packages)
 	Can be versioned, shared and published.
 	Can accept input parameters
 	Popular packages are available as helm charts already.
@@ -38,7 +50,11 @@ Release
 Helm Hub
 	public repository of charts for popular software
 
-	We can also retrieve charts from third-party repositories, author and contribute your own charts to someone else’s repository, or run your own chart repository.
+	We can also 
+		retrieve charts from third-party repositories, 
+		author and contribute our own charts 
+			to someone else’s repository, 
+		or run your own chart repository.
 
 Helm 
 	Find new charts

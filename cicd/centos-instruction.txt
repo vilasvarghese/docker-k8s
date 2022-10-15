@@ -10,6 +10,7 @@ Ensure to install java 11 and if java 8 is there on the machine try
 #############################################
 
 Java Installation
+sudo yum install -y java-11-openjdk-devel
 sudo yum install -y java-1.8.0-openjdk-devel
 
 #install maven

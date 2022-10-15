@@ -33,7 +33,8 @@ EOF
 5. sudo yum -y install epel-release kubelet kubeadm kubectl --disableexcludes=kubernetes
 Test
 	kubeadm  version
-	kubectl version --client
+	#kubectl version --client
+	kubectl version --short
 
 6. Disable SELinux
 sudo sed -i 's/^SELINUX=.*/SELINUX=permissive/g' /etc/selinux/config
@@ -98,6 +99,7 @@ sudo firewall-cmd --reload
 16. Enable kubelet
 sudo systemctl enable kubelet
 
+Only on the master node.
 17. kubeadm init
 sudo kubeadm init
 
@@ -110,6 +112,7 @@ systemctl restart containerd
 19. kubeadm init
 
 20. 
+exit
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
@@ -125,3 +128,7 @@ kubectl create -f https://docs.projectcalico.org/manifests/custom-resources.yaml
 23. Test
 kubectl run nginx --image=nginx
 kubectl get pod
+
+-----------------
+yum list --showduplicates kubeadm --disableexcludes=kubernetes
+ https://packages.cloud.google.com/yum/pool/

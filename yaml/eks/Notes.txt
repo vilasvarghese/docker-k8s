@@ -1,0 +1,103 @@
+Go to roles
+Create roles
+EKS
+Eks-cluster
+tags
+role name
+
+
+
+create a user
+	attach eks 
+
+
+
+install aws cli
+	https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+	aws --version
+		should be >2.0.42 (check documentation for current status)
+ 	aws configure
+	
+eks cluster creation	
+https://adamtheautomator.com/aws-eks-cli/
+
+kubectl install
+this is a command line tool, you will need to run it from commandline
+https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html
+
+
+install chocolatey
+https://chocolatey.org/install
+
+install eksctl
+https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html
+
+
+eksctl create cluster --name vilasekscluster1 --version 1.22 --region us-east-2 --nodegroup-name vilas-workers --node-type t3.micro --nodes 2 --nodes-min 1 --nodes-max 2 --managed
+
+get config
+aws eks update-kubeconfig --name vilasekscluster1 --region us-east-2
+
+
+volume with ebs
+https://aws.amazon.com/premiumsupport/knowledge-center/eks-persistent-storage/
+
+kubectl annotate serviceaccount ebs-csi-controller-sa -n kube-system 
+https://aws.amazon.com/premiumsupport/knowledge-center/eks-persistent-storage/ eks.amazonaws.com/role-arn=arn:aws:iam::267092042432:role/AmazonEKS_EBS_CSI_DriverRole
+
+
+kubectl delete pods -n kube-system -l=app=ebs-csi-controller
+
+eksctl delete cluster --name vilasekscluster1
+
+D:\software\kubernetes\aws-ebs-csi-driver\examples\kubernetes\static-provisioning
+
+------------------------------------------------------------------------
+Roles for eks 
+-------------
+Roles (IAM)
+	Create roles
+	Common use cases : EC2
+		EKS
+		EKS cluster 
+			Next
+	
+	Attach permission
+		AmazonEKSClusterPolicy
+			Next Tags
+				Nex Review
+					Give name and description
+	Use the role in eks				
+		
+Roles for nodes
+-----------------
+	similar process with 
+		Policies
+			AmazonEKSWorkerNodePolicy
+			AmazonEKS_CNI_Policy
+			AmazonEC2ContainerRegistryReadOnly
+
+	Create roles
+	AWS Service 
+		Common use cases : EC2
+			Next Permissions
+		Select all the 3 above roles
+		
+		
+		Install aws cli
+		https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+		
+		https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html
+		https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html
+		
+		aws --version
+		should be >2.0.42 (check documentation for current status)
+		aws configure
+		
+		aws eks --region <region> describe-cluster --name <cluster-name> --query cluster.status
+		aws eks --region ap-northeast-1 describe-cluster --name vilaseks --query cluster.status
+		
+		aws eks update-kubeconfig --name vilaseks --region ap-northeast-1
+		kubectl get svc
+		kubectl get pods
+		
