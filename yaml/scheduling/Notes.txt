@@ -1,0 +1,44 @@
+https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+
+Scheduling a Pod to a Node can be managed
+There are several ways to do 
+Recommended approaches 
+	all use label selectors 
+	Scheduler does a good job
+	If you want to modify
+
+Use any of the following methods:
+	nodeSelector field matching against node labels
+	Affinity and anti-affinity
+	nodeName field
+	Pod topology spread constraints
+	
+Reference: https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes/#add-a-label-to-a-node	
+
+Simple assignment 
+	2 options
+		NodeName
+		labels
+
+Node labels
+	nodes 
+		also supports labels. 
+		Kubernetes populates 
+			standard set of labels 
+				on all nodes in a cluster. 
+			https://kubernetes.io/docs/reference/labels-annotations-taints/
+
+lab: 			
+		kubectl get nodes --show-labels
+	Attach a node	
+		kubectl label nodes <your-node-name> disktype=ssd
+		kubectl label nodes kworker1  engineer=vilas
+		
+		kubectl apply -f NodeSelector.yml
+		
+		
+Alternatively we can schedule using NodeName
+	kubectl apply -f ScheduleWithNodeName.yml
+	
+	
+

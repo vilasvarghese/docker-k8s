@@ -1,0 +1,16 @@
+https://www.kubecost.com/kubernetes-autoscaling
+	Kubernetes supports
+		VPA
+			Vertical pod autoscaler
+				increase and decrease container 
+					cpu 
+					memory
+					https://www.kubecost.com/kubernetes-autoscaling/kubernetes-vpa
+		HPA
+			Horizontal pod autoscaler
+			
+		CA
+			Kubernetes Cluster Autoscaler	
+			https://www.kubecost.com/kubernetes-autoscaling/kubernetes-cluster-autoscaler
+			
+			

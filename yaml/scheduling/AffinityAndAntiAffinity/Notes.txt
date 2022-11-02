@@ -1,0 +1,30 @@
+
+Affinity and anti-affinity
+--------------------------
+nodeSelector 
+	simplest way 
+	select or ignore a node
+	
+Affinity and anti-affinity
+	gives more control
+	Node affinity 
+		like nodeSelector 
+		more expressive 
+		can specify soft rules.
+			e.g. 
+				Inter-pod affinity/anti-affinity.
+
+Two types of Affinity
+	requiredDuringSchedulingIgnoredDuringExecution: 
+		scheduler 
+			can't schedule Pod 
+				unless the rule is met. 
+	preferredDuringSchedulingIgnoredDuringExecution: 
+		scheduler 
+			tries to find a node 
+				that meets the rule. 
+		If no matching node 
+			scheduler still schedules the Pod.
+		
+		
+kubectl apply -f affinity.yaml		

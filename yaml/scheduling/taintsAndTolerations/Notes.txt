@@ -1,0 +1,86 @@
+Taints and tolerations 
+	ensure pods are placed on appropriate nodes. 
+Taints 
+	added to nodes
+	taint a node
+		repel all the pods 
+			except those with toleration for that taint. 
+	Node can have 
+		one or many taints.
+
+Tolerations 
+	applied to pods
+	defined in pod spec. (yaml) 
+	scheduler 
+		can schedule pods 
+		to matching taints. 
+	Tolerations 
+		allow scheduling 
+			but don't guarantee scheduling: 
+		scheduler evaluates other parameters also.
+
+Taints and tolerations 
+	work together 
+	ensure pods 
+		are NOT scheduled 
+			to inappropriate nodes. 
+		are scheduled 
+			to appropriate nodes
+	One or more taints are applied to a node; this marks that the node should not accept any pods that do not tolerate the taints
+
+For e.g.
+	kubectl describe node <kworker1>
+		should display a taint
+	kubeadm installation 
+		automatically taint master nodes 
+		
+
+Effects of taint
+taint can produce 
+	3 possible effects:
+		NoSchedule
+		PreferNoSchedule
+		NoExecute
+		
+NoSchedule
+	Kubernetes scheduler 
+		ALLOW scheduling pods 
+			with tolerations.
+PreferNoSchedule
+	Kubernetes scheduler 
+		TRY TO avoid scheduling pods 
+			don’t have tolerations.
+NoExecute
+	Kubernetes 
+		evict the running pods 
+			from the nodes 
+				if NO tolerations in pods.
+
+N.B: 
+Node affinity 
+	https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+	another property of Pods 
+	attracts them to a set of nodes 
+	(either as a 
+		preference 
+	or 
+		hard requirement). 
+Taints are the opposite 
+	allow a node to repel a set of pods.
+
+
+
+lab 1:
+	Add taint 
+		kubectl taint nodes kworker1 app=DBNode:NoSchedule
+	
+	kubectl apply -f PodWithTolerations.yaml
+	
+	Remote taint
+		kubectl taint nodes kworker1 app=DBNode:NoSchedule-
+		
+		
+
+
+Refer https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/ 
+for more information.

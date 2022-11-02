@@ -31,6 +31,10 @@ EOF
 4. sudo yum -y makecache
 
 5. sudo yum -y install epel-release kubelet kubeadm kubectl --disableexcludes=kubernetes
+
+to install older version
+sudo yum -y install epel-release kubelet-1.23* kubeadm-1.23* kubectl-1.23* --disableexcludes=kubernetes
+
 Test
 	kubeadm  version
 	#kubectl version --client

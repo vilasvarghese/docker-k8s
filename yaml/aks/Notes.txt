@@ -1,0 +1,47 @@
+aks
+---
+Create group in azure
+Create user in azure
+Add user to group in azure
+
+Go to subscriptions 
+	Select your subscriptions
+		Click Access control in left pane
+			Click +Add on top 
+				Click "Add Role assignment"
+					Add "Contributor" and "Azure Arc Kubernetes Admin" roles.
+					
+				
+				
+				
+Scheduling
+▪ Manual Scheduling
+▪ Taint and Tolerations
+▪ Node Selector
+▪ Node Affinity
+
+o Configuring application
+▪ Plain Key
+▪ Config Map
+▪ Secret
+▪ Mount Variable as Volume				
+
+
+Autoscaling
+▪ Introduction to Cluster Autoscaler
+▪ Create AKS Cluster with Autoscaling enabled using Azure AKS
+▪ Introduction to Horizontal Pod Autoscaler
+▪ Create Horizontal Pod Autoscaler
+
+Logging and Monitoring
+▪ Understand how to Monitor all Cluster Components
+▪ Understand how to Monitor Applications
+▪ Manage Cluster Components Logs
+▪ Manage Application Logs
+
+Networking in Kubernetes
+▪ Understand CNI
+▪ Configure Manual DNS
+▪ Configure and Manage Ingress Rule
+▪ Load Balancer Service
+

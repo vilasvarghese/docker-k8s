@@ -1,0 +1,119 @@
+Theory:
+	https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+
+lab: 
+	https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/
+
+
+
+https://www.kubecost.com/kubernetes-autoscaling/kubernetes-hpa/
+1. deploy metric server
+	kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+	
+	https://github.com/nonai/k8s-example-files/tree/main/metrics-server
+	ls -la
+	Modify 5-deployment.yaml
+		Add below as in my metric server
+		- --kubelet-insecure-tls
+	kubectl apply -f .
+	kubectl get pods --all-namespaces | grep metrics-server
+	kubectl get svc -n kube-system | grep metrics-server
+	kubectl top pods -n kube-system
+	
+2. Create deployment	
+	
+(a) Create a kubernetes deployment	
+vi deployment.yml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: hpa-demo-deployment
+spec:
+ selector:
+   matchLabels:
+     run: hpa-demo-deployment
+ replicas: 1
+ template:
+   metadata:
+     labels:
+       run: hpa-demo-deployment
+   spec:
+     containers:
+     - name: hpa-demo-deployment
+       image: k8s.gcr.io/hpa-example
+       ports:
+       - containerPort: 80
+       resources:
+         limits:
+           cpu: 500m
+         requests:
+           cpu: 200m
+
+
+kubectl apply -f deployment.yml
+
+kubectl get deploy		   
+
+3. 
+Create a service
+
+vi service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+ name: hpa-demo-deployment
+ labels:
+   run: hpa-demo-deployment
+spec:
+ ports:
+ - port: 80
+ selector:
+   run: hpa-demo-deployment
+   
+
+kubectl apply -f service.yaml
+kubectl get svc
+
+4. Install the Horizontal Pod Autoscaler
+
+vi hpa.yaml
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+ name: hpa-demo-deployment
+spec:
+ scaleTargetRef:
+   apiVersion: apps/v1
+   kind: Deployment
+   name: hpa-demo-deployment
+ minReplicas: 1
+ maxReplicas: 10
+ targetCPUUtilizationPercentage: 50
+ 
+kubectl apply -f hpa.yaml
+
+watch -n 1 kubectl get hpa
+	watch unknown change to 0% 
+	This happens only when metric server is deployed
+
+5. Increase the load
+
+kubectl get deploy
+
+kubectl run -i --tty load-generator --rm --image=busybox --restart=Never -- /bin/sh -c "while sleep 0.01; do wget -q -O- http://hpa-demo-deployment; done"
+
+kubectl get svc
+kubectl get hpa
+kubectl get hpa -w
+watch -n 1 kubectl get deployment php-apache
+
+
+6. kubectl top pods --all-namespaces
+
+kubectl describe deploy hpa-demo-deployment
+
+7. Decrease the load
+kubectl get hpa 
+kubectl get deployment hpa-demo-deployment
+kubectl get events
