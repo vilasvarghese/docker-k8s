@@ -106,7 +106,7 @@ kubectl run -i --tty load-generator --rm --image=busybox --restart=Never -- /bin
 kubectl get svc
 kubectl get hpa
 kubectl get hpa -w
-watch -n 1 kubectl get deployment php-apache
+watch -n 1 kubectl get deployment hpa-demo-deployment
 
 
 6. kubectl top pods --all-namespaces
