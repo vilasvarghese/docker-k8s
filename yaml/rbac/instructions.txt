@@ -176,6 +176,7 @@ Step 9 - Creating a Cluster Context for the New User
 
 		kubectl config set-credentials ${MAGIC_USER}@kubernetes --client-certificate=$HOME/.certs/${MAGIC_USER}.crt --client-key=$HOME/.certs/${MAGIC_USER}.key --embed-certs=true
 
+		cat $HOME/.kube
 		You'll get output similar to the following:
 		User "dicktracy@kubernetes" set.
 

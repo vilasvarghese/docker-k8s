@@ -1,0 +1,470 @@
+UFS (Union File System)
+----------------------------------------------
+https://docs.docker.com/storage/storagedriver/aufs-driver/
+
+Old driver before kernel 4 with strech. 
+overlay2 is the new driver
+
+Refer to the image in 
+https://docs.docker.com/storage/storagedriver/aufs-driver/
+----------------------------------------------
+
+container format like libcontainer, BSD jails etc., 
+----------------------------------------------
+Docker Engine combines the namespaces, control groups, and UnionFS into a wrapper called a container format. The default container format is libcontainer. In the future, Docker may support other container formats by integrating with technologies such as BSD Jails or Solaris Zones.
+
+
+Docker as an application need to manipulate namespaces, control groups, capabilities, apparmor profiles, network interfaces and firewalling rules etc. to realize the functions.
+
+Libcontainer is a pure Go library which developed to access the kernel’s container APIs directly, without any other dependencies, it's the default container format of docker.
+
+--------------------------------------------------------------------------
+Open Container Format (OCF) specification
+	https://github.com/opencontainers/runtime-spec
+	
+	libcontainer is an implementation of the same.
+	Currently wrapped to runc
+	
+	
+	libcontainer works with the following
+		driver API
+		new built-in execution driver 
+			shipped with LXC driver
+	
+		Refer image in: https://www.docker.com/blog/docker-0-9-introducing-execution-drivers-and-libcontainer/
+		
+		
+	
+	
+	(1) Docker supports driver API 
+		can customize the execution environment 
+			around a container. 
+		Driver api works with isolation tools 
+			(like plugins) 
+			work with different isolations.
+			
+		Docker accesses isolation tools available
+			wit tradeoffs and install base: 
+				OpenVZ, 
+				systemd-nspawn, 
+				libvirt-lxc, 
+				libvirt-sandbox, 
+				qemu/kvm, 
+				BSD Jails, 
+				Solaris Zones
+				chroot etc. 
+			This is in addition to LXC, which will continue to be available as a driver of its own.
+	(2) built-in execution driver 
+		based on libcontainer
+		Docker 
+			out of the box manipulate 
+				namespaces
+				control groups
+				capabilities
+				apparmor profiles
+				network interfaces and 
+				firewalling rules – 
+			in a consistent and predictable way
+			no dependency on LXC or any other userland package.
+			
+			
+	runc
+	----
+	https://www.docker.com/blog/runc/
+	Docker use/integrate with existing linux and 3rd party libraries: 
+		Linux, 
+		Go, 
+		lxc, 
+		aufs, 
+		lvm, 
+		iptables, 
+		virtualbox, 
+		vxlan, 
+		mesos, 
+		etcd, 
+		consul, 
+		systemd
+		etc
+		
+		Infrastructure Plumbing Manifesto
+		---------------------------------
+		3 fundamental principles 
+			called “the Infrastructure Plumbing Manifesto”:
+
+	If possible
+		re-use existing plumbing 
+		contribute improvements back.
+
+	To create new plumbing
+		make it easy to re-use 
+		contribute improvements back. 
+		
+	Follow the unix principles: 
+		several simple components 
+			better than a single, complicated one.
+
+		Define standard interfaces 
+			combine many simple components 
+				into a more sophisticated system.
+
+	There has been lots of demand for separating this plumbing from the Docker platform	
+		can be re-used by other infrastructure plumbers 
+			in accordance with infrastructure plumbing best practices. 
+			Today we are excited to announce that we are doing just that!
+
+	Refer to images in https://iximiuz.com/en/posts/containerd-command-line-clients/
+	
+	
+	Introducing runC: The universal container runtime
+		Docker 
+			platform to 
+				build, 
+				ship and 
+				run distributed applications – 
+			runs applications in a distributed fashion 
+				across many machines
+				across variety 
+					hardware and OS configurations. 
+			So docker needs a sandbox environment 
+				capable to abstract
+					specifics of the underlying host 
+					(for portability), 
+					work better with each os.
+		(in 2015)
+		Last 5 years 
+			Linux added
+				collection of features 
+					helps this abstraction 
+		Windows
+			version 10
+				added similar features as well. 
+			e.g. 
+				“control groups”, 
+				“namespaces”, 
+				“seccomp”, 
+				“capabilities”, 
+				“apparmor” etc. 
+				
+		collectively called 
+			“OS containers” 
+		or
+			“lightweight virtualization”.
+
+		“containers” 
+			array of complicated system features
+			integrated them into a unified low-level component 
+				called runC. 
+		
+		runC 
+			lightweight, 
+			portable 
+				container runtime. 
+		
+			has plumbing code 
+				of Docker 
+					interact with system features related to containers. 
+			
+		Designed with the following principles in mind:
+			Designed for security.
+			Production quality.
+			No dependency on the rest of the Docker platform: 
+				just the container runtime and nothing else.
+		
+		Popular runC features include:
+			Full support for Linux namespaces
+				including user namespaces
+			Native support for all security features available in Linux: 
+				Selinux, 
+				Apparmor, 
+				seccomp, 
+				control groups, 
+				capability drop, 
+				pivot_root, 
+				uid/gid dropping etc. 
+				
+			If Linux can do it, runC can do it.
+			Native support for live migration
+				with the help of the CRIU team at Parallels
+			Native support of Windows 10 containers 
+				contributed directly by Microsoft engineers
+			Planned native support for 
+				Arm, 
+				Power, 
+				Sparc 
+					supported from 
+						Arm, 
+						Intel, 
+						Qualcomm, 
+						IBM
+							and entire hardware manufacturers ecosystem.
+			Planned native support for bleeding edge hardware features – 
+				DPDK, 
+				sr-iov, 
+				tpm, 
+				secure enclave, etc.
+			Portable performance profiles
+				contributed by Google engineers 
+					based on their experience deploying containers in production.
+			A formally specified configuration format
+				governed by the Open Container Project 
+					under the auspices of the Linux Foundation. 
+					In other words: it’s a real standard.
+			The goal of runC is to make standard containers available everywhere
+
+			Code of runC 
+				donated to the OCP foundation. 
+				OCP is designed to work just like the Linux Foundation
+					employees from various container-focused companies and hobbyists – 
+						will continue to write the most awesome software possible.
+
+			runC is available today and is already under active development. Because it is based on the battle-tested plumbing used by Docker, you can use it in production today, either as part of a Docker deployment or in your own custom platform. We look forward to your contributions!
+
+
+----------------------------------------------
+
+https://iximiuz.com/en/posts/containerd-command-line-clients/
+
+docker services
+----------------------------------------------
+----------------------------------------------
+
+Docker
+----------------------------------------------
+----------------------------------------------
+	Datapath 
+----------------------------------------------
+	/var/lib/docker 
+----------------------------------------------
+	version check 
+----------------------------------------------
+		docker version
+----------------------------------------------
+	default locations
+----------------------------------------------
+		/var/lib/docker
+			containers
+			overlay2
+			
+----------------------------------------------
+	commands execution
+----------------------------------------------
+----------------------------------------------
+
+11)	Backup and restore of Images, containers and Docker/Application data
+----------------------------------------------
+
+	copy /var/lib/docker folder 
+	
+	add following code in /etc/docker/daemon.json
+{
+  "data-root": "/path/to/your/docker"
+}
+
+		
+	https://www.guguweb.com/2019/02/07/how-to-move-docker-data-directory-to-another-location-on-ubuntu/
+
+----------------------------------------------
+
+
+Docker
+----------------------------------------------
+----------------------------------------------
+Gitlab registry 
+----------------------------------------------
+
+	https://docs.gitlab.com/ee/user/packages/container_registry/
+----------------------------------------------
+Local registry
+----------------------------------------------
+	https://docs.docker.com/registry/deploying/
+----------------------------------------------
+
+
+14)	Securing Docker
+----------------------------------------------
+----------------------------------------------
+Ensure Docker communication through TLS Firewall ports
+----------------------------------------------
+	https://docs.docker.com/engine/security/protect-access/
+	https://www.labkey.org/Documentation/wiki-page.view?name=dockerTLS
+----------------------------------------------
+Communication to Docker through unix socket and tcp protocal
+----------------------------------------------
+	By default, Docker runs through a non-networked UNIX socket. It can also optionally communicate using SSH or a TLS (HTTPS) socket.
+	
+	(already covered)
+	
+	https://www.jujens.eu/posts/en/2017/Feb/15/docker-unix-socket/
+----------------------------------------------
+Troubleshooting Containers
+----------------------------------------------
+	https://www.techtarget.com/searchitoperations/tip/Your-starter-guide-to-Docker-troubleshooting
+	
+	
+----------------------------------------------
+
+15)	Working with ECR to distribute our containerized applications
+----------------------------------------------
+	iam permission or 
+	key and secret keys are required.
+	
+	
+	https://docs.aws.amazon.com/AmazonECR/latest/userguide/docker-push-ecr-image.html
+	https://www.cidevops.com/2020/05/how-to-setup-elastic-container-registry.html
+	https://www.youtube.com/watch?v=D8ym8RP1yvo
+	
+----------------------------------------------
+
+Deployment of application like nginx, mariadb and jenkins 
+----------------------------------------------
+----------------------------------------------
+Estalish remote connection of Docker Engine through TLS 
+----------------------------------------------
+----------------------------------------------
+Custom Jenkins Dockerfile with preinstalled plugins 
+----------------------------------------------
+----------------------------------------------
+Building custom Ubuntu Image with keys and password 
+----------------------------------------------
+----------------------------------------------
+
+k8s
+----
+kubernets cluster using microk8s(ubuntu),minikube,kubeadm 
+----------------------------------------------
+	https://kubernetes.io/docs/tasks/tools/
+	
+	https://microk8s.io/docs/install-alternatives
+	https://minikube.sigs.k8s.io/docs/start/
+		
+----------------------------------------------
+
+Multi-container deployment, one for web application and second for data pull POD creation with initContainer advantages for pre-request
+----------------------------------------------
+----------------------------------------------
+static POD deployment
+----------------------------------------------
+----------------------------------------------
+
+
+Deploying application from Private repository 
+----------------------------------------------
+----------------------------------------------
+
+resource allocation like CPU and MEMORY
+----------------------------------------------
+----------------------------------------------
+
+Advantages of Deployment over POD, RC and RS
+----------------------------------------------
+----------------------------------------------
+
+Deployment Stratagies like RollingUpdate and ReCreate difference Rollout, Rollback and RolloutHistory of deployment
+----------------------------------------------
+----------------------------------------------
+
+
+Deployment Stratagies like RollingUpdate and OnDelete difference Rollout, Rollback and RolloutHistory of DaemonSet
+----------------------------------------------
+----------------------------------------------
+
+Static and Dynamic PV creation
+----------------------------------------------
+----------------------------------------------
+
+StargaeClass creation for Dynamic provision
+NFS, Ceph RBD storage as examples
+----------------------------------------------
+----------------------------------------------
+
+
+Understanding differenece between ClusterIP, NodePort, LoadBalancing, ExternalIP and
+ExternalName
+----------------------------------------------
+----------------------------------------------
+How to pass paintext data through configMap like configuration files, scripts etc.,
+
+----------------------------------------------
+----------------------------------------------
+using configMap in POD object through env and volumes
+----------------------------------------------
+----------------------------------------------
+
+Ingress (ing)
+	Access application deployed with the cluster through IngressController Deploying Nginx IngressController
+----------------------------------------------
+----------------------------------------------
+	Ingress rules creation secured and non-secure communication
+
+----------------------------------------------
+----------------------------------------------
+
+calico networking
+----------------------------------------------
+----------------------------------------------
+How to migrate from flannel to calico?
+----------------------------------------------
+----------------------------------------------
+How to use flannel for POD networking and Calico for network security calicoctl operations
+----------------------------------------------
+----------------------------------------------
+network policy and PSP (POD Security Policy)
+----------------------------------------------
+----------------------------------------------
+
+36)	Task:
+
+----------------------------------------------
+----------------------------------------------
+a.	wordpress and database application deployment
+----------------------------------------------
+----------------------------------------------
+b.	connecting frontend and backend application
+----------------------------------------------
+----------------------------------------------
+c.	Jenkins deployment with data persistent after upgrading/downgrade
+----------------------------------------------
+----------------------------------------------
+d.	Backup and restore of etcd service data
+----------------------------------------------
+----------------------------------------------
+e.	kubernetes upgrade from one version to another (1.17.5 to 1.18.1)
+----------------------------------------------
+----------------------------------------------
+f.	maintaince task using taint and toleration
+----------------------------------------------
+----------------------------------------------
+
+37)	Application Health and Readiness Checks
+----------------------------------------------
+----------------------------------------------
+38)	Helm Charts for application deployment on Kubernetes
+----------------------------------------------
+----------------------------------------------
+HELM Architecture
+----------------------------------------------
+----------------------------------------------
+HELM Charts
+----------------------------------------------
+----------------------------------------------
+HELM Chart Repository
+----------------------------------------------
+----------------------------------------------
+Creating a Chart, Template
+----------------------------------------------
+----------------------------------------------
+Managing Charts
+----------------------------------------------
+----------------------------------------------
+Installation of applications through HELM, Upgrades/Uninstall/Rollback
+----------------------------------------------
+----------------------------------------------
+39)	Overview of Service Mesh
+----------------------------------------------
+----------------------------------------------
+
+
+Node controller
+----------------------------------------------
+----------------------------------------------
+

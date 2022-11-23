@@ -1,4 +1,5 @@
-kubectl apply -f ng-pod.yaml
+#kubectl apply -f ng-pod.yaml
+kubectl apply -f deploy-ng.yaml
 kubectl apply -f my-cluster-ip.yaml
 
 kubectl apply -f dns.yaml
