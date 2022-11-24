@@ -1,0 +1,12 @@
+ConfigMap	
+	kubectl create configmap nginx-config --from-file=reverseproxy.conf
+	kubectl get configmap nginx-config -o yaml
+	kubectl create -f nginx.yml
+	kubectl create -f nginx-service.yml
+	
+	curl http://ip:
+	
+	kubectl exec -it helloworld-nginx -c nginx -- bash
+		ps x
+		cat /etc/nginx/conf.d/reverseproxy.conf
+			check proxy_pass http://127.0.0.1:3000
