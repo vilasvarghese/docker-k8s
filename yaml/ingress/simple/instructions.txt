@@ -1,0 +1,40 @@
+kubectl create deploy test --image httpd
+kubectl expose deploy test --port 80 --target-port 80
+
+kubectl get svc
+
+
+curl <ip>:80
+
+Create bare-metal ingress controller
+
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.0.0/deploy/static/provider/baremetal/deploy.yaml
+
+
+kubectl apply -f -<<EOF
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: test
+  annotations:
+    kubernetes.io/ingress.class: nginx  
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: test
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+EOF
+
+
+kubectl get no -o wide
+
+kubectl get svc -n ingress-nginx 
+
+
+curl 134.156.0.82:31505

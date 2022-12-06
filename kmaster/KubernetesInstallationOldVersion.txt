@@ -6,11 +6,12 @@ sudo hostnamectl set-hostname kworker1
 sudo hostnamectl set-hostname kworker2	
 
 /etc/hosts
-172.31.22.106 	kmaster 	kmaster
-172.31.26.132 	kworker1 	kworker1
-172.31.29.208	kworker2 	kworker2
+172.31.18.53 	kmaster 	kmaster
+172.31.29.73 	kworker1 	kworker1
+172.31.20.129	kworker2 	kworker2
 
 172.31.76.177	
+
 
 
 
@@ -30,9 +31,11 @@ kubeadm join 172.31.76.177:6443 --token vmouxw.le19mdwmss6m939r \
 ------------------------------------
 
 apt list -a kubeadm
-apt install -y kubeadm=1.23.7-00 kubelet=1.23.7-00 kubectl=1.23.7-00
+apt install -y kubeadm=1.24.7-00 kubelet=1.24.7-00 kubectl=1.24.7-00
 sudo yum -y install kubelet=1.23.7-00 kubeadm=1.23.7-00 kubectl=1.23.7-00 --disableexcludes=kubernetes
 
 kubeadm token create --print-join-command
 
 sudo yum -y install kubelet-1.23* kubeadm-1.23* kubectl-1.23* --disableexcludes=kubernetes
+
+sudo apt-get install -y kubelet kubeadm kubectl

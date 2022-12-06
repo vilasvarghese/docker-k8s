@@ -1,0 +1,13 @@
+Migrating flannel to calico
+
+https://projectcalico.docs.tigera.io/getting-started/kubernetes/flannel/migration-from-flannel
+https://stackoverflow.com/questions/59054628/kubernetes-replace-flannel-with-calico
+
+
+How to use flannel for POD networking and Calico for network security 
+https://projectcalico.docs.tigera.io/getting-started/kubernetes/flannel/flannel
+https://platform9.com/blog/the-ultimate-guide-to-using-calico-flannel-weave-and-cilium/
+
+
+
+

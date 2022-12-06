@@ -136,3 +136,6 @@ kubectl get pod
 -----------------
 yum list --showduplicates kubeadm --disableexcludes=kubernetes
  https://packages.cloud.google.com/yum/pool/
+ 
+ 
+ /var/log/pods/

@@ -11,20 +11,20 @@ spec:
   #    port:
   #      number: 80
   rules:
-  - host: helloworld-v1.example.com
+#  - host: helloworld-v1.example.com
     http:
       paths:
-      - path: /
+      - path: /helloworld-v1
         pathType: Prefix
         backend:
           service:
             name: helloworld-v1
             port:
               number: 80
-  - host: helloworld-v2.example.com
+#  - host: helloworld-v2.example.com
     http:
       paths:
-      - path: /
+      - path: /helloworld-v2
         pathType: Prefix
         backend:
           service:

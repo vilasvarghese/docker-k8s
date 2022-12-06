@@ -1,0 +1,14 @@
+Custom Jenkins Dockerfile with preinstalled plugins 
+
+
+Simple 
+	docker run -d jenkins/jenkins:lts
+	committed images doesn't retain the plugins
+	
+References: 
+	https://www.digitalocean.com/community/tutorials/how-to-automate-jenkins-setup-with-docker-and-jenkins-configuration-as-code
+	https://stackoverflow.com/questions/29328278/installing-jenkins-plugins-to-docker-jenkins
+
+
+solution:
+	build the docker image in current folder

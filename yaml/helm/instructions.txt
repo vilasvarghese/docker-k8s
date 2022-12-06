@@ -76,7 +76,7 @@ Helm
 	helm search repo 
 		searches the repositories that you have added to your local helm client
 		
-	helm search
+	helm search --help
 		uses a fuzzy string matching algorithm
 		can mention parts of words or phrases
 ----------------------------------------------------------------------------------------		

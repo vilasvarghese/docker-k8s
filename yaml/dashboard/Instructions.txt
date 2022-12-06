@@ -1,0 +1,30 @@
+Kubernetes dashboard
+
+https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/
+
+to login
+
+
+
+
+
+kubectl get svc -n kubernetes-dashboard
+kubectl edit svc kubernetes-dashboard -n kubernetes-dashboard
+	update clusterip to NodePort
+Edit security group to allow the port 
+
+Access it like https://3.133.92.197:32430/
+
+	Then follow 
+	
+	https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md 
+
+
+---------- some useful commands
+
+kubectl create serviceaccount dashboard -n default
+
+kubectl create clusterrolebinding dashboard-admin -n default --clusterrole=cluster-admin --serviceaccount=default:dashboard
+
+
+kubectl get secret dashboard -n default

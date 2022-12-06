@@ -1,0 +1,21 @@
+Protect the Docker daemon socket
+Reference: https://docs.docker.com/engine/security/protect-access/
+
+
+Solution: 
+
+Create 2 machines
+	Use below to create users and ssh connect between them.
+
+Setup ssh for a user vilas using steps documented in D:\PraiseTheLord\HSBGInfotech\Others\vilas\ansible\installation
+
+Allow vilas to work with docker
+sudo usermod –aG docker vilas
+sudo reboot
+
+
+connect back 
+
+su - vilas
+
+Follow the instructions in https://docs.docker.com/engine/security/protect-access/
