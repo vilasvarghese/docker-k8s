@@ -44,6 +44,12 @@ Test
 sudo sed -i 's/^SELINUX=.*/SELINUX=permissive/g' /etc/selinux/config
 sudo setenforce 0
 
+why?
+	By Disabling the SElinux all containers can easily access host filesystem
+	But in production it is recommended to work with selinux
+		that requires lot of system file updates
+		More details: https://dev.to/carminezacc/does-kubernetes-support-selinux-3oop
+
 7. Disable Swap 
 sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 sudo swapoff -a
@@ -54,6 +60,7 @@ sudo modprobe br_netfilter
 
 9. Configure kubernetes
 sudo tee /etc/sysctl.d/kubernetes.conf<<EOF
+
 net.bridge.bridge-nf-call-ip6tables = 1
 net.bridge.bridge-nf-call-iptables = 1
 net.ipv4.ip_forward = 1
@@ -128,6 +135,11 @@ Execute the join command retrieved from the init command on the worker node.
 kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
 kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
 kubectl create -f https://docs.projectcalico.org/manifests/custom-resources.yaml
+
+b. Alternatively 
+
+$ kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+Reference: https://www.weave.works/docs/net/latest/kubernetes/kube-addon/
 
 23. Test
 kubectl run nginx --image=nginx

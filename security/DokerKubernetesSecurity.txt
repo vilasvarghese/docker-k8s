@@ -1,0 +1,319 @@
+TOC Reference: D:\PraiseTheLord\corporateTrainer\Companies\Neha
+
+
+1 Best practices
+for developing
+docker image
+
+	Trainee should be able to
+	• Apply Docker published best practices in building images. 
+	In particular, the following security related ones.
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------	
+		o Not adding needless packages
+----------------------------------------------------------------------------
+https://docs.docker.com/develop/develop-images/dockerfile_best-practices/	
+	Create ephemeral containers
+		ephemeral containers mean containers that can be stopped and destroyed, then rebuilt and replaced with a freshly spawned container
+	Understand build context
+	Build from a local build context, using a Dockerfile from stdin
+		This is not recommended in general
+	Use .dockerignore
+	Use multi-stage builds
+	Don’t install unnecessary packages
+		how to reduce: dev. - you know it better
+	Decouple applications
+		reduce number of containers packaged together
+	Minimize the number of layers
+	Sort multi-line arguments
+		sort alphabetically
+	Leverage build cache
+	Best practices of commands - refer 
+		https://docs.docker.com/develop/develop-images/dockerfile_best-practices/
+	
+	
+	https://pythonspeed.com/articles/system-packages-docker/
+	Installing packages adds unnecessary size by:
+		Installing recommended packages that you may not actually need.
+		Keeping around cached copies of the package index and downloaded packages, which you don’t need once the installation is done.
+		
+		solution:
+			create an install script and install min. package required.
+			
+	
+----------------------------------------------------------------------------
+		o Using unprivileged and root-less containers
+----------------------------------------------------------------------------
+https://www.zend.com/blog/rootless-containers
+https://docs.docker.com/engine/security/rootless/
+
+How it works
+	Rootless mode 
+		executes the Docker daemon and 
+			containers inside a user namespace. 
+	
+
+----------------------------------------------------------------------------		
+		o The right usage of "update" instructions in Dockerfile.
+----------------------------------------------------------------------------
+
+update instructions in a single line on the Dockerfile 
+	will cause the update layer to be cached. 
+	When you then build any image later using the same instruction
+	this will cause the previously cached update layer to be used, 
+	potentially preventing any fresh updates from being applied to later builds.
+
+So instead add it with some extra information like echo shown below.
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends foo \
+ && echo gooo
+
+RUN apk update \
+ && apk add --no-cache suuu looo
+ 
+----------------------------------------------------------------------------		
+		o The avoidance of "sudo" command.
+----------------------------------------------------------------------------
+don't give user's sudo access
+instead add them to docker group.
+
+$ sudo groupadd docker
+$ sudo usermod -aG docker <user>
+$ su - <user>
+
+
+Following are generic info.
+
+https://www.baeldung.com/linux/docker-run-without-sudo
+
+Docker commands are executed 
+	as root (by using sudo) 
+or 
+	by a member of the docker group. 
+	
+	otherwise we get following error:
+
+$ docker run hello-world 
+docker: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Post "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/create": dial unix /var/run/docker.sock: connect: permission denied. See 'docker run --help'.
+
+
+
+Linux Groups and Users
+-----------------------
+In Linux 
+	multiple users 
+		can log in and operate simultaneously 
+		A user’s default group is its primary group
+			specified in /etc/passwd file.
+
+To get information about a user use id command:
+
+$ id <user>
+uid=1000(<user>) gid=1001(example_group) groups=1001(example_group),27(sudo)
+
+After creating users in primary groups
+	we can associate these users with secondary groups. 
+	Linux systems store their groups in the /etc/group file.
+
+To find the group(s) <user> belongs to, we can run:
+
+groups sally
+user: group sudo
+
+
+
+----------------------------------------------------------------------------		
+		o Cautious use of "latest" tag to images in public repositories.
+----------------------------------------------------------------------------
+referring to images with latest tag exposes risk
+	especially to public repo.
+
+----------------------------------------------------------------------------		
+		o Inclusion of security updates in container build automation
+----------------------------------------------------------------------------
+
+Recommended for enterprise images.
+1. Modify Dockerfile with version and not latest
+2. Rebuild image
+
+or
+Recommended for open source images.
+1. Use a base image
+2. apply latest security yourself.
+
+Other best practices
+---------------------
+
+
+Many automation tools available
+	eg.1: https://github.com/containrrr/watchtower
+	eg.2: https://github.com/SUSE/zypper-docker
+
+https://documentation.suse.com/sles/12-SP4/#redirectmsg
+----------------------------------------------------------------------------		
+		o Signing of docker images.
+----------------------------------------------------------------------------
+https://betterprogramming.pub/docker-content-trust-security-digital-signatures-eeae9348140d
+
+signatures 
+	additional property of an image 
+	can completely ignore them if you wish
+		but don't do that 
+
+docker pull hello-world
+docker tag hello-world vilasvarghese/signatures:1
+docker trust key generate dev1
+ls
+	dev1.pub
+docker login -u vilasvarghese
+	enter pwd
+docker trust signer add --key dev1.pub dev1 vilasvarghese/signatures
+docker trust sign vilasvarghese/signatures:1
+docker trust inspect --pretty vilasvarghese/signatures
+
+check if it is already pushed?
+else, push it.
+
+DOCKER_CONTENT_TRUST=1 docker pull vilasvarghese/signatures:1
+	will pull only if vilasvarghese/signatures is a signed image
+	
+For Enterprise edition of Docker, add
+
+{
+    "content-trust": {
+        "mode": "enforced"
+    }
+}
+
+this will ensure it and you don't need to repeat it using DOCKER_CONTENT_TRUST
+
+if you have collaborators
+	https://betterprogramming.pub/docker-content-trust-security-digital-signatures-eeae9348140d
+
+
+We can instruct Docker to work with signed images only
+
+
+----------------------------------------------------------------------------
+
+Better do ci/cd of security
+https://blog.neuvector.com/article/container-security-automation
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+
+----------------------------------------------------------------------------
+2 Linter for
+Docker files
+	The trainee should be able to
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------	
+		• Apply a linter of choice in the IDE
+		• Follow the linter suggestions to produce quality and secure code for docker files
+		Trainer is free to use any opensource or commercial tool.
+			
+			Eg: Hadolint,
+					https://godatadriven.com/blog/lint-your-dockerfile-with-hadolint/
+					validate dockerfile with 
+						 https://www.fromlatest.io 
+					
+					https://github.com/hadolint/hadolint					
+					docker run --rm -i hadolint/hadolint  < Dockerfile
+					
+					
+					wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64
+					(if above link is not working check release page mentioned in github)
+
+					chmod +x /bin/hadolint
+					hadolint Dockerfile
+					
+				Semgrep
+				Optional
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+3 Trusted base image for Docker file
+	The trainee should be able to
+		• Appreciate the relevance of a secure base image.
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+		
+		• Identify and obtain a base image from Docker hub. (Verified publishers, Official images etc)
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+		• Appreciate the need to reduce security vulnerability footprint by using "lean" images like Alpine linux.
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+		• Use a SAST tool to detect vulnerabilities in the base image.
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+		• Apply an approach where big, boated images rich in utilities are used in DEV and TEST/QA environments, whereas lean images are used in PROD.
+
+Trainer is free to use any opensource or commercial tool.
+			Eg:Trivy Optional
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+
+
+
+4 Kubernetes
+(If the container orchestration will be done in a PaaS service, use the native cloud tools to
+derive the
+training
+objectives )
+	The trainee should be able to
+		• Understand and apply security policies in the cluster.
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+		• Apply Role Based Access in the cluster.
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+		• Control the access to Kubernetes API.
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+		• Securely manage Kubernetes secrets.
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+		• Apply mutual authentication between pods using mTLS.
+----------------------------------------------------------------------------
+	https://buoyant.io/mtls-guide
+----------------------------------------------------------------------------
+		• Appreciate the relevance of using hardening tools like apparmor, seccomp, selinux.
+----------------------------------------------------------------------------
+	
+----------------------------------------------------------------------------
+	
+
+5 Microservices 
+
+The trainee should me made aware of concepts
+like
+	• Service mesh
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+	• Service discovery
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+	• Service Proxy
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+	• Container registry
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+	• Ingress controller
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+	• API gateway
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+	
+	
+	Additional info:
+		https://docs.docker.com/engine/security/
+		
+		
+		-------------------
+		
+		App deployment in k8s
+		https://www.sysspace.net/post/deploying-docker-voting-app-with-kubernetes
+		
+		

@@ -1,0 +1,578 @@
+Tekton and Harness
+
+
+
+Harness
+https://app.harness.io/ng/#/account/W6WiCBJxRrO01A81Awm1xg/home/orgs/default/projects/Test/details
+
+https://github.com/Prana323/HarnessGit
+
+
+▬▬▬▬▬▬ Timecodes ⏱ ▬▬▬▬▬▬
+00:00 Intro
+00:59 What is Tekton?
+02:15 Setup
+02:39 Tekton tasks
+03:59 Tekton pipelines
+11:14 Running Tekton pipelines
+15:59 Tekton Web UI
+18:00 Handling events
+19:47 Tekton Hub
+20:53 Pros and cons of using Tekton
+
+▬▬▬▬▬▬ 🔗 Additional Info 🔗 ▬▬▬▬▬▬ 
+➡  Gist with the commands: https://gist.github.com/633004d16587b...
+🔗 Tekton: https://tekton.dev/
+🎬 Argo Workflows and Pipelines: https://youtu.be/UMaivwrAyTA
+🎬 Automation of Everything: https://youtu.be/XNXJtxkUKeY
+🎬 Kaniko: https://youtu.be/EgwVQN6GNJg
+
+▬▬▬▬▬▬ 🚀 Courses, books, and podcasts 🚀 ▬▬▬▬▬▬
+📚 DevOps Catalog, Patterns, And Blueprints: https://www.devopstoolkitseries.com/p...
+📚 Books and courses: https://www.devopstoolkitseries.com
+🎤 Podcast: https://www.devopsparadox.com/
+💬 Live streams: https://www.youtube.com/c/DevOpsParadox
+
+▬▬▬▬▬▬ 👋 Contact me 👋 ▬▬▬▬▬▬ 
+➡  Twitter: https://twitter.com/vfarcic
+➡  LinkedIn: https://www.linkedin.com/in/viktorfar.
+
+
+
+Harness
+	Cloud
+		https://app.harness.io/
+	Local
+		https://github.com/harness/harness-cd-community/tree/main/helm
+	
+
+	
+Consideration for CD
+	Deploy k8s service to a cluster
+		What should we deploy
+			- image
+			- manifest files
+		Where do i deploy?
+			- target cluster
+			- namespace with in the cluster
+		How should i orchestrate deployment
+			- Deploy to QA
+			- Approval
+			- Deploy to prod
+	
+Introduction to CI/CD
+Introduction to CI/CD tools
+Introduction to Kubernetes
+
+
+	
+Tekton
+------
+	https://tekton.dev/docs/pipelines/install/	
+	
+	https://redhat-scholars.github.io/tekton-tutorial/tekton-tutorial/index.html
+	
+	https://github.com/bitsofinfo/cicdstatemgr/tree/1.1.3/examples/tekton
+	
+	https://www.youtube.com/watch?v=CnVCgMRE4xI
+		https://github.com/joellord/handson-tekton 
+		
+	git clone https://github.com/joellord/handson-tekton
+	cd 	handson-tekton
+	
+	kubectl apply -f ./demo/01-hello.yaml
+	tkn task start --showlog hello
+	
+	kubectl apply -f ./demo/02-param.yaml
+	tkn task start --showlog hello
+	tkn task start --showlog -p person=Joel hello
+	
+	kubectl apply -f ./demo/03-multistep.yaml
+	tkn task start --showlog hello
+	
+	kubectl apply -f ./demo/04-tasks.yaml
+	kubectl apply -f ./demo/05-pipeline.yaml
+	tkn pipeline start say-things --showlog
+
+	kubectl apply -f ./demo/06-pipeline-order.yaml
+	tkn pipeline start say-things-in-order --showlog
+	
+	kubectl apply -f ./demo/07-pipelineresource.yaml
+	tkn pipeline start count --showlog
+	tkn pipeline start count --showlog --resource git-repo=git-repo
+
+	kubectl apply -f ./demo/08-realworld.yaml
+	tkn pipeline start app-deploy --showlog
+	docker run -d -p 3000:3000 --rm --name handson <user>/<image-name>
+	curl localhost:3000/add/2/5
+
+	
+References: 		
+https://tekton.dev/docs/getting-started/		
+-----------------------------------------------
+
+What is Tekton?
+	open source project 
+	build and deployment workflow tool
+		in kubernetes cluster 
+			continuous integration (CI) and 
+			continuous delivery (CD) --. 
+	Three main pillars:
+		Containers
+		Kubernetes native. 
+		Containers 
+			nucleus of any Kubernetes cluster and 
+		Tekton 
+			optimized for containerized application 
+				build, 
+				test and 
+				deployment. 
+		
+		Serverless
+			Runs as a serverless CI/CD solution 
+				without any need of a central service/engine 
+				that requires ongoing management and maintenance. 
+			The Tekton "master" is Kubernetes 
+			Tekton implemented as CRDs (Custom resource definitions) 
+			their supporting controllers.
+
+		DevOps
+			CI/CD needs DevOps
+			
+			Tekton 
+				built for 
+					distributed
+					collaborative 
+						teams and for either microservices or even more traditional monolithic application architecture.
+
+	Tekton’s primitives 
+		Tasks and 
+		Pipelines 
+			implemented as Custom Resource Definitions
+			with your pipeline being a simple YAML resource file.
+
+
+	Prerequisites
+		Kubernetes cluster
+		manage using kubectl
+		docker
+		tkn
+		
+	Install tekton
+		https://tekton.dev/docs/installation/pipelines/#installing-tekton-pipelines-on-kubernetes
+		kubectl api-resources
+		
+	https://github.com/tektoncd/cli	
+	
+	Download the Tekton cli and add to your path:
+	macos
+	https://github.com/tektoncd/cli/releases/download/v0.19.0/tkn_0.19.0_Darwin_x86_64.tar.gz
+	linux
+		https://github.com/tektoncd/cli/releases/download/v0.19.0/tkn_0.19.0_Linux_x86_64.tar.gz
+		
+	windows
+		https://github.com/tektoncd/cli/releases/download/v0.19.0/tkn_0.19.0_Windows_x86_64.zip
+		
+	
+	
+	A Task
+	------
+		represented in the API as an object of kind Task, 
+		defines a series of Steps 
+			run sequentially 
+			to perform logic that the Task requires. 
+		Every Task runs as a pod on the Kubernetes cluster
+			with each step running in its own container.
+
+	
+	Mandatory fields in Task:
+		apiVersion 
+			The API version used by the Tekton resource; 
+			for example, tekton.dev/v1beta1.
+		kind: Task object.
+		metadata
+			name - the unique name using which the task can be referred
+		spec - 
+			The configuration for a Task resource object.
+
+		steps 
+			One or more sub-tasks 
+			will be executed in the defined order. 
+			
+			step 
+				has all the attributes 
+				like a Pod spec
+
+		Optional fields for a better control over the resource:
+		resources - 
+			the pipeline resources that will be used in the task 
+				e.g. git-source. 
+				supported in alpha version of Tekton API 
+				should be avoided as is using the deprecated PipelineResource type.
+		inputs 
+			the resources ingested by the task
+		outputs 
+			the resources produced by the task
+		params 
+			the parameters that will be used in the task steps. 
+			Each parameter has
+				name - the name of the parameter
+				description - the description of the parameter
+				default - the default value of parameter
+				results - The names under which Tasks write execution results.
+				workspaces - The paths to volumes needed by the Task.
+				volumes - mount external volumes using the volumes attribute.
+
+		TaskRun could override the parameter values, 
+			if no parameter value is passed then the default value will be used.
+
+
+vi mytask.yaml
+	
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: hello
+spec:
+  steps:
+    - name: echo
+      image: alpine
+      script: |
+        #!/bin/sh
+        echo "Hello World"    
+		
+	
+	Create a task 
+		kubectl apply -n tektontutorial -f mytask.yaml
+
+	Verify task
+		tkn task ls
+		
+	
+	describe the task resource:
+		tkn task describe <taskname>
+		tkn task describe hello
+		
+	TaskRun object
+	---------------
+		instantiates and executes this Task. 
+
+Create another file named hello-world-run.yaml with the following content:
+
+vi hello-world-run.yaml
+
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: hello-task-run
+spec:
+  taskRef:
+    name: hello
+	
+	kubectl apply --filename hello-world-run.yaml
+	kubectl get taskrun
+	kubectl describe taskrun
+	
+	kubectl logs --selector=tekton.dev/taskRun=hello-task-run
+	
+	Tasks can take parameters also 
+		Refer 
+			https://tekton.dev/docs/getting-started/pipelines/
+			or 
+			https://redhat-scholars.github.io/tekton-tutorial/tekton-tutorial/tasks.html
+	
+Pipelines
+---------	
+	A Pipeline defines an ordered series of Tasks 
+		arranged in a specific execution order 
+			as part of the CI/CD workflow.
+		Can be executed sequentially or parallely
+
+Create another task
+
+
+vi goodbye-world.yaml
+
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: goodbye
+spec:
+  params:
+  - name: username
+    type: string
+  steps:
+    - name: goodbye
+      image: ubuntu
+      script: |
+        #!/bin/bash
+        echo "Goodbye $(params.username)!"     		
+		
+	kubectl apply --filename goodbye-world.yaml		
+
+
+ PipelineRun
+	represented by API object PipelineRun
+	sets the value for the parameters and executes a 	. 
+	
+	
+vi hello-goodbye-pipeline-run.yaml
+
+
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: hello-goodbye-run
+spec:
+  pipelineRef:
+    name: hello-goodbye
+  params:
+  - name: username
+    value: "Tekton"
+
+	
+	kubectl apply --filename hello-goodbye-pipeline-run.yaml
+	
+	
+To see the logs of the PipelineRun, use the following command:
+	tkn pipelinerun logs hello-goodbye-run -f [-n default]
+	
+	
+Refer https://tekton.dev/docs/concepts/	
+	Other concepts
+	--------------
+	1. Parameters
+	2. Resources
+		most commonly: git 
+	3. Result 
+	4. Other concepts
+	5. Triggers
+	
+Task and Pipelines	
+	Debug
+	Matrix
+	Tasks
+	LimitRange
+	Workspaces
+	Events
+	CustomRuns
+	Runs
+	Variable Substitutions
+	Authentication
+	Pipeline API
+	Logs
+	Pipeline Metrics
+	Labels and Annotations
+	Pod templates
+	HA Support
+	Tekton Controller Performance Configuration
+	Hermetic
+	Container Contract
+	Tekton Bundles Contract
+	PipelineResources
+	Conditions
+	Migrating from Tekton v1alpha1
+	Migrating from Knative Build
+	Deprecations
+	Security 
+	
+	Refer https://tekton.dev/docs/concepts/
+	
+	
+	
+----------------------------------------------------------------------------
+
+			
+Harness steps to deploy
+	Install agent/runner in your cluster
+		Harness manager will connect to this
+	Handle of your cluster
+		Location and credentials
+			ks connector
+	Location of k8s yaml manifest or helm chart
+		(e.g. Git connector)
+	Location of container image registroy
+		(e.g. DockerHub connector)
+	Create a pipelines	
+		(specify deployment details
+			Approvals
+			Deploy to Prod
+			)
+	Run Pipeline
+
+Best in class features and user experience
+	- Automated canary & Blue-green deployments
+	- Automated Infrastructure provisioning
+	- Developer Friendly Pipeline-As-Code
+	
+Create pipelines
+	- Using API
+	- Using UI
+		- Widget based configuration
+		- YAML
+		- Get it from a git repo.
+		
+Channels
+	GitHub
+		https://github.com/harness/harness-cd-community
+	Slack
+		https://harnesscommunity.slack.com
+	Forum
+		https://community.harness.io
+	API
+		https://harness.io/docs/api/
+		
+Features supported by Harness
+	CI
+	Continous delivery
+	Feature flags
+	Cloud Cost Management
+	Security Testing orchestration
+
+
+
+The Harness Platform has two components:
+	Harness Manager: 
+		Harness Manager 
+		CI/CD and other configurations are stored here 
+		your pipelines are managed here. 
+		
+		Alternatively 
+			pipelines can be in Git as well.
+		Pipelines 
+			triggered 
+				manually in the Harness Manager or 
+				automatically in response to 
+					Git events, 
+					schedules, 
+					new artifacts
+						etc.
+		
+		available either as SaaS 
+			(running in the Harness cloud) 
+		or 
+			self-managed 
+				(running in your infrastructure).
+	Harness Delegate: 
+		software service 
+		install in your environment. 
+		connects to the Harness Manager and 
+		performs tasks using 
+			container orchestration platforms
+			artifact repositories
+			monitoring systems, etc. 
+		
+		install the Delegate as part of the flow 
+			when setting up your Pipelines or Connectors.
+			
+		
+	Harness comes in 4 editions
+		https://docs.harness.io/article/len9gulvh1-harness-platform-architecture
+		
+	Harness
+		Has Account
+			top-level entity
+		Within an account 
+			Account X 1/* organizations
+			organizations X 1/*  projects. 
+		
+	resources can be at 
+			account level
+		or
+			organization 
+		or 
+			project levels.
+			
+	A Harness Project 
+		contains 
+			Harness Pipelines, 
+			users
+			resources 
+				
+				
+	Pipelines
+		ideally: 
+			end-to-end process 
+				delivers a new version of your software. 
+		But a Pipeline can 
+			much more: 
+				e.g. a cyclical process - includes 
+					integration, 
+					delivery, 
+					operations, 
+					testing, 
+					deployment, 
+					real-time changes
+					monitoring.			
+					
+					
+		Pipeline Studio
+			build Pipelines in Pipeline Studio.
+			
+			
+		Stages
+			subset of a Pipeline 
+			contains one major segment 
+			
+			based on milestones of your Pipeline
+				building, 
+				approving, and 
+				delivering.
+				
+				
+		Steps and Step Groups
+			step 
+				individual operation in a stage.
+				can run in 
+					sequential and 
+					parallel .
+
+		Step Group 
+			collection of steps 
+				share the same logic 
+				e.g. 
+					rollback strategy.
+					
+		
+		Other definitions
+			Services
+			Service Instance
+			Service Definitions
+			ect. refer https://docs.harness.io/article/hv2758ro4e-learn-harness-key-concepts
+			
+	Hardware requirements
+
+Number of nodes: 2.
+vCPUs, Memory, Disk Size: 4vCPUs, 16GB memory, 100GB disk. In GKE, the e2-standard-4 machine type is enough for this quickstart.
+Networking: outbound HTTPS for the Harness connection to app.harness.io, github.com, and hub.docker.com. Allow TCP port 22 for SSH.
+A Kubernetes service account with permission to create entities in the target namespace is required. The set of permissions should include list, get, create, and delete permissions. In general, the cluster-admin permission or namespace admin permission is enough.
+For more information, see User-Facing Roles from Kubernetes.	
+			
+			
+	Harness can support
+		CI
+		CD
+			Kubernetes deployment
+			Helm Chart deployment
+			Kustomize Deployment
+			Azure ACR to AKS deployment
+			Azure Web Apps deployment
+			Serverless Lambda deployment
+			ECS deployment
+			Custom deployment
+				uses deployment template
+		GitOps
+			
+		Feature Flags
+		Cloud Cost Management (CCM)
+		Harness CD Community Edition
+		Service Reliability Management
+			Change monitoring
+			Health monitoring
+			SLOs 
+		Security Testing Orchestration
+		
+		
+		
+	Harness Kubernetes deployment tutorial
+	--------------------------------------
