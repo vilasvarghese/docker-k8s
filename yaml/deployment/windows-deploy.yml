@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aspnet-sample-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aspnet-sample
+  template:
+    metadata:
+      labels:
+        app: aspnet-sample
+    spec:
+      containers:
+      - image: mcr.microsoft.com/dotnet/samples:aspnetapp
+        name: app
