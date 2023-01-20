@@ -1,0 +1,9 @@
+Storage and ingress works seamlessly in managed kubernetes service like eks, aks
+	because the controller's are deployed by default.
+	
+In bearmetal (kubeadm) it is not easy. Below shows how to do storage class in bear metal.
+
+Disclaimer: yet to test
+
+
+https://github.com/stefanprodan/podinfo/blob/6c8a85a5ab953874c7c83d50317359a0e5a352a9/docs/4-statefulsets.md

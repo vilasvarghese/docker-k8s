@@ -15,3 +15,12 @@ spec:
       containers:
       - image: mcr.microsoft.com/dotnet/samples:aspnetapp
         name: app
+#References: https://hub.docker.com/_/microsoft-dotnet-samples
+#https://hub.docker.com/_/microsoft-dotnet-aspnet
+#https://github.com/dotnet/dotnet-docker/blob/be52546251367f78e2aadf0c5fd1c0fd0ca52bc6/src/aspnet/7.0/alpine3.17/amd64/Dockerfile
+
+#https://www.dotnetcurry.com/aspnet-core/kubernetes-for-developers
+
+#sample dotnet app
+#https://github.com/dotnet/dotnet-docker
+#https://docs.docker.com/build/building/multi-stage/

@@ -19,6 +19,15 @@ Access it like https://3.133.92.197:32430/
 	
 	https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md 
 
+N.B: If you cluster is older than 24
+	kubectl -n kubernetes-dashboard create token admin-user will fail with 
+		Error: must specify one of -f and -k
+	
+	Instead execute 
+		kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}"
+	Reference: https://stackoverflow.com/questions/72481655/creating-a-kubernetes-dashboard-token
+	
+
 
 ---------- some useful commands
 

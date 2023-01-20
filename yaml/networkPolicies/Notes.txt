@@ -1,4 +1,45 @@
 https://kubernetes.io/docs/concepts/services-networking/network-policies/
 
+Try this.
 https://cloud.google.com/kubernetes-engine/docs/tutorials/network-policy
 
+
+https://blog.palark.com/calico-for-kubernetes-networking-the-basics-examples/
+
+Excellent git repo. on network policies
+https://github.com/ahmetb/kubernetes-network-policy-recipes
+
+
+kubectl run hello-web --labels app=hello \
+  --image=us-docker.pkg.dev/google-samples/containers/gke/hello-app:1.0 --port 8080 --expose
+
+vi np.yaml
+  
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: hello-allow-from-foo
+spec:
+  policyTypes:
+  - Ingress
+  podSelector:
+    matchLabels:
+      app: hello
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: foo
+---
+
+
+kubectl apply -f np.yaml
+
+
+kubectl run -l app=foo --image=alpine --restart=Never --rm -i -t test-1
+	wget -qO- --timeout=2 http://hello-web:8080
+	
+	
+kubectl run -l app=other --image=alpine --restart=Never --rm -i -t test-1
+	wget -qO- --timeout=2 http://hello-web:8080
+  

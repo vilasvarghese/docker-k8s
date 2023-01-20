@@ -7,7 +7,7 @@ metadata:
     tier: frontend
 spec:
   # modify replicas according to your case
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       tier: frontend
@@ -19,3 +19,7 @@ spec:
       containers:
       - name: php-redis
         image: gcr.io/google_samples/gb-frontend:v3
+      - name: vilasnginx
+        image: nginx   
+      - name: vilasnginx
+        image: nginx          

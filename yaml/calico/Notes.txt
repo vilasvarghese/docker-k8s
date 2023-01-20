@@ -10,4 +10,5 @@ https://platform9.com/blog/the-ultimate-guide-to-using-calico-flannel-weave-and-
 
 
 
-
+Exercise on calico
+https://blog.palark.com/calico-for-kubernetes-networking-the-basics-examples/

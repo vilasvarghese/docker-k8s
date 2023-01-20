@@ -15,6 +15,9 @@ https://www.kubecost.com/kubernetes-autoscaling/kubernetes-hpa/
 	Modify 5-deployment.yaml
 		Add below as in my metric server
 		- --kubelet-insecure-tls
+	or 
+		directly run it from D:\PraiseTheLord\HSBGInfotech\Others\vilas\docker-k8s\yaml\metricServer
+		
 	kubectl apply -f .
 	kubectl get pods --all-namespaces | grep metrics-server
 	kubectl get svc -n kube-system | grep metrics-server
