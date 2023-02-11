@@ -1,3 +1,24 @@
+In some managed clusters 
+	metric server is deployed by default
+	
+	Following command's should work if metric server is available.
+		kubectl top node <node name> 
+		kubectl top pod <pod name>
+	
+	It will fail with "server could not find requested resource" if metric server is not deployed.
+	
+	create metric server
+	
+	kubectl get pod -n kube-system
+		metric server should be listed here
+		
+	kubectl top commands should work now.
+	
+	kubectl describe node should also show memory and cpu reservations for pod's.
+	
+	
+		
+
 Refer: https://github.com/kubernetes-sigs/metrics-server
 --kubelet-preferred-address-types InternalIP,Hostname,InternalDNS,ExternalDNS,ExternalIP
 e.g. for virtulabox
