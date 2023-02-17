@@ -14,7 +14,7 @@ create a user
 
 install aws cli
 	https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
-	aws --version
+	aws --versionf
 		should be >2.0.42 (check documentation for current status)
  	aws configure
 	
@@ -101,3 +101,8 @@ Roles for nodes
 		kubectl get svc
 		kubectl get pods
 		
+		
+-------------------------
+Create vpc using cloudformation and the template provided in https://docs.aws.amazon.com/eks/latest/userguide/creating-a-vpc.html
+Then create the ekscluster using the above vpc.
+Reference: https://www.youtube.com/watch?v=aZd0UolVwD4		

@@ -19,7 +19,7 @@ Access it like https://3.133.92.197:32430/
 	
 	https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md 
 
-N.B: If you cluster is older than 24
+N.B: If you cluster is earlier than 24
 	kubectl -n kubernetes-dashboard create token admin-user will fail with 
 		Error: must specify one of -f and -k
 	
