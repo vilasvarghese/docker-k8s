@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example-pod
+spec:
+  containers:
+  - name: example-container
+    image: example-image
+    env:
+    - name: EXAMPLE_ENV_VAR
+      valueFrom:
+        configMapKeyRef:
+          name: example-configmap
+          key: example-key

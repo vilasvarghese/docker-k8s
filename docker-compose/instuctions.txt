@@ -4,6 +4,9 @@ docker-compose up
 http://<ip>/docker-compose-spring-boot-0.0.1-SNAPSHOT/book
 
 
+install
+	https://docs.docker.com/compose/cli-command/#install-on-linux
+
 -----------------------------------------------------------------
 How is it working?
 ------------------

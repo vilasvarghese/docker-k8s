@@ -1,4 +1,4 @@
-Taints and tolerations 
+ Taints and tolerations 
 	ensure pods are placed on appropriate nodes. 
 Taints 
 	added to nodes

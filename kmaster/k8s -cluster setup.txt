@@ -1,0 +1,63 @@
+cpu=2,2gb [t2.medium] and vol >8gb
+must select redhat or centos/amazon-linux
+run in master and workernode also 
+------
+
+sudo yum update -y
+sudo amazon-linux-extras install java-openjdk11 -y
+sudo yum install docker -y
+sudo systemctl enable docker
+sudo systemctl start docker
+sudo systemctl status docker
+
+cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+enabled=1
+gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+exclude=kubelet kubeadm kubectl
+EOF
+
+sudo setenforce 0
+sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+sudo systemctl enable --now kubelet
+
+
+---
+#for master server only
+
+#Run as a roor user
+$sudo su
+
+$ kubeadm init
+
+#once you run above command you can get below commands
+
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+export KUBECONFIG=/etc/kubernetes/admin.conf
+
+#network
+
+curl https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/calico.yaml -O
+
+kubectl apply -f calico.yaml
+
+-----
+worker nodes only[replace token]
+
+$ sudo su
+
+kubeadm join 10.0.2.140:6443 --token aqk895.kxsb6glyyh9ecfqp \
+        --discovery-token-ca-cert-hash sha256:d5673687e42493d6bd3b4fc9a148e1753598de8c5a331a24e98fa7c9d0666290
+
+
+#Run in master node
+$kubectl get nodes
+
+

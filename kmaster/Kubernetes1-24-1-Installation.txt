@@ -136,6 +136,17 @@ kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
 kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
 kubectl create -f https://docs.projectcalico.org/manifests/custom-resources.yaml
 
+IP_AUTODETECTION_METHOD=interface=eth.*
+https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/calico.yaml
+https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/tigera-operator.yaml
+https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/custom-resources.yaml
+
+--------------------
+for the calico yaml , I only need one additional env and it will work on those t2.xlarge.
+the IP_AUTO_DETECT
+IP_AUTODETECTION_METHOD=interface=eth.*
+--------------------
+
 b. Alternatively 
 
 $ kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml

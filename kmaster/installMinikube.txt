@@ -1,0 +1,62 @@
+Instruction for amazon linux
+(didn't work.. needs more work)
+
+Install docker
+
+sudo sudo
+yum update -y
+
+
+Install kubectl
+	https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html
+	curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.25.6/2023-01-30/bin/linux/amd64/kubectl
+	mv kubectl /bin/kubectl
+	chmod a+x /bin/kubectl
+
+Install minikube
+	curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+	sudo install minikube-linux-amd64 /usr/local/bin/minikube
+	sudo yum -y install conntrack-tools.x86_64
+	
+	
+Install cri-dockerd
+	https://github.com/Mirantis/cri-dockerd#build-and-install
+		
+	# Run these commands as root
+	###Install GO###
+	sudo yum install golang -y
+	yum install git -y
+	
+	wget https://storage.googleapis.com/golang/getgo/installer_linux
+	chmod +x ./installer_linux
+	./installer_linux
+	source ~/.bash_profile
+
+	cd cri-dockerd
+	mkdir bin
+	go build -o bin/cri-dockerd
+	#mkdir -p /usr/local/bin - check if it is already there
+	install -o root -g root -m 0755 bin/cri-dockerd /usr/local/bin/cri-dockerd
+	cp -a packaging/systemd/* /etc/systemd/system
+	sed -i -e 's,/usr/bin/cri-dockerd,/usr/local/bin/cri-dockerd,' /etc/systemd/system/cri-docker.service
+	systemctl daemon-reload
+	systemctl enable cri-docker.service
+	systemctl enable --now cri-docker.socket
+	
+	
+Install crictl
+	#source vilasc
+	sudo yum update
+	sudo yum install -y iptables libseccomp
+	sudo curl -L "https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.22.0/crictl-v1.22.0-linux-amd64.tar.gz" -o crictl.tar.gz
+	sudo tar -zxvf crictl.tar.gz -C /usr/local/bin
+
+	restart docker and containerd
+
+	
+	minikube start --vm-driver=none
+	
+
+#ubuntu reference: 	
+https://github.com/kunchalavikram1427/YouTube_Series/blob/main/Kubernetes/ClusterSetup/minikube-on-aws.md
+	

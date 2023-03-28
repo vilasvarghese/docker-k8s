@@ -1,0 +1,10 @@
+https://logz.io/blog/deploying-the-elk-stack-on-kubernetes-with-helm/
+	doesn't work try
+		https://github.com/elastic/helm-charts/issues/97
+	cd yaml/elk/efs
+        helm repo add elastic https://Helm.elastic.co
+		kubectl apply -f sc.yml
+		helm install elasticsearch elastic/elasticsearch -f ./elastic-values.yml	
+    if not working
+        kubectl get pvc -o yaml > pvc.yml
+        
