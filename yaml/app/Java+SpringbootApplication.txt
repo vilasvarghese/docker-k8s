@@ -1,0 +1,4 @@
+Java + SpringBoot 
+
+https://raw.githubusercontent.com/MithunTechnologiesDevOps/Kubernates-Manifests/master/SpringBoot-Mongo-Dy
+namicPV.yml

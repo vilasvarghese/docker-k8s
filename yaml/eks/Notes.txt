@@ -35,6 +35,8 @@ https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html
 
 eksctl create cluster --name vilasekscluster1 --version 1.22 --region us-east-2 --nodegroup-name vilas-workers --node-type t3.micro --nodes 2 --nodes-min 1 --nodes-max 2 --managed
 
+eksctl create cluster --name vilasekscluster1 --region us-east-2 --nodegroup-name vilas-workers --node-type t3a.medium --nodes 2 --nodes-min 2 --nodes-max 2 --managed
+
 get config
 aws eks update-kubeconfig --name vilasekscluster1 --region us-east-2
 
