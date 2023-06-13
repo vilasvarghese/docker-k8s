@@ -64,7 +64,7 @@ Goto target directory and rename the HelloWorldXXXXX.war file to HelloWorld.war
 
 docker  build -f Dockerfile.dockerfile -t tomcat:8 .
 
-docker run -it -p 8888:8080 --link mysqlserver:mysqldb tomcat:8
+docker run -it -p 8080:8080 --link mysqlserver:mysqldb tomcat:8
 (Here we are linking the mysql database name with the tomcat container. Our customers.jsp uses the DB name mysqldb to connect to the classicmodel database and retrieve the data)
 
 Once the container is started, access   http://localhost:8888/HelloWorld/customers.jsp

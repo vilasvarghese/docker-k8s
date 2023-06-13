@@ -11,6 +11,8 @@ private-ip	kmaster
 private-ip	kworker1 
 private-ip	kworker2 
 Following has to be executed on all nodes unless mentioned otherwise (till init)
+172.31.19.212	kmaster
+172.31.29.196	kworker
 
 1. yum update
 	sudo yum -y update

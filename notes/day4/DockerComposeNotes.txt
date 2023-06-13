@@ -5,24 +5,31 @@
 ################################################################################################
 
 Reference: https://docs.docker.com/compose/
-Reference: https://www.educative.io/blog/docker-compose-tutorial
+Reference: https://www.educative.io/blog/docker compose-tutorial
+
+Create an ubuntu instance 
+	install docker as usual 
+		docker compose may work.
+		if it doesn't work follow 
+			https://docs.docker.com/compose/install/linux/
+
 
 Latest version was not stable 
 So reverted to 
-	sudo curl -L "https://github.com/docker/compose/releases/download/1.26.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+	sudo curl -L "https://github.com/docker/compose/releases/download/1.26.2/docker compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 -------------------------------------------------------------------
 Install Docker Compose
 
 https://docs.docker.com/compose/install/
 
-	sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-	sudo chmod +x /usr/local/bin/docker-compose
-	sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+	sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker compose
+	sudo chmod +x /usr/local/bin/docker compose
+	sudo ln -s /usr/local/bin/docker compose /usr/bin/docker compose
 	
 	#General instruction. 
-	docker-compose up # expects a file named docker-compose.yml or docker-compose.yaml
-	docker-compose down
-	docker-compose --volumes #remove active volumes also
+	docker compose up # expects a file named docker compose.yml or docker compose.yaml
+	docker compose down
+	docker compose --volumes #remove active volumes also
 ----------------------------------------------------------
 Compose 
 	Tool 
@@ -35,8 +42,8 @@ Compose
 	An open specification
 	
 	cd docker-k8s
-	docker-compose -f dc1.yaml up
-	docker-compose -f dc1.yaml down
+	docker compose -f dc1.yaml up -d
+	docker compose -f dc1.yaml down 
 	
 	
 	
@@ -48,12 +55,12 @@ Compose works in all environments:
 	as well as CI workflows.
 ----------------------------------------------------------------------------------	
 Three-step process in Compose:
-	Define services that participate in docker-compose.yml
+	Define services that participate in docker compose.yml
 	For services 
 		that are picked from image: define image name
 		that are from live application: 
 			define Dockerfile and application context
-	Run docker-compose up 
+	Run docker compose up 
 		Compose starts and runs your entire app.	
 
 ----------------------------------------------------------------------------------	
@@ -62,7 +69,7 @@ Compose has commands for managing the whole lifecycle of your application:
 	---------------------------------
 	For dc1.yaml execution you should be in docker-k8s folder	
 		Create and start containers, network and volume
-			docker-compose up
+			docker compose up
 				build images
 				check image is present locally
 					if not present download images
@@ -71,53 +78,54 @@ Compose has commands for managing the whole lifecycle of your application:
 					Containers in this network can refer by name 
 						(as hostname in accessing code).
 					
-			docker-compose -f dc1.yaml up
+			docker compose -f dc1.yaml up
 			
 		Stop and remove containers, networks, images, and volumes
-			docker-compose down
+			docker compose down
 				stop container 
 				remove container
-			docker-compose -f dc1.yaml down
+			docker compose -f dc1.yaml down
 		
 		Build or rebuild services
-			docker-compose build
-			docker-compose -f dc1.yaml build
+			docker compose build
+			docker compose -f dc1.yaml build
 			
 		Starts existing containers for a service. docker start
-			docker-compose start
-			docker-compose -f dc1.yaml start
+			docker compose start
+			docker compose -f dc1.yaml start
 			
 		Graceful stop and remove	
-			docker-compose stop
-			docker-compose rm
+			docker compose stop
+			docker compose rm
 		
 	------------------------------------------------------------------	
-		N.B: docker-compose 	up Vs start Vs run
+		N.B: docker compose 	up Vs start Vs run
 		
 		Builds, (re)creates, starts, and attaches to containers for a service.
 
 		Unless they are already running, this command also starts any linked services.
 
-		docker-compose up 
+		docker compose up 
 			Use up to 
 				Build and start or restart all the services 
-					defined in a docker-compose.yml. 
+					defined in a docker compose.yml. 
 			Default “attached” mode, 
 					you see all the logs from all the containers. 
 			“detached” mode (-d), 
+				docker compose up -d
 				Compose exits after starting the containers, 
 				containers continue to run in the background.
 			If there are 
 				existing containers for a service, and 
 				service’s configuration or image was changed 
 					after the container’s creation, 
-				docker-compose up 
+				docker compose up 
 					picks up the changes by stopping and recreating the containers 	
 						(preserving mounted volumes). 
 					To prevent Compose from picking up changes
 						use the --no-recreate flag.
 		
-		docker-compose run command 
+		docker compose run command 
 			run “one-off” or “adhoc” tasks. 
 			It requires 
 				service name you want to run 
@@ -128,17 +136,17 @@ Compose has commands for managing the whole lifecycle of your application:
 			Acts like docker run -it 
 				opens an interactive terminal to the container 
 				returns an exit status matching the exit status of the process in the container.
-			Run will not do a port mapping (mentioned in docker-compose file)
+			Run will not do a port mapping (mentioned in docker compose file)
 			So if there is already a container running (from up), 
 				run would still be successful
 		
-		docker-compose start command 
+		docker compose start command 
 			useful only to restart containers 
 				previously created, 
 					but were stopped. 
 					It never creates new containers.
 		
-		N.B: docker-compose up Vs start Vs run ends
+		N.B: docker compose up Vs start Vs run ends
 			Summary: 
 				start and run are docker equivalent.
 				up can build and run.
@@ -146,39 +154,39 @@ Compose has commands for managing the whole lifecycle of your application:
 	View the status of running services
 	-----------------------------------
 		List containers
-			docker-compose -f dc1.yaml ps
+			docker compose -f dc1.yaml ps
 
 		
 		
 	Stream the log output of running services
 	-----------------------------------------
 		View output from containers
-			docker-compose logs	
-																					docker-compose -f dc1.yaml logs
+			docker compose logs	
+																					docker compose -f dc1.yaml logs
 	
 	Run a one-off command on a service
 	---------------------------------
 	Validate and view the Compose file
-		docker-compose config
-		docker-compose -f dc1.yaml config
+		docker compose config
+		docker compose -f dc1.yaml config
 	
 	Create services #Deprecated
-		docker-compose create 
-		docker-compose -f dc1.yaml create
+		docker compose create 
+		docker compose -f dc1.yaml create
 		
 	List containers
-		docker-compose ps
-		docker-compose -f dc1.yaml ps
+		docker compose ps
+		docker compose -f dc1.yaml ps
 		
 	Receive real time events from containers
-		docker-compose events
-		docker-compose -f dc1.yaml events
+		docker compose events
+		docker compose -f dc1.yaml events
 
 	#The below is not working. Use docker exec instead.
 	Execute a command in a running container
-		docker-compose exec
-		docker-compose -f dc1.yaml exec
-		docker-compose -f dc1.yaml exec docker-k8s_web_1 bash #docker-compose ps
+		docker compose exec
+		docker compose -f dc1.yaml exec
+		docker compose -f dc1.yaml exec docker-k8s_web_1 bash #docker compose ps
 
 	Example of execute a command	
 		ExampleOfCommand.txt
@@ -207,12 +215,12 @@ Multiple isolated environments on a single host
 
 Preserve volume data when containers are created
 	Compose preserves all volumes used by your services. 
-	When docker-compose up runs, 
+	When docker compose up runs, 
 		if it finds any containers from previous runs, 
 		it copies the volumes from the old container to the new container. 
 		This process ensures that any data you’ve created in volumes isn’t lost.
 
-If you use docker-compose on a Windows machine, 
+If you use docker compose on a Windows machine, 
 	see Environment variables and adjust the necessary environment variables for your specific needs.
 
 Only recreate containers that have changed
@@ -221,18 +229,18 @@ Only recreate containers that have changed
 		Compose re-uses the existing containers. 
 	Re-using containers means that you can make changes to your environment very quickly.
 	
-	docker-compose start service
-	docker-compose build --no-cache nginx 
-	docker-compose up --build
-	docker-compose up --build <service_name> #start linked services too
-	docker-compose up -d --no-deps --build <service_name> #don't start linked service
+	docker compose start service
+	docker compose build --no-cache nginx 
+	docker compose up --build
+	docker compose up --build <service_name> #start linked services too
+	docker compose up -d --no-deps --build <service_name> #don't start linked service
 		--no-deps - Don't start linked services.
 		--build - Build images before starting containers.
 		
 	Version before 1.19
-		docker-compose build service1 service2 --no-cache does this job better (github.com/docker/compose/issues/1049). I had issue with cached containers that were built before using docker-compose up -d --no-deps --build
+		docker compose build service1 service2 --no-cache does this job better (github.com/docker/compose/issues/1049). I had issue with cached containers that were built before using docker compose up -d --no-deps --build
 	From 1.19
-		docker-compose up --build --force-recreate --no-deps [-d] [<service_name>..]
+		docker compose up --build --force-recreate --no-deps [-d] [<service_name>..]
 
 
 			-d, --detach        Detached mode: Run containers in the background,
@@ -266,15 +274,15 @@ Docker Compose Use Cases
 --------------------------------------------------------------------
 Exercises
 	1. cd docker-k8s/
-		docker-compose -f dc1.yaml up
+		docker compose -f dc1.yaml up
 		http://13.232.1.89:8080/
 		
-		docker-compose -f dc1.yaml down
+		docker compose -f dc1.yaml down
 		
 		More examples refer 
 			https://docs.docker.com/compose/gettingstarted/
 		
-End to end exercise on docker-compose
+End to end exercise on docker compose
 
 
 		
@@ -282,9 +290,9 @@ End to end exercise on docker-compose
 
 
 
-https://github.com/dockersamples/example-voting-app
+https://github.com/dockersamples/example-voting-app (working)
 Forked to 
-https://github.com/vilasvarghese/example-voting-app
+https://github.com/vilasvarghese/example-voting-app (not working)
 
 Refer the notes
 The app will be running at 
@@ -296,21 +304,21 @@ Following example is deprecated because Voting app seems to be a much better exa
 
 
 Pick exercise from 
-https://wkrzywiec.medium.com/how-to-run-database-backend-and-frontend-in-a-single-click-with-docker-compose-4bcda66f6de
+https://wkrzywiec.medium.com/how-to-run-database-backend-and-frontend-in-a-single-click-with-docker compose-4bcda66f6de
 
 Forked from https://github.com/wkrzywiec/kanban-board.git
 
 Docker compose from active application
 
 	cd docker-k8s
-	docker-compose -f dc1.yaml up
-	docker-compose -f dc1.yaml down
+	docker compose -f dc1.yaml up
+	docker compose -f dc1.yaml down
 
 Docker compose from image
 
 	cd docker-k8s
-	docker-compose -f dc2.yaml up
-	docker-compose -f dc2.yaml down
+	docker compose -f dc2.yaml up
+	docker compose -f dc2.yaml down
 
 Includes
 	kanban-postgres— 
@@ -331,7 +339,7 @@ Includes
 			
 	
 	cd kanban-board
-	docker-compose up
+	docker compose up
 	
 	N.B: This will not completly work because data is not populated.
 	
@@ -341,7 +349,7 @@ Includes
 	Swagger UI page, and which is reachable from the url: 
 		http://localhost:8080/api/swagger-ui.html.
 		
-	docker-compose down
+	docker compose down
 
 
 		version: `3.8` — 

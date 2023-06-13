@@ -1,0 +1,18 @@
+
+Read it completly and follow.
+https://learn.microsoft.com/en-us/dotnet/core/docker/build-container?tabs=windows
+
+
+Follow 
+https://medium.com/swlh/containerize-asp-net-core-3-1-with-docker-c5e1acabba21
+	git clone https://github.com/therealjordanlee/Core3Api
+	docker build . -t demo
+	docker images  
+	docker run -e message="hello world" -p 8080:80 demo
+	
+	on a browser 
+		localhost:8080
+	
+	
+docker run -d -p 8080:80 nginx
+	

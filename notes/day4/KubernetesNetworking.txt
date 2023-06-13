@@ -727,11 +727,78 @@ DNS — The Domain Name System
 The Domain Name System (DNS) is a decentralized naming system for associating system names with IP addresses. It translates domain names to numerical IP addresses for locating computer services.
 
 
+##########################################################################################################
+			Additional reference
+			https://coroot.com/blog/a-deep-dive-into-service-to-service-communications
 
-#################################################################################################################################
+##########################################################################################################
+When a service is created
+	Kubernetes (kube-proxy) 
+		creates iptables rules 
+			to distribute traffic 
+				randomly among the available nginx pods. 
+		These rules NAT'ing/DNAT'ing of IP address 
+			for incoming/outgoing traffic.
+		As the pod's crashes or get's created 
+			new rules/edited/deleted on each node
+	This load balancing approach 
+		relies on the conntrack table 
+		(a part of Linux network stack) 
+		to keep track of the connection states. 
+		The conntrack table maintains 
+			information about established connections
+			including the source and destination IP addresses and ports.
+
+	Hence
+		we can identify the translated address of the connection 
+			in the conntrack table within 
+				the root network namespace on the node:
+
+
+Istio Service Mesh
+	Now let's see how the same scenario works with Istio Service Mesh.
+
+	A service mesh achieves better control over service-to-service communications by implementing a dedicated infrastructure layer that intercepts and manages network traffic between services. It does this by using sidecar proxies, such as Envoy, that are deployed alongside each application instance.
+
+	As Istio is already installed in the cluster, let's proceed by enabling automatic sidecar injection within our cluster:
+
+ kubectl label namespace default istio-injection=enabled --overwrite
+namespace/default labeled
+Now let's run a client pod and connect to the nginx service:
+
+$ kubectl run --rm client -it --image arunvelsriram/utils sh
+$ telnet nginx 80
+Trying 10.43.209.15... ← Service IP
+Connected to nginx.default.svc.cluster.local.
+Escape character is '^]'
+
+
+From the client's perspective, nothing has changed. It is connected to the service IP as before:
+
+$ netstat -an|grep EST
+tcp        0      0 10.42.0.19:32840        10.43.209.15:80         ESTABLISHED
+The iptables rules continue to exist in the root network namespace, however there is no relevant record in the root conntrack table anymore. This occurs because the outbound packets from the client are now intercepted directly within the current network namespace of the pod.
+
+When Istio injects a sidecar proxy into a pod, its component, pilot-agent, configures iptables to redirect all outbound traffic to the Envoy proxy within the same network namespace for further processing and control.
+
+
+
+Knowing this, we can locate the relevant conntrack table entry within the network namespace of the client pod:
+
+root@lab:~# nsenter -t <telnet_pid> -n conntrack -L |grep 32840
+tcp 6 428676 ESTABLISHED src=10.42.0.19 dst=10.43.209.15 sport=32840 dport=80 src=127.0.0.1 dst=10.42.0.19 sport=15001 dport=32840 [ASSURED] use=1
+        
+Now we can see that the actual connection destination is 127.0.0.1:15001 (envoy). As Envoy establishes new connections to the service endpoints, it's not feasible to trace the initial connection directly to the final destination.
+
+However, from Coroot's perspective, this is not a problem. Its agent captures and traces all outbound connections, including those from sidecar proxies. As a result, there is no difference on service maps between connections proxied by Envoy and those that are not.
+
+
+For cilium and docker swarm refer https://coroot.com/blog/a-deep-dive-into-service-to-service-communications	
+
+##########################################################################################################
 			CALICO BASICS
 
-#################################################################################################################################
+##########################################################################################################
 
 https://docs.projectcalico.org/reference/architecture/overview
 

@@ -1,1 +1,22 @@
+https://minikube.sigs.k8s.io/docs/start/
+Follow above url only 
+
+windows 10/11
+	winget install minikube
+	winget install -e --id kubernetes.kubectl
+	minikube start --driver=virtualbox --no-vtx-check
+	or minikube start --no-vtx-check
+
+
+
+
+
+Minikube installation
 https://phoenixnap.com/kb/install-minikube-on-ubuntu
+
+
+using chatgpt meeting
+https://us02web.zoom.us/j/81926432827?pwd=YzBlL3FyU1ZoUGNsdVRWOHRETm1hUT09
+9:30 to 10:30 
+
+
