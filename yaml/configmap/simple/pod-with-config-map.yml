@@ -5,7 +5,7 @@ metadata:
 spec:
   containers:
   - name: example-container
-    image: example-image
+    image: nginx
     env:
     - name: EXAMPLE_ENV_VAR
       valueFrom:

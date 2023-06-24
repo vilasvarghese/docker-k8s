@@ -1,0 +1,39 @@
+#Set Node Affinity to the deployment to place the pods on node01 only.
+#Name: blue
+#Replicas: 3
+#Image: nginx
+#NodeAffinity: requiredDuringSchedulingIgnoredDuringExecution
+#Key: color
+#value: blue
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: blue
+  name: blue
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: blue
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: blue
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: color
+                operator: In
+                values:
+                  - blue
+      containers:
+      - image: nginx
+        name: nginx
+        resources: {}
+status: {}

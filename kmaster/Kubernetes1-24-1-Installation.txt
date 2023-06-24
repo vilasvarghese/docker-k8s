@@ -11,8 +11,8 @@ private-ip	kmaster
 private-ip	kworker1 
 private-ip	kworker2 
 Following has to be executed on all nodes unless mentioned otherwise (till init)
-172.31.19.212	kmaster
-172.31.29.196	kworker
+172.31.4.21		kmaster1
+172.31.10.73	kworker11
 
 1. yum update
 	sudo yum -y update
@@ -32,10 +32,11 @@ EOF
 3. sudo yum clean all
 4. sudo yum -y makecache
 
-5. sudo yum -y install epel-release kubelet kubeadm kubectl --disableexcludes=kubernetes
-
+5. sudo yum -y install  kubelet kubeadm kubectl --disableexcludes=kubernetes
+#epel-release
 to install older version
-sudo yum -y install epel-release kubelet-1.23* kubeadm-1.23* kubectl-1.23* --disableexcludes=kubernetes
+sudo yum -y install kubelet-1.23* kubeadm-1.23* kubectl-1.23* --disableexcludes=kubernetes
+
 
 Test
 	kubeadm  version
@@ -76,7 +77,8 @@ curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
 
 12. Configure docker to work with kubernetes
-sudo mkdir /etc/docker
+#sudo mkdir /etc/docker
+ls /etc/docker #check if the above directory exists - else create it
 sudo mkdir -p /etc/systemd/system/docker.service.d
 
 13. Update daemon json 
@@ -137,6 +139,7 @@ Execute the join command retrieved from the init command on the worker node.
 kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
 kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
 kubectl create -f https://docs.projectcalico.org/manifests/custom-resources.yaml
+https://docs.tigera.io/calico/latest/getting-started/kubernetes/quickstart
 
 IP_AUTODETECTION_METHOD=interface=eth.*
 https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/calico.yaml
@@ -164,3 +167,16 @@ yum list --showduplicates kubeadm --disableexcludes=kubernetes
  
  
  /var/log/pods/
+ 
+ install exact version 
+sudo apt-get install -y kubelet=1.27.0-00 kubeadm=1.27.0-00 kubectl=1.27.0-00 
+
+
+
+
+------------------------
+outside syllabus
+End to end testing
+https://www.youtube.com/watch?v=-ovJrIIED88&list=PL2We04F3Y_41jYdadX55fdJplDvgNGENo&index=19
+
+installation the hardway 

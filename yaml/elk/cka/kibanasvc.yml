@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2023-06-22T01:02:27Z"
+  name: kibana
+  namespace: elastic-stack
+  resourceVersion: "1469"
+  uid: 80d1a92e-42c3-414d-b005-38cad3be7d71
+spec:
+  clusterIP: 10.105.60.8
+  clusterIPs:
+  - 10.105.60.8
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - nodePort: 30601
+    port: 5601
+    protocol: TCP
+    targetPort: 5601
+  selector:
+    name: kibana
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}

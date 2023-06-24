@@ -1,0 +1,72 @@
+https://loft.sh/blog/kubernetes-service-account-what-it-is-and-how-to-use-it/
+
+kubectl create deployment nginx1 --image=nginx
+ kubectl get pods
+ kubectl get pod <podname> -o yaml
+
+kubectl exec -it nginx-pod -- /bin/bash
+
+# Export the internal Kubernetes API server hostname
+export APISERVER=https://kubernetes.default.svc
+
+# Export the path to ServiceAccount mount directory
+export SERVICEACCOUNT=/var/run/secrets/kubernetes.io/serviceaccount
+
+# Read the ServiceAccount bearer token
+export TOKEN=$(cat ${SERVICEACCOUNT}/token)
+
+# Reference the internal Kubernetes certificate authority (CA)
+export CACERT=${SERVICEACCOUNT}/ca.crt
+
+# Make a call to the Kubernetes API with TOKEN
+ curl --cacert ${CACERT} --header "Authorization: Bearer ${TOKEN}" -X GET ${APISERVER}/api/v1/namespaces/default/pods
+
+expected output
+{
+  "kind": "Status",
+  "apiVersion": "v1",
+  "metadata": {},
+  "status": "Failure",
+  "message": "pods is forbidden: User \"system:serviceaccount:default:default\" cannot list resource \"pods\" in API group \"\" in the namespace \"default\"",
+  "reason": "Forbidden",
+  "details": {
+    "kind": "pods"
+  },
+  "code": 403
+}#
+
+
+
+ kubectl create serviceaccount nginx-serviceaccount
+ 
+ kubectl get serviceaccounts
+ 
+ kubectl create rolebinding nginx-sa-readonly \
+  --clusterrole=view \
+  --serviceaccount=default:nginx-serviceaccount \
+  --namespace=default
+  
+  kubectl apply -f dep.yaml
+  
+  
+  
+kubectl exec -it nginx-pod -- /bin/bash
+
+# Export the internal Kubernetes API server hostname
+export APISERVER=https://kubernetes.default.svc
+
+# Export the path to ServiceAccount mount directory
+export SERVICEACCOUNT=/var/run/secrets/kubernetes.io/serviceaccount
+
+# Read the ServiceAccount bearer token
+export TOKEN=$(cat ${SERVICEACCOUNT}/token)
+
+# Reference the internal Kubernetes certificate authority (CA)
+export CACERT=${SERVICEACCOUNT}/ca.crt
+
+# Make a call to the Kubernetes API with TOKEN
+ curl --cacert ${CACERT} --header "Authorization: Bearer ${TOKEN}" -X GET ${APISERVER}/api/v1/namespaces/default/pods
+
+expected output 
+good response.
+

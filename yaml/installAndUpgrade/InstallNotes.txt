@@ -1,0 +1,23 @@
+Installation notest
+	kubectl drain --ignore-daemonsets <nodename>
+	kubectl cordon <nodename>
+	kubectl uncordon <nodename>
+	
+Kubernetes release standards
+	1.0 in 2015
+	Major.minor.patches standards
+	Alpha and Beta releases
+	
+	patches 
+		very often - bug fixes
+	minor releases	
+		once in few months (generally 6 months)
+	major 
+		only one till now
+		
+	Version restrictions 
+		API server should always be at a higher version
+			since all components talk to it
+			
+
+While upgrading kubelet, if you hit dependency issues while running the apt-get upgrade kubelet command, use the apt install kubelet=1.27.0-00 command instead.		

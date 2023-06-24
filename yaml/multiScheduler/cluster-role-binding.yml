@@ -1,0 +1,33 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  creationTimestamp: "2023-06-21T04:28:30Z"
+  name: my-scheduler-as-kube-scheduler
+  resourceVersion: "1439"
+  uid: 9f0ebed1-2f8e-46e3-9d72-9f19f56e0baa
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:kube-scheduler
+subjects:
+- kind: ServiceAccount
+  name: my-scheduler
+  namespace: kube-system
+  
+  
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  creationTimestamp: "2023-06-21T04:28:30Z"
+  name: my-scheduler-as-volume-scheduler
+  resourceVersion: "1440"
+  uid: ea067aa3-5725-4b3d-8d86-e4218071239c
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:volume-scheduler
+subjects:
+- kind: ServiceAccount
+  name: my-scheduler
+  namespace: kube-system  
