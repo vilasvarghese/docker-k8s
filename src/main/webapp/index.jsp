@@ -7,7 +7,7 @@
 <title>Hello World web application</title>
 </head>
 <body>
-   Hello - Great demo done!!!
+   Hello - Updated on 24th June, 2023!!!
 	<h1>Thanks a lot for being so patient through the session!</h1>
     	<form action="helloServlet" method="post">
     	Enter your name: <input type="text" name="username" size="20">
