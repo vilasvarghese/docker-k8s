@@ -12,6 +12,23 @@ Instead copy it from the running container.
 		docker ps - get etcd container
 		sudo docker cp etcd:/usr/local/bin/etcdctl /usr/local/bin
 
+	"Search for etcd backup" in your documentation.
+	
+etcd -version 
+	check version in etcd pod below 
+kubectl describe pod <etcd pod> -n kube-system
+
+etcdctl \
+		--endpoints=<--listen-client-urls from etcd pod > \
+		--cacert=<--trusted-ca-file> \
+		--cert=<--cert-file> \
+		--key=<key-file> snapshot save /tmp/snapshot.db
+
+etcdctl \
+		--endpoints=https://[127.0.0.1]:2379 \
+		--cacert=/etc/kubernetes/pki/etcd/ca.crt \
+		--cert=/etc/kubernetes/pki/etcd/server.crt \
+		--key=/etc/kubernetes/pki/etcd/server.key snapshot save /tmp/snapshot.db
 
 Before installing
 

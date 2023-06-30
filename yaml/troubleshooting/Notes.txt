@@ -1,3 +1,4 @@
+https://kubernetes.io/docs/tasks/debug/debug-application/
 Application failure
 	db
 	web
@@ -13,8 +14,18 @@ Application failure
 	kubectl describe pod
 	kubectl logs web
 	kubectl logs web -f
-		watch pod
+		watch pod fail so that you can see the logs of previous
+	kubectl logs web -f --previous 
+	kubectl get endpoints ${SERVICE_NAME}
+		if endpoints missing 
+		k get pod --show-labels
+		k get svc -o wide
+	kubectl exec <POD-NAME> -c <CONTAINER-NAME> -- <COMMAND>
+	kubectl create deployment hostnames --image=registry.k8s.io/serve_hostname --replicas=3
 	
+	kubectl scale deployment mydeploy --replicas=3
+	kubectl expose deployment mydeploy --port=80 --target-port=9376
+		
 
 Control plane failures
 	kubectl get pod -n kube-system

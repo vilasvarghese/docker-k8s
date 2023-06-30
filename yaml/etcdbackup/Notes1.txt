@@ -1,0 +1,46 @@
+etcd -version 
+	check version in etcd pod below 
+kubectl describe pod <etcd pod> -n kube-system
+
+get below line from documentation 
+ETCDCTL_API=3 etcdctl \
+		--endpoints=<--listen-client-urls from etcd pod > \
+		--cacert=<--trusted-ca-file> \
+		--cert=<--cert-file> \
+		--key=<key-file> snapshot save /tmp/snapshot.db
+
+etcdctl \
+		--endpoints=https://[127.0.0.1]:2379 \
+		--cacert=/etc/kubernetes/pki/etcd/ca.crt \
+		--cert=/etc/kubernetes/pki/etcd/server.crt \
+		--key=/etc/kubernetes/pki/etcd/server.key snapshot save /tmp/snapshot.db
+
+
+
+
+ETCDCTL_API=3 etcdctl snapshot restore --data-dir /var/lib/etcd-backup <location of backup = /tmp/snapshot.db>
+
+
+
+Example questions
+1. Create a new deployment called web-proj 
+	image=nginx:1.16
+	rolling upgrade to 
+	nginx:1.17
+	
+2. Create a new pod called admin-pod 
+		image = busybox
+	allow pod to set system_time (done through security_context)
+	sleep for 3200 seconds
+	
+	
+	kubectl run admin-pod --image=busybox --command sleep 3200 --dry-run=client -o yaml > p.yml
+	ADD BELOW IN POD DEFINITION
+	security context:
+	  capabilities:
+	    add: ["SYS_TIME"]
+	
+3. A kubeconfig file called test.kubeconfig is created in /root/TEST
+		Troubleshoot something wrong in this
+		
+		
