@@ -1,0 +1,3 @@
+https://www.youtube.com/watch?v=cDXPD1GA8AA
+
+https://github.com/connectbaseer/vagrant-centos-k8s-ha-cluster

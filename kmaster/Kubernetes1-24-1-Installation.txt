@@ -165,11 +165,12 @@ kubectl get pod
 yum list --showduplicates kubeadm --disableexcludes=kubernetes
  https://packages.cloud.google.com/yum/pool/
  
+apt list -a kubeadm 
  
  /var/log/pods/
  
  install exact version 
-sudo apt-get install -y kubelet=1.27.0-00 kubeadm=1.27.0-00 kubectl=1.27.0-00 
+sudo apt-get install -y kubelet=1.26.0-00 kubeadm=1.26.0-00 kubectl=1.26.0-00 
 
 
 
@@ -180,3 +181,18 @@ End to end testing
 https://www.youtube.com/watch?v=-ovJrIIED88&list=PL2We04F3Y_41jYdadX55fdJplDvgNGENo&index=19
 
 installation the hardway 
+---------------
+
+
+error execution phase addon/coredns: unable to create serviceaccount
+ sudo kubeadm init --skip-phases=addon/kube-proxy --pod-network-cidr=10.244.0.0/16 --control-plane-endpoint "load-balancer-ip:port" --upload-certs
+ 
+	3 commands 
+		mkdir .kube
+		cp config /etc/
+		chown 
+	
+	for other master nodes to join 
+		kubeadm join1 
+	for other worker nodes to join 	
+		kubeadm join2

@@ -13,6 +13,11 @@ Java Installation
 sudo yum install -y java-11-openjdk-devel
 sudo yum install -y java-1.8.0-openjdk-devel
 
+#Java installation  on amazon linux
+sudo yum install java-11-amazon-corretto-devel
+or 
+sudo yum install java-11-amazon-corretto
+
 #install maven
 sudo yum install -y maven
 mvn -version
@@ -21,12 +26,14 @@ mvn -version
 
 Jenkins installation
 
-#The next step is to enable the Jenkins repository. To do that, import the GPG key using the following curl command:
-curl --silent --location http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo | sudo tee /etc/yum.repos.d/jenkins.repo
+#Ignore 
+	#The next step is to enable the Jenkins repository. To do that, import the GPG key using the following curl command:
+	curl --silent --location http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo | sudo tee /etc/yum.repos.d/jenkins.repo
 
-#And add the repository to your system with:
-sudo rpm --import https://jenkins-ci.org/redhat/jenkins-ci.org.key
+	#And add the repository to your system with:
+	sudo rpm --import https://jenkins-ci.org/redhat/jenkins-ci.org.key
 
+Instead follow below
 ------------------------------------------------------------------------------
 For public key install error
 
@@ -43,8 +50,11 @@ systemctl start jenkins
 systemctl status jenkins
 sudo systemctl enable jenkins
 
-sudo firewall-cmd --permanent --zone=public --add-port=8080/tcp
-sudo firewall-cmd --reload
+	sudo firewall-cmd --permanent --zone=public --add-port=8080/tcp
+	sudo firewall-cmd --reload
+
+
+yum install git -y
 
 
 go to the url
@@ -57,12 +67,15 @@ Install all default plugin
 
 Create the user of your choise.
 
+
 Execute the below instructions
-1. sudo gropuadd docker
+yum install docker -y
+1. sudo groupadd docker
 2. sudo usermod -aG docker jenkins
 3. chown root:docker /var/run/docker.sock
 
 reboot
+#systemctl restart jenkins
 
 Login to Jenkins
 	Clicke "Jenkins" - New Item - 

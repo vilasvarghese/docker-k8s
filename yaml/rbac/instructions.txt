@@ -199,6 +199,9 @@ Step 10 - Creating Roles and RoleBindings for a User
 	kubectl apply -f pod-reader.yaml
 	kubectl apply -f user-pod-reader-rolebinding.yaml
 
+
+	k auth can-i list pods -n test --as dicktracy@kubernetes
+
 Step 11 - Verifying RBAC
 	Step a: Move into the context that supports dicktracy
 		kubectl config use-context ${MAGIC_USER}@kubernetes

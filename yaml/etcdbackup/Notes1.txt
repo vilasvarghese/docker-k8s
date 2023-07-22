@@ -9,16 +9,21 @@ ETCDCTL_API=3 etcdctl \
 		--cert=<--cert-file> \
 		--key=<key-file> snapshot save /tmp/snapshot.db
 
-etcdctl \
+ETCDCTL_API=3 etcdctl \
 		--endpoints=https://[127.0.0.1]:2379 \
 		--cacert=/etc/kubernetes/pki/etcd/ca.crt \
 		--cert=/etc/kubernetes/pki/etcd/server.crt \
 		--key=/etc/kubernetes/pki/etcd/server.key snapshot save /tmp/snapshot.db
 
+ETCDCTL_API=3 etcdctl --endpoints=https://172.31.93.157:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key snapshot save /tmp/snapshot.db
+
+cd /var/lib/etcd
+mv member /home/
+rm -rf /var/lib/etcd
 
 
+ETCDCTL_API=3 etcdctl snapshot restore /tmp/snapshot.db --data-dir=/var/lib/etcd --endpoints=https://172.31.93.157:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key 
 
-ETCDCTL_API=3 etcdctl snapshot restore --data-dir /var/lib/etcd-backup <location of backup = /tmp/snapshot.db>
 
 
 

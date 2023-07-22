@@ -1,0 +1,137 @@
+Install dependencies
+	Insall java 
+		https://phoenixnap.com/kb/install-java-windows
+	Install maven 
+		https://phoenixnap.com/kb/install-maven-windows
+		https://www.digitalocean.com/community/tutorials/install-maven-mac-os
+	Install tomcat 
+		https://phoenixnap.com/kb/install-tomcat-windows
+		don't do the configurations. (do till step 3)
+		
+
+mvn archetype:generate -DgroupId=com.staragile.test	-DartifactId=test -DarchetypeArtifactId=maven-archetype-webapp  -DinteractiveMode=false
+
+copy the following in pom.xml
+--------------------
+  	
+	<properties>
+		<java.version>11</java.version>
+	</properties>
+  
+  <dependencies>
+   <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>3.1.0</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>javax.servlet.jsp</groupId>
+        <artifactId>javax.servlet.jsp-api</artifactId>
+        <version>2.3.1</version>
+        <scope>provided</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <finalName>test</finalName>
+    
+     <plugins>
+        
+        <plugin>
+        	<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.7.0</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+	</plugin>
+
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>3.2.1</version>
+	<configuration>
+        <attachClasses>true</attachClasses>
+	<webResources>
+		<resource>
+			<directory>src/main/webapp</directory>
+			<filtering>true</filtering>
+		</resource>
+	</webResources>
+	</configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+
+--------------------
+
+add index.jsp in src/main/webapp folder 
+------------------------
+
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Hello World web application</title>
+</head>
+<body>
+	<h1>Thanks a lot for being so patient through the session!</h1>
+    	<form action="helloServlet" method="post">
+    	Enter your name: <input type="text" name="username" size="20">
+    	<input type="submit" value="Call Servlet" />
+	</form>
+</body>
+</html>
+
+
+----------------
+
+add HelloServlet.java to src/main/java
+
+package com.test;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * Servlet implementation class HelloServlet
+ */
+@WebServlet("/helloServlet")
+public class HelloServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public HelloServlet() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		String yourName = request.getParameter("username");
+		if(yourName ==null){
+			yourName = "Vilas";
+		}
+		PrintWriter writer = response.getWriter();
+		writer.println("<h1>Hello " + yourName + "</h1>");
+		writer.close();
+	}
+
+}

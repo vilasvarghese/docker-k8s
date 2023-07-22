@@ -11,11 +11,17 @@ Application failure
 	kubectl get pod
 	kubectl describe service web-service
 		restart
+		You don't have enough resources
+	kubectl apply --validate -f mypod.yaml
+		check syntax
 	kubectl describe pod
 	kubectl logs web
 	kubectl logs web -f
 		watch pod fail so that you can see the logs of previous
 	kubectl logs web -f --previous 
+	kubectl get pod -o yaml >> p.yml 
+		cat p.yml 
+	
 	kubectl get endpoints ${SERVICE_NAME}
 		if endpoints missing 
 		k get pod --show-labels
@@ -25,7 +31,9 @@ Application failure
 	
 	kubectl scale deployment mydeploy --replicas=3
 	kubectl expose deployment mydeploy --port=80 --target-port=9376
-		
+	
+
+	
 
 Control plane failures
 	kubectl get pod -n kube-system
