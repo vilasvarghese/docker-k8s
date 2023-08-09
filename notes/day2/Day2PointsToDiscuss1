@@ -1014,6 +1014,58 @@ docker run -d nginx
 		Override default shell
 		
 
+Why we should not do apt-upgrade in the dockerfile
+
+    Image Consistency: 
+		Docker images should be reproducible and consistent. When you use apt-get upgrade in a Dockerfile, you're updating the packages to their latest versions at build time. This means that the behavior of your Docker image might change each time you rebuild it, potentially leading to inconsistent behavior across different instances of the same image.
+
+    Security: 
+		By upgrading packages during the image build process, you might include security updates that weren't present when you first developed and tested your application. This can introduce unexpected changes and vulnerabilities, potentially exposing your application to security risks.
+
+    Build Performance: 
+		Running apt-get upgrade during image build can significantly increase the build time. This is because it requires downloading and installing all the upgraded packages, which can consume a lot of time and resources. This is especially problematic when you want to keep your Docker image build process efficient and fast.
+
+    Dependency Conflicts: 
+		Upgrading packages might lead to dependency conflicts with other components of your application or with other packages you've installed. This can result in broken dependencies and unexpected errors.
+
+Instead of using apt-get upgrade in your Dockerfile, it's generally recommended to:
+
+    Specify the specific versions of packages you need in your Dockerfile using apt-get install <package>=<version>. This way, you have better control over the packages and their versions that are installed in your image.
+
+    Regularly update your base image to the latest version that includes security updates and fixes. This helps you keep your image's underlying operating system secure without changing your application dependencies.
+
+    If you need to update packages within a running container, it's usually better to do so in your container's runtime environment, not in the Dockerfile. You can use package managers like apt-get or yum inside the container to manage packages as needed.
+
+Remember that Docker images are intended to be immutable and versioned snapshots of your application and its dependencies. Taking a cautious approach to managing package updates helps maintain stability, consistency, and security in your Dockerized applications.
+
+
+
+
+Can i skip somepart of docker image build? 
+
+
+    Use the docker build --target option. 
+	This option allows you to specify a specific stage of your Dockerfile to build. For example, if your Dockerfile has two stages, build and prod, you could use the following command to build only the prod stage:
+
+	docker build --target prod
+
+		Use the docker build --exclude option. This option allows you to exclude specific instructions from your Dockerfile. For example, if you have an instruction in your Dockerfile that installs a package that you don't need, you could use the following command to exclude that instruction:
+
+	docker build --exclude install-package
+
+		Use the docker build --squash option. This option will combine all of the stages of your Dockerfile into a single layer. This can be useful if you want to skip some of the intermediate stages of your build.
+
+	For example, if your Dockerfile has two stages, build and prod, and you want to skip the build stage, you could use the following command to build the image:
+
+	docker build --squash
+
+	Note that the docker build --squash option is only available if you are using Docker 18.09 or newer.
+
+	You can also use a combination of these options to skip multiple parts of your Dockerfile. For example, you could use the following command to build the prod stage of your Dockerfile, but exclude the install-package instruction:
+
+	docker build --target prod --exclude install-package
+
+
 ############################################################################################
 					Docker Volumes
 ****************************************************
