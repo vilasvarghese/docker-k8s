@@ -33,6 +33,10 @@ https://docs.docker.com/compose/install/
 	docker-compose up
 	docker-compose down
 	docker-compose --volumes #remove active volumes also
+	
+Installing on amazon linux 2	
+	https://saturncloud.io/blog/installing-docker-compose-on-amazon-ec2-linux-2/	
+	
 ----------------------------------------------------------
 Compose 
 	Tool 

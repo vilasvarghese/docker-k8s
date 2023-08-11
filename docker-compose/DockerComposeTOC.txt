@@ -1,0 +1,211 @@
+o	Docker compose
+----------------------------------------------------------------------
+
+
+----------------------------------------------------------------------
+• Introduction to docker-compose
+----------------------------------------------------------------------
+
+Docker Compose 
+	uses YAML file 
+	define the configuration of your application. 
+	Configuration include 
+		services, 
+		environment variables, 
+		networking
+			etc.
+	
+	
+	Installation:
+		install docker on ubuntu - automatically includes docker-compose
+	
+    Convention: file name docker-compose.yml 
+	
+    Define Services:
+		Each service 
+			corresponds to a container. 
+		Specify 
+			image or source code to build
+			environment variables
+			ports to expose
+				etc.
+
+    Networking and Volumes:
+		Can define networks to connect 
+		volumes to manage data persistence. 
+		
+
+    docker-compose up
+		Docker Compose 
+			read the docker-compose.yml file 
+			create the specified 
+				containers, 
+				networks, and 
+				volumes.
+
+    Manage Containers:
+		can 
+			stop, 
+			start, 
+			scale, and 
+			remove 
+				containers using docker-compose commands.
+
+    Stopping and Cleaning Up:
+		docker compose down
+			stop your application 
+			remove 
+				containers, 
+				networks, and 
+				volumes 
+					defined in the docker-compose.yml file
+
+
+version: '3'
+services:
+  web:
+    image: python:3.8
+    command: python -m http.server 80
+    ports:
+      - "8000:80"
+  db:
+
+
+    image: postgres:13
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydb
+
+----------------------------------------------------------------------
+•	Overview of Docker Compose
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+•	Benefits of using Docker Compose
+----------------------------------------------------------------------
+	Refer: ExampleOfCommand.txt
+
+    Simplified Configuration: 
+		Define services, network and volume from a single file
+		
+    Supports Multi-Container Applications: 
+
+    Consistent Development Environment: 
+		All dev. can use same compose.
+
+    Automated Setup and Teardown: 
+		Simplifies 
+			starting and stopping containers. 
+				docker compose up 
+				docker compose down
+    Isolation and Dependency Management: 
+		depends_on 
+			container1 can depend on container2
+			
+    Easy Scaling: 
+		move into a new folder and run.
+    Networking Between Containers: 
+		default/custom network for your application. 
+    Volume Management: 
+		
+    Declarative Configuration: 
+		Define end state
+    Easy Testing: 
+		simulate the production environment locally
+		test integration between services, 
+		validate the behavior of your application before deployment.
+	links
+		can define links between container 
+    Reduced Complexity: 
+	
+	
+----------------------------------------------------------------------
+• Compose File Syntax
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+•	YAML format
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+•	Services
+----------------------------------------------------------------------
+	Define the different components of your application as services. 
+	Each service has a unique name
+	configuration includes 
+		image or build context
+		ports to expose
+		environment variables
+		volumes
+		networks etc.
+----------------------------------------------------------------------
+•	Networks
+----------------------------------------------------------------------
+	Define custom BRIDGE networks that your services can connect to. 
+	Networks isolate services and allow communication between them using service names as hostnames.
+----------------------------------------------------------------------
+•	Volumes
+----------------------------------------------------------------------
+	To persist data 
+	Specified in the volumes section 
+	mount data inside containers.
+	
+----------------------------------------------------------------------
+•	Image
+----------------------------------------------------------------------
+	specify the image to use, along with optional tags.
+----------------------------------------------------------------------
+•	Ports
+----------------------------------------------------------------------
+	Expose and map ports 
+	format is host_port:container_port.
+
+----------------------------------------------------------------------
+•	Environment variables
+----------------------------------------------------------------------
+	Set environment variables using the environment section. 
+	You can specify variables using the VAR_NAME=value syntax.
+----------------------------------------------------------------------
+•	Command
+----------------------------------------------------------------------
+	Override the default command of the image using the command key. 
+	Use an array to provide the command and its arguments.
+----------------------------------------------------------------------
+•	Dependencies 
+----------------------------------------------------------------------
+Refer to depends_on section of DockerComposeNotes.txt
+----------------------------------------------------------------------
+
+
+version: '3'
+services:
+  # Definition of services
+  web:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    environment:
+      - ENV_VAR=value
+    command: ["nginx", "-g", "daemon off;"]
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    volumes:
+      - app-volume:/app/data
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - db
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
+    volumes:
+      - db-data:/var/lib/postgresql/data
+networks:
+  frontend:
+  backend:
+volumes:
+  app-volume:
+  db-data:

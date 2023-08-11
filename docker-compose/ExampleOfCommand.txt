@@ -15,9 +15,11 @@ migration:
   build: .
   image: app
   command: python manage.py migrate
-  volumes:
+	volumes:
     - .:/code
   links:
     - db
   depends_on:
     - db
+	
+https://github.com/dockersamples/example-voting-app 	

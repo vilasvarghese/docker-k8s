@@ -1,8 +1,8 @@
-################################################################################################
+##############################################################################################
 
 	Docker Compose
 
-################################################################################################
+##############################################################################################
 
 Reference: https://docs.docker.com/compose/
 Reference: https://www.educative.io/blog/docker compose-tutorial
@@ -63,6 +63,86 @@ Three-step process in Compose:
 	Run docker compose up 
 		Compose starts and runs your entire app.	
 
+
+--------------------------------------------------------------------
+docker-compose up
+	Here's the sequence of steps that typically occur when you run docker-compose up:
+
+    Parsing and Validation:
+		Docker Compose 
+			reads  
+			parses 
+				docker-compose.yml file 
+	identify 
+		services, 
+		networks, 
+		volumes
+		other configurations defined in the file. 
+		basic validation to ensure the syntax is correct.
+
+    Building Images (if needed):
+		If build context to Dockerfile is provided
+			Docker Compose starts building the images for the services that require it. 
+			It uses the specified build context and Dockerfile to create the images.
+
+    Pulling Images (if needed):
+		If your services are defined with the image configuration and the specified images are not available locally, Docker Compose pulls the images from a registry (usually Docker Hub) before proceeding.
+
+    Creating Networks:
+		Creates any custom networks defined in the networks section 
+		If no custom network 
+			create default bridge network based on the folder name.
+
+    Starting Containers:
+		Starts the containers 
+			use 
+				specified images 
+			or 
+				built images. 
+		Creates container for each service 
+			include 
+				environment variables, 
+				ports, 
+				volumes, 
+				network 
+				dependency etc.
+
+    Linking Containers to Networks:
+		Each container is connected to the appropriate networks based on the networks configuration in the docker-compose.yml file. This enables communication between services using service names as hostnames.
+
+    Running Initialization Commands:
+		If you've specified initialization commands using the command key in the docker-compose.yml file, Docker Compose executes these commands within the containers.
+
+    Monitoring and Logging:
+		Docker Compose continuously monitors the output and logs of the containers, showing their standard output and error streams in the terminal.
+
+    Foreground or Background Mode:
+		By default, docker-compose up runs in the foreground, keeping the terminal attached to the containers' output. You can use the -d flag to run the containers in detached (background) mode.
+
+    Ctrl-C or Manual Stopping:
+		If you're running in the foreground, you can stop the containers by pressing Ctrl-C in the terminal. If you're running in detached mode, you can use docker-compose down to stop and remove the containers, networks, and optionally volumes.
+
+	
+----------------------------------------------------------------------------
+docker compose down
+    Containers: 
+		All containers that were created by docker-compose up are stopped and removed.
+
+    Networks: 
+		Any networks that were created by docker-compose up are removed.
+
+    Unnamed Volumes: 
+		Volumes that were created without a specific name (using the syntax - /path/to/volume in the volumes section) are removed. These are typically temporary volumes used by the containers.
+
+    Named Volumes (NOT REMOVED): 
+		Named volumes are NOT removed by default when you run docker-compose down. This is to preserve data stored in named volumes between restarts and deployments.
+
+If you want to remove named volumes as well when running docker-compose down, you can use the -v or --volumes flag:
+
+docker-compose down -v
+--------------------------------------------------------------------
+
+
 ----------------------------------------------------------------------------------	
 Compose has commands for managing the whole lifecycle of your application:
 	Start, stop, and rebuild services
@@ -80,7 +160,7 @@ Compose has commands for managing the whole lifecycle of your application:
 					
 			docker compose -f dc1.yaml up
 			
-		Stop and remove containers, networks, images, and volumes
+		Stop and remove containers, networks, [images?], and volumes
 			docker compose down
 				stop container 
 				remove container
@@ -269,8 +349,82 @@ Docker Compose Use Cases
 3. Automated testing environments
 
 
-	
-	
+----------------------------------------------------------------------------
+depends_on 
+
+	depends_on 
+		specify dependencies between services in your application. 
+		default: services start in parallel
+		define startup order of services
+		depends_on 
+			does not wait for services to be fully operational
+			instead controls the sequence in which services are started.
+
+Here's how the depends_on key works:
+
+yaml
+
+version: '3'
+services:
+  app:
+    image: myapp
+    depends_on:
+      - db
+      - cache
+
+  db:
+    image: postgres:13
+
+  cache:
+    image: redis:latest
+
+
+    condition: service_started (default):
+		default behavior. 
+		The dependent service starts 
+			as soon as its dependency container starts running
+				regardless of whether the dependency is fully operational or healthy.
+
+    condition: service_healthy:
+		Dependent service starts only after the dependency's health check passes. 
+		This condition ensures that the dependency is both running and in a healthy state.
+
+    condition: service_healthy + timeout:
+		You can combine the service_healthy condition with a timeout value to specify how long the dependent service should wait for the dependency to become healthy before timing out and starting anyway.
+
+    condition: service_completed_successfully:
+		The dependent service starts after the dependency has completed its execution with a successful exit status (exit code 0).
+
+    condition: service_failed:
+		The dependent service starts after the dependency has completed its execution, regardless of the exit status. This includes cases where the dependency failed (exit code other than 0).
+
+    condition: service_stopped:
+		The dependent service starts after the dependency container is stopped, regardless of the reason for stopping (manual, error, etc.).
+
+
+version: '3'
+services:
+  app:
+    image: myapp
+    depends_on:
+      db:
+        condition: service_healthy
+      worker:
+        condition: service_completed_successfully
+
+  db:
+    image: postgres:13
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
+
+  worker:
+    image: workerapp
+    command: ["./run_worker.sh"]	
+
+
 --------------------------------------------------------------------
 Exercises
 	1. cd docker-k8s/
