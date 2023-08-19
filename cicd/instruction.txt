@@ -70,4 +70,3 @@ docker push <your docker user name>/java-web-app-cicd:latest
 kubectl delete deploy --all
 kubectl create -f deploy-tomcat.yaml
 ##########################################################################
-
