@@ -1,6 +1,8 @@
 #kubectl label nodes <your-node-name> engineer=vilas
 #kubectl get nodes --show-labels
 
+#to remove label 
+#kubectl label nodes <your-node-name> engineer-
 #We can use the 'nodeSelector' property on the Pod YAML:
 
 apiVersion: v1

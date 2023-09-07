@@ -1305,7 +1305,7 @@ Way more powerful than docker volumes
 		- Mounts file or directory from the Host node's filesystem into your Pod.
 		- Data remains after Pod is removed.
 		- Similar to Docker volume (Bind Mounts).
-		- Use cautiously because there is no gu	arantee that Pod's would be created on the same Node.
+		- Use cautiously because there is no guarantee that Pod's would be created on the same Node.
 
 Persistent Volumes 
 #################################################################
@@ -1589,6 +1589,10 @@ There are two ways to create secrets
 		- echo -n 'password123' | base64
 		- refer secrets.yaml and apply it
 		- kubectl get secrets
+		
+		To decode 
+		echo -n "string" | base64 -d
+		
 		#For injecting secrets through volume
 		- refer secret-use.yaml and apply it 
 		- kubectl get pods

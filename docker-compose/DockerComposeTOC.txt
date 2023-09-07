@@ -147,7 +147,7 @@ services:
 	To persist data 
 	Specified in the volumes section 
 	mount data inside containers.
-	
+	Named volue
 ----------------------------------------------------------------------
 •	Image
 ----------------------------------------------------------------------
@@ -209,3 +209,10 @@ networks:
 volumes:
   app-volume:
   db-data:
+  
+  
+Scale docker containers in a compose 
+	docker compose up --scale web=2
+	
+Remove images created from compose
+	docker compose down --rmi all 

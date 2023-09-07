@@ -1,0 +1,12 @@
+# Use a base image with Java and Maven pre-installed
+FROM maven:3.8.4-openjdk-11-slim AS builder
+
+# Copy the pom.xml and other necessary files
+COPY . .
+
+# Download the project dependencies
+#RUN mvn dependency:go-offline
+#mvn compile 
+RUN mvn package
+
+CMD mvn test 

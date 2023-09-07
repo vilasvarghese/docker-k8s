@@ -121,7 +121,15 @@ Compose has commands for managing the whole lifecycle of your application:
 		List containers
 			docker-compose ps
 
+
+	Scale docker containers in a compose 
+	------------------------------------
+		docker compose up --scale web=2
 		
+	Remove images created from compose
+	------------------------------------
+		docker compose down --rmi all 
+			
 		
 	Stream the log output of running services
 	-----------------------------------------

@@ -88,19 +88,36 @@ Helm
 			default cache path
 			default data path
 ----------------------------------------------------------------------------------------		
+
+		https://artifacthub.io
+			search for mysql 
+			
 		-> helm search hub wordpress
-		#This would search it in the helm hub (similar to docker hub)
+		
+		
+		
+		#This would search it in the artifacthub (similar to docker hub)
 		
 		There are multiple chart repo's available publicly
 			helm search repo (not hub)
 
 		But if you want to search in other repo's you should add them
-		To add stable
-			helm repo add stable https://charts.helm.sh/stable	
+
+			https://artifacthub.io
+				search nginx 
+					select Bitnami 
+						follow the site 
+						-> #helm repo add bitnami https://charts.bitnami.com/bitnami
+						-> #helm install nginx bitnami/nginx
+						-> helm install my-release oci://registry-1.docker.io/bitnamicharts/nginx
+						-> kubectl get all
+					many objects
 
 			Repository added will go the cache.
 			location of cache can be seen by executing 
-				helm
+				-> helm
+					cache directory
+						everything that you install goes here
 
 
 		To find list of repo's added
@@ -111,14 +128,13 @@ Helm
 		helm search repo wordpress
 		helm search repo redis		
 		Sometimes you may find more than one chart provider for the common applications.
-		helm search repo stable/kubernetes-dashboard
-	
+			
 	
 	Find more details of the chart by
-		helm show chart stable/kubernetes-dashboard
+		helm show chart bitnami/redis
 			
 			and further details can be found by
-		helm show readme stable/kubernetes-dashboard
+		helm show readme bitnami/redis
 		#Above commands are like inspect of image	
 -------------------------------------------------------------------------------------------------		
 
@@ -133,8 +149,11 @@ Helm
 		helm list
 		
 	Deploy a chart to a cluster if you know the name
-		helm install dashboard-demo stable/kubernetes-dashboard --set rbac.clusterAdminRole=true -n helm 
-		
+		helm repo add bitnami https://charts.bitnami.com/bitnami
+			bitnami: my label - can be any name.
+			
+		helm repo update
+			like yum update
 		Helm will return before the command is done.
 		
 	With the install command Helm can launch the required 
@@ -173,10 +192,15 @@ Helm
 	
 	Now we can delete this installation by
 		helm delete dashboard-demo -n helm
-
+		helm uninstall 
 
 		
 -------------------------------------------------------------------------------------------------
+
+	kubectl apply -f mysql-pv.yml
+	kubectl apply -f mysql-pvc.yml
+	helm install mysql bitnami/mysql --values mysql-values.yml
+
 what a chart provides,
 	Within repo's there may be many charts. 
 	
@@ -378,7 +402,100 @@ https://jhooq.com/helm-chart-plugin/
 	https://phoenixnap.com/kb/create-helm-chart
 	
 	
+-------------------------------------------------------------------
+Lab: 
+	(a) Add a configmap from my configmap folder to template section 
+		configmap.yml 
+	do a dry run and confirm config map is also appearing
+	create and see if it reflects
 	
+	helm support reading and replacing templates variables with
+		built-in objects
+		values 
+		(more details below)
+	
+	(b) built-in-objects
+		Check https://helm.sh/docs/chart_template_guide/builtin_objects/ for what other values it can take
+		.Release.Name: name i provided during install/create command
+	
+	more lab after below explanation
+----------------------------	
+Using variables in Helm templates is a fundamental aspect of creating flexible and reusable Helm charts. Variables allow you to parameterize your templates, making them adaptable to different environments and configurations. Here's an overview of how to use variables in Helm templates:
+
+    Defining Variables in values.yaml:
+
+    The primary way to define variables in Helm is by using the values.yaml file associated with your chart. This file contains a YAML structure where you can define various values that can be customized for each deployment. For example:
+
+    
+# values.yaml
+replicaCount: 3
+image:
+  repository: myapp
+  tag: latest
+
+Accessing Variables in Templates:
+---------------------------------
+	In your Helm templates, you can access the values defined in values.yaml using the .Values object. For instance, if you want to use the replicaCount and image values in a Deployment template:
+
+
+# deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-deployment
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    spec:
+      containers:
+        - name: myapp-container
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+
+Using Variables in Conditionals:
+-------------------------------
+	You can use variables to control the flow of your templates. For example, if you want to enable certain components based on a condition:
+
+	{{- if .Values.enableFeatureX }}
+	# Include components related to Feature X
+	{{- end }}
+
+Override Variables During Deployment:
+------------------------------------
+	When you install or upgrade a chart, you can override specific values from the values.yaml file using the --set flag or by providing a custom YAML file. For instance:
+
+	helm install my-release ./my-chart --set replicaCount=5
+
+Using Variables in Loops:
+-------------------------
+	Helm supports range loops, allowing you to iterate over lists or maps. This is useful for creating multiple instances of resources based on the number of items in a list or keys in a map.
+
+
+		{{- range $index, $item := .Values.extraContainers }}
+		# Create additional containers based on values in extraContainers
+		{{- end }}
+
+		Functions for Complex Operations:
+
+		Helm provides functions that allow you to perform various operations on variables, like manipulating strings, performing arithmetic, and more.
+
+Remember that the structure of your templates and the variables you define will depend on your specific use case and the resources you're deploying. By using variables effectively, you can create Helm charts that are easy to configure and reuse across different environments while minimizing duplication and promoting consistency.	
+----------------------------
+	(c) create a new yml file with  value value.yml with value 
+	
+myvariable: value 
+add configmap2.yml in templates folder 
+	
+	helm install myreleasename ./myfoldername --values values.yml
+	
+	(d)
+	helm install <releasename> ./foldername --set myvariable=myvalue
+	helm get manifest <releasename>
+	
+	(e) functions
+	
+	
+	
+-------------------------------------------------------------------	
 	
 Additional content
 ------------------

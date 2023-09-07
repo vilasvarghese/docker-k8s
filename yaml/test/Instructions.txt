@@ -1,0 +1,17 @@
+Create a maven project according to the instructions below 
+
+D:\PraiseTheLord\HSBGInfotech\Others\vilas\testing\junit4\Instructions.txt
+
+Add below dependency 
+    </dependency>
+        <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>4.5.13</version>
+    </dependency>
+
+
+Add a new java file with code copied from GoogleSearchAPITest.java
+
+mvn compile 
+mvn test 

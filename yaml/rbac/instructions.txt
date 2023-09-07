@@ -174,16 +174,24 @@ Step 9 - Creating a Cluster Context for the New User
 	Step a: Set the security credentials of ${MAGIC_USER} (a.k.a dicktracy) to the Kubernetes configuration
 		This will add user dicktracy to the context #Earlier we only had kube-admin there.
 
+
+		kubectl config view
+		kubectl config get-contexts
+
+
 		kubectl config set-credentials ${MAGIC_USER}@kubernetes --client-certificate=$HOME/.certs/${MAGIC_USER}.crt --client-key=$HOME/.certs/${MAGIC_USER}.key --embed-certs=true
 
 		cat $HOME/.kube
 		You'll get output similar to the following:
 		User "dicktracy@kubernetes" set.
 
+		kubectl config view
+
 	Step b: Create a new Kubernetes context
 
 		kubectl config get-contexts
 		kubectl config set-context ${MAGIC_USER}@kubernetes --cluster=kubernetes --user=${MAGIC_USER}@kubernetes
+		kubectl config view
 		kubectl config get-contexts
 		You'll get output similar to the following:
 		Context "dicktracy@kubernetes" created.
