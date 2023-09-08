@@ -1,6 +1,9 @@
 name: Build and Dockerize
 
-on: [push]
+on: 
+  push:
+    branches:
+      - master
 
 jobs:
   build:
@@ -13,7 +16,7 @@ jobs:
     - name: Set up Java
       uses: actions/setup-java@v2
       with:
-        java-version: 11
+        java-version: '11'
 
     - name: Build with Maven
       run: mvn clean install
@@ -26,6 +29,8 @@ jobs:
 
     - name: Dockerize application
       run: |
-        docker build -t vilasvarghese/test .
+        docker build -t your-image-name .
         # Push the Docker image to a container registry if needed
-        docker push vilasvarghese/test
+        # docker push your-registry/your-image-name
+
+ 
