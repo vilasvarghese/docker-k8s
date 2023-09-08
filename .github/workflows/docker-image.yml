@@ -17,7 +17,8 @@ jobs:
       uses: actions/setup-java@v2
       with:
         java-version: '11'  # You can specify your desired Java version here
-
+        distribution: 'adopt' 
+        
     - name: Build with Maven
       run: mvn clean install  # Replace with your actual Maven build command
 
