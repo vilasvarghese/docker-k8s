@@ -31,6 +31,7 @@ jobs:
     - name: Dockerize application
       run: |
         docker build -t your-image-name .
+        docker login -u {{ secrets.GIT_HUB_USERNAME }} -p {{ secrets.GIT_HUB_PASSWORD }}
         # Push the Docker image to a container registry if needed
         # docker push your-registry/your-image-name
 
