@@ -1,12 +1,12 @@
-name: Build and Dockerize
+name: Maven Build and Test
 
-on: 
+on:
   push:
     branches:
       - master
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,21 +16,10 @@ jobs:
     - name: Set up Java
       uses: actions/setup-java@v2
       with:
-        java-version: '11'
+        java-version: '11'  # You can specify your desired Java version here
 
     - name: Build with Maven
-      run: mvn clean install
+      run: mvn clean install  # Replace with your actual Maven build command
 
     - name: Run Maven tests
-      run: mvn test
-
-    - name: Set up Docker
-      uses: docker/setup-buildx-action@v1
-
-    - name: Dockerize application
-      run: |
-        docker build -t your-image-name .
-        # Push the Docker image to a container registry if needed
-        # docker push your-registry/your-image-name
-
- 
+      run: mvn test  # Run Maven tests
