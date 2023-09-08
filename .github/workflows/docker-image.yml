@@ -24,3 +24,14 @@ jobs:
 
     - name: Run Maven tests
       run: mvn test  # Run Maven tests
+      
+    - name: Set up Docker
+      uses: docker/setup-buildx-action@v1
+
+    - name: Dockerize application
+      run: |
+        docker build -t your-image-name .
+        # Push the Docker image to a container registry if needed
+        # docker push your-registry/your-image-name
+
+ 
