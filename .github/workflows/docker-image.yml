@@ -39,3 +39,6 @@ jobs:
       with: 
         username: ${{ secrets.GIT_HUB_USERNAME }} 
         password: ${{ secrets.GIT_HUB_PASSWORD }}
+        
+    - name: Push to DockerHub
+      run: docker push vilasvarghese/test
