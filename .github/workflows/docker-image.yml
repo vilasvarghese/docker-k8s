@@ -17,7 +17,7 @@ jobs:
       uses: actions/setup-java@v2
       with:
         java-version: '11'  # You can specify your desired Java version here
-        distribution: 'adopt' 
+        distribution: 'adopt' #other option distribution: 'temurin' ref. https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
         
     - name: Build with Maven
       run: mvn clean install  # Replace with your actual Maven build command
@@ -30,9 +30,11 @@ jobs:
 
     - name: Dockerize application
       run: |
-        docker build -t your-image-name .
-        docker login -u {{ secrets.GIT_HUB_USERNAME }} -p {{ secrets.GIT_HUB_PASSWORD }}
+        docker build -t vilasvarghese/test .
         # Push the Docker image to a container registry if needed
         # docker push your-registry/your-image-name
-
- 
+      uses: docker/login-action@v1
+      with: 
+        username: {{ secrets.GIT_HUB_USERNAME }} 
+        password: {{ secrets.GIT_HUB_PASSWORD }}
+      run: docker push vilasvarghese/test   
