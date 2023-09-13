@@ -1,0 +1,116 @@
+1. Question: What is Kubernetes?
+Answer: Kubernetes is an open-source container orchestration platform that automates the deployment, scaling, and management of containerized applications.
+
+2. Question: What is a container?
+Answer: A container is a lightweight, standalone executable software package that includes everything needed to run a piece of software, including the code, runtime, system tools, libraries, and settings.
+
+3. Question: What is a Docker image?
+Answer: A Docker image is a lightweight, stand-alone, and executable software package that includes all the necessary code, runtime, system tools, libraries, and settings required to run an application.
+
+4. Question: What is a Kubernetes Node?
+Answer: A Kubernetes Node is a physical or virtual machine that forms part of the cluster and runs containers.
+
+5. Question: What is a Kubernetes Pod?
+Answer: A Kubernetes Pod is the smallest deployable unit in Kubernetes, consisting of one or more containers that share the same network namespace, IP address, and storage.
+
+6. Question: How is container orchestration different from containerization?
+Answer: Containerization is the process of packaging an application and its dependencies into a single container. Container orchestration involves managing the deployment, scaling, and operation of multiple containers.
+
+7. Question: What is the role of the Kubernetes Master node?
+Answer: The Kubernetes Master node manages the overall state of the cluster, including scheduling, scaling, and controlling cluster-wide resources.
+
+8. Question: What is a Kubernetes Deployment?
+Answer: A Kubernetes Deployment is an object that declaratively manages a set of replica Pods, ensuring their availability and managing updates.
+
+9. Question: What is a Kubernetes Service?
+Answer: A Kubernetes Service is an abstraction that defines a logical set of Pods and a policy by which to access them.
+
+10. Question: How is a Kubernetes Service different from a Pod?
+Answer: A Service provides a stable IP address and DNS name for a set of Pods, while a Pod is the smallest deployable unit in Kubernetes.
+
+11. Question: What is the purpose of a Kubernetes ConfigMap?
+Answer: A ConfigMap is used to store non-sensitive configuration data for an application in key-value pairs.
+
+12. Question: What is a Kubernetes Namespace?
+Answer: A Kubernetes Namespace is a virtual cluster within a physical cluster, used to divide resources and isolate applications.
+
+13. Question: How does Kubernetes ensure high availability of applications?
+Answer: Kubernetes ensures high availability by replicating application Pods across multiple nodes and automatically recovering failed Pods.
+
+14. Question: What is a Kubernetes DaemonSet?
+Answer: A DaemonSet ensures that all (or a specified subset of) nodes run a copy of a Pod, useful for running monitoring agents or other background tasks.
+
+15. Question: How does Kubernetes handle updates and rollbacks?
+Answer: Kubernetes supports rolling updates by creating a new ReplicaSet with the updated image and gradually replacing the old Pods.
+
+16. Question: What is Kubernetes Ingress?
+Answer: Kubernetes Ingress is an API object that manages external access to services within a cluster, typically used to configure HTTP routing and load balancing.
+
+17. Question: What is a Kubernetes StatefulSet?
+Answer: A StatefulSet is a controller used for managing stateful applications, ensuring ordered and stable deployment and scaling.
+
+18. Question: What is Kubernetes Horizontal Pod Autoscaling?
+Answer: Horizontal Pod Autoscaling automatically adjusts the number of replica Pods in a Deployment or ReplicaSet based on resource utilization.
+
+19. Question: What is Kubernetes Vertical Pod Autoscaling?
+Answer: Vertical Pod Autoscaling adjusts the resource requests and limits of containers in a Pod based on historical usage.
+
+20. Question: How does Kubernetes handle rolling back a failed update?
+Answer: Kubernetes can perform a rollback by reverting to the previous configuration or version of a Deployment.
+
+21. Question: What is Kubernetes Helm?
+Answer: Helm is a package manager for Kubernetes that helps to define, install, and manage applications as Helm Charts.
+
+22. Question: Explain Kubernetes Secrets.
+Answer: Kubernetes Secrets are used to store sensitive data, such as passwords or API tokens, securely and make them available to Pods.
+
+23. Question: How does Kubernetes manage container networking?
+Answer: Kubernetes manages container networking by assigning each Pod a unique IP address and ensuring they can communicate with each other.
+
+24. Question: What is Kubernetes Persistent Volume?
+Answer: A Persistent Volume (PV) is a storage resource in the cluster that can be used by Pods, ensuring data persistence even if the Pod restarts.
+
+25. Question: What is Kubernetes Persistent Volume Claim?
+Answer: A Persistent Volume Claim (PVC) is a request for a storage resource from the cluster, used by Pods to access Persistent Volumes.
+
+26. Question: How does Kubernetes handle storage orchestration for applications?
+Answer: Kubernetes uses Persistent Volumes and Persistent Volume Claims to abstract and manage storage resources for applications.
+
+27. Question: What is Kubernetes Container Runtime?
+Answer: A Kubernetes Container Runtime is responsible for running containers on nodes, with Docker being one of the commonly used runtimes.
+
+28. Question: What is Kubernetes Cluster Autoscaler?
+Answer: The Cluster Autoscaler automatically adjusts the size of the cluster by adding or removing nodes based on resource demands.
+
+29. Question: What is Kubernetes Network Policy?
+Answer: A Network Policy is a specification for controlling the flow of network traffic between Pods in a cluster.
+
+30. Question: What is Kubernetes Role-Based Access Control (RBAC)?
+Answer: RBAC is a security mechanism that defines what actions users and groups are allowed to perform within a Kubernetes cluster.
+
+31. Question: How does Kubernetes manage load balancing?
+Answer: Kubernetes load balances traffic to Service endpoints by distributing requests across healthy Pods.
+
+32. Question: What is Kubernetes Horizontal Pod Autoscaling based on?
+Answer: Horizontal Pod Autoscaling can be based on CPU utilization or custom metrics provided by monitoring solutions.
+
+33. Question: How does Kubernetes handle rolling updates in StatefulSets?
+Answer: Kubernetes updates StatefulSets in a way that maintains the stable network identity of each Pod, usually with a fixed order.
+
+34. Question: What is Kubernetes Job?
+Answer: A Kubernetes Job creates one or more Pods and ensures they run to completion, useful for batch processing or one-time tasks.
+
+35. Question: How does Kubernetes handle inter-Pod communication?
+Answer: Kubernetes Pods communicate with each other using their unique IP addresses, and Services provide a stable endpoint for this communication.
+
+36. Question: What is Kubernetes Pod Disruption Budget?
+Answer: A Pod Disruption Budget limits the number of Pods that can be simultaneously unavailable during disruptions, like updates or failures.
+
+37. Question: Explain Kubernetes Affinity and Anti-Affinity.
+Answer: Affinity and Anti-Affinity are Pod scheduling rules that control how Pods are placed on nodes based on node properties or other Pod locations.
+
+38. Question: What is Kubernetes Custom Resource Definition (CRD)?
+Answer: A CRD extends the Kubernetes API by adding custom resource types, allowing users to define their own object types.
+
+39. Question: What is Kubernetes Vertical Pod Autoscaling based on?
+Answer: Vertical Pod Autoscaling is based on resource utilization metrics collected over time

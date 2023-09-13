@@ -1,0 +1,100 @@
+
+
+Docker Basics:
+
+    What is Docker?
+    Explain the difference between a Docker container and a virtual machine.
+    What is a Docker image?
+    What is a Docker container?
+    How does Docker help in solving the "Works on my machine" problem?
+    What is Docker Hub?
+    How do you create a Docker image?
+    What is a Dockerfile?
+    How do you run a Docker container?
+    What is the difference between Docker and Docker Compose?
+
+Docker Images and Containers:
+
+    How do you view a list of running containers?
+    How can you remove a stopped container?
+    How do you remove an image?
+    Explain the use of the Dockerfile and the docker-compose.yml file.
+    How do you link containers together?
+    What is a Docker volume, and why would you use it?
+    How can you pass environment variables to a Docker container?
+    How can you expose ports in a Docker container?
+
+Docker Networking:
+
+    Explain Docker networking modes.
+    How can you connect to a Docker container from a different container?
+    How do you create a user-defined bridge network?
+    What is the purpose of a Docker network?
+    How can you expose a Docker container to the host network?
+    How do you troubleshoot networking issues in Docker?
+
+Docker Compose:
+
+    What is Docker Compose, and why is it used?
+    How do you define services in a docker-compose.yml file?
+    How do you scale services using Docker Compose?
+    What is the difference between docker-compose up and docker-compose down?
+
+Docker Volumes and Data Management:
+
+    What are Docker volumes used for?
+    Explain the difference between a bind mount and a volume in Docker.
+    How do you back up data in a Docker volume?
+    How do you create a named Docker volume?
+
+Docker Security:
+
+    How do you control user access and permissions in Docker?
+    What is the principle of least privilege in Docker?
+    How can you scan Docker images for vulnerabilities?
+    Explain how Docker handles security isolation.
+
+Docker Swarm and Orchestration:
+
+    What is Docker Swarm?
+    What is the difference between Docker Swarm and Kubernetes?
+    How do you create a Docker Swarm service?
+    How can you scale a Docker service in Swarm?
+
+Docker on AWS or Cloud Platforms:
+
+    How does Docker work in AWS Elastic Beanstalk?
+    Explain Amazon ECS and its integration with Docker.
+    What is AWS Fargate, and how does it work with Docker?
+
+Docker Monitoring and Troubleshooting:
+
+    How can you monitor Docker containers and services?
+    Explain Docker health checks.
+    What is Docker Logs, and how can you access container logs?
+
+Docker Best Practices:
+
+    What are some best practices for creating efficient Docker images?
+    How can you reduce the image size?
+    Explain multi-stage Docker builds.
+    How do you ensure security when using Docker?
+
+Docker Use Cases:
+
+    Name some common use cases for Docker.
+    How can Docker be used for microservices architecture?
+    How does Docker facilitate continuous integration and continuous deployment (CI/CD)?
+
+Docker in DevOps:
+
+    How does Docker contribute to DevOps practices?
+    Explain how Docker helps achieve environment consistency in development and production.
+
+Advanced Docker Concepts:
+
+    What are Docker plugins?
+    Explain Docker overlay networks.
+    How do you achieve container orchestration with Docker?
+    What is Docker Machine used for?
+    Explain Docker image layer caching.
