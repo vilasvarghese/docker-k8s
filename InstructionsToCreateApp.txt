@@ -1,5 +1,7 @@
 
 
+
+
 Install dependencies
 	Insall java 
 		https://phoenixnap.com/kb/install-java-windows
