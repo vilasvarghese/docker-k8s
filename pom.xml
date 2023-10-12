@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.hsbg.hello</groupId>
   <artifactId>HelloWorld</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0.0</version>
   <packaging>war</packaging>
   <name>Hello World Webapplication</name>
   <description>Hello World Webapplication</description>  
@@ -31,7 +31,19 @@
     </dependency>
   </dependencies>  
   <build>
-    
+   <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>2.8.2</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>  
+	   <plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-deploy-plugin</artifactId>
+   </plugin>
      <plugins>
         
         <plugin>
@@ -58,4 +70,10 @@
       </plugin>
     </plugins>
   </build>
+	<distributionManagement>
+    <repository>
+      <id>nexus-snapshots</id>
+      <url>http://3.134.244.79:8081/repository/sivamaven/</url>
+    </repository>
+  </distributionManagement>
 </project>
