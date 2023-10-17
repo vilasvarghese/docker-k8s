@@ -14,6 +14,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Run Super-Linter
+      uses: github/super-linter@v3
+      env: 
+        DEFAULT_BRANCH: master
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Set up Java
       uses: actions/setup-java@v3
       with:
