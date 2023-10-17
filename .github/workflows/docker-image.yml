@@ -19,7 +19,7 @@ jobs:
       env: 
         DEFAULT_BRANCH: master
         VALIDATE_ALL_CODEBASE: true
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.VILAS_GITHUB_TOKEN }}
 
     - name: Set up Java
       uses: actions/setup-java@v3
