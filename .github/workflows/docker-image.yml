@@ -28,13 +28,8 @@ jobs:
 #        GITHUB_TOKEN: ${{ secrets.VILAS_GITHUB_TOKEN }}
 
 #sast tool 
-#    - name: sast tools integration - codeql used here
-#      uses: github/codeql-action/init@v2
-#      with:
-#        db-location: '${{ github.runner_temp }}/my_location'
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
-#      uses: github/codeql-action/init@46a6823b81f2d7c67ddf123851eea88365bc8a67
       with:
         languages: java
 
@@ -54,13 +49,11 @@ jobs:
       with:
         upload: False
         output: sarif-results
-      
-#    - name: Initialize CodeQL
-#      run: codeql database create java-database --language=java
-#      env:
-#        CODEQL_ACTION: codeql-action
 
-        
+    - uses: stackhawk/hawkscan-action@v2.1.2
+      with:
+        apiKey: ${{ secrets.HAWK_API_KEY }}      
+       
     - name: Set up Java
       uses: actions/setup-java@v3
       with:
