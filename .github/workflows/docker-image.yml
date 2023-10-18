@@ -21,6 +21,32 @@ jobs:
 #        VALIDATE_ALL_CODEBASE: true
 #        GITHUB_TOKEN: ${{ secrets.VILAS_GITHUB_TOKEN }}
 
+#sast tool 
+#    - name: sast tools integration - codeql used here
+#      uses: github/codeql-action/init@v2
+#      with:
+#        db-location: '${{ github.runner_temp }}/my_location'
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: java
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+      #with:
+        # Optional. Specify a category to distinguish between multiple analyses
+        # for the same tool and ref. If you don't use `category` in your workflow,
+        # GitHub will generate a default category name for you
+        #category: "my_category"
+        
+#  strategy:
+#      fail-fast: false
+#      matrix:
+#        language: ['java', 'python']
+        
+
+
+
     - name: Set up Java
       uses: actions/setup-java@v3
       with:
