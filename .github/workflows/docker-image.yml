@@ -1,5 +1,12 @@
 name: Maven Build and Test
 
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:      
+
 permissions:
   actions: read
   checks: read
@@ -14,11 +21,6 @@ permissions:
   security-events: read
   statuses: read
 
-on:
-  push:
-    branches:
-      - master
-  workflow_dispatch:      
 
 jobs:
   build-and-test:
