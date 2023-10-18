@@ -50,9 +50,13 @@ jobs:
         upload: False
         output: sarif-results
 
-    - uses: stackhawk/hawkscan-action@v2.1.2
+ #   - uses: stackhawk/hawkscan-action@v2.1.2
+ #     with:
+ #       apiKey: ${{ secrets.HAWK_API_KEY }}      
+    - name: ZAP Scan
+      uses: zaproxy/action-full-scan@v0.7.0
       with:
-        apiKey: ${{ secrets.HAWK_API_KEY }}      
+        target: 'https://www.zaproxy.org/'
        
     - name: Set up Java
       uses: actions/setup-java@v3
