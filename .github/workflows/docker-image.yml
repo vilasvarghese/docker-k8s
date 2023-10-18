@@ -32,7 +32,8 @@ jobs:
 #      with:
 #        db-location: '${{ github.runner_temp }}/my_location'
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
+      #uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@46a6823b81f2d7c67ddf123851eea88365bc8a67
       with:
         languages: java
 
@@ -43,11 +44,10 @@ jobs:
         # for the same tool and ref. If you don't use `category` in your workflow,
         # GitHub will generate a default category name for you
         #category: "my_category"
-    - name: Setup CodeQL
-      uses: github/codeql-action/setup@v1
-      with:
-        languages: ${{ matrix.language }}
 
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@46a6823b81f2d7c67ddf123851eea88365bc8a67        
+        
     - name: Initialize CodeQL
       run: codeql database create java-database --language=java
       env:
