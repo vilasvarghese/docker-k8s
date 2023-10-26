@@ -32,6 +32,7 @@ jobs:
       uses: github/codeql-action/init@v2
       with:
         languages: java
+#If you get 403 error in the above, then go to repository's settings, Actions, General - scroll down to give read/write permission.        
 
 #    - name: Perform CodeQL Analysis
 #      uses: github/codeql-action/analyze@v2
