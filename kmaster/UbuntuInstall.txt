@@ -1,3 +1,9 @@
+https://www.cherryservers.com/blog/install-kubernetes-on-ubuntu
+this worked for my students in Verticurl.
+
+
+
+
 https://discuss.kubernetes.io/t/why-does-etcd-fail-with-debian-bullseye-kernel/19696/11
 
 https://gjhenrique.com/cgroups-k8s/

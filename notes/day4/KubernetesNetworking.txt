@@ -902,3 +902,46 @@ When the Calico BGP client advertises routes from its FIB to the route reflector
 			CALICO BASICS ENDS
 
 #################################################################################################################################
+
+
+    kube-proxy:
+        kube-proxy 
+			network proxy that runs on each node in the cluster 
+			maintains network rules on the host.
+        It is responsible for implementing part of the Kubernetes Service concept.
+        kube-proxy watches the Kubernetes API server for changes to Services and Endpoints.
+        It maintains network rules 
+			(such as iptables rules or IPVS rules, depending on the mode) 
+			on nodes to forward traffic to the correct pods.
+
+    Proxy Modes:
+        kube-proxy supports multiple proxy modes, and the choice of mode can be configured.
+        The common proxy modes include:
+            iptables mode: 
+				This mode sets up iptables rules on the nodes to achieve load balancing.
+            IPVS mode: 
+				This mode uses IPVS (IP Virtual Server) to perform load balancing.
+
+    iptables Mode:
+        In iptables mode
+			kube-proxy configures iptables rules on each node to direct traffic 
+				to the appropriate backend pods.
+        This mode uses iptables DNAT 
+			(Destination Network Address Translation) to achieve load balancing.
+
+    IPVS Mode:
+        In IPVS mode, 
+			kube-proxy uses the IPVS kernel module to perform load balancing.
+        IPVS provides more advanced load balancing features compared to basic iptables-based load balancing.
+
+The choice of proxy mode can be influenced by factors such as 
+	scalability, 
+	performance, and 
+	feature requirements. 
+	The default behavior often depends on the Kubernetes distribution or the configuration of your cluster.
+
+In summary, while 
+	kube-proxy is the component responsible for 
+		service load balancing, 
+		the specific mechanism it uses 
+			(whether iptables or IPVS) depends on the proxy mode configured for your cluster.
