@@ -1,0 +1,156 @@
+Install nfs server on ubuntu as mentioned in "NFSSetupNotes.txt"
+
+Install kubernetes 
+
+Install helm 
+helm repo add stable https://charts.helm.sh/stable
+
+
+
+Reference: https://kamrul.dev/setup-dynamic-nfs-provisioning-in-kubernetes-with-helm-3/
+
+On NFS Server
+-------------
+	sudo apt install nfs-common
+	
+	Making a directory in host machine where PersistentVolumeClaim (PVC) will be created
+		sudo mkdir /srv/nfs/kubedata -p
+		sudo chown nobody: /srv/nfs/kubedata/
+
+
+	Now we will edit the exports file and add the directory which we created earlier step in order to export it into the remote machine
+		sudo vi /etc/exports
+
+	Add below and save 
+		/srv/nfs/kubedata    *(rw,sync,no_subtree_check,no_root_squash,no_all_squash,insecure)
+
+
+	Restarting the NFS server and enable it so that it starts automatically in system reboot
+		sudo systemctl enable nfs-server
+		sudo systemctl start nfs-server
+		sudo systemctl status nfs-server
+		
+		
+	Run the following command which will export the directory to the remote machine
+		sudo exportfs -rav	
+		
+	Replace <serverip> to your host machine/nfs server’s IP address
+		
+		sudo mount -t nfs <serverip>:/srv/nfs/kubedata /mnt
+		mount | grep kubedata	
+		
+On Kubernetes Server
+--------------------
+
+	kubectl cluster-info                    
+
+	Kubernetes master is running at https://127.0.0.1:44929
+	KubeDNS is running at https://127.0.0.1:44929/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+		
+		
+	kubectl get nodes        
+
+		NAME                 STATUS   ROLES    AGE     VERSION
+		kind-control-plane   Ready    master   6m38s   v1.19.1
+		kind-worker          Ready    &lt;none&gt;   6m3s    v1.19.1
+		kind-worker2         Ready    &lt;none&gt;   6m3s    v1.19.1
+		
+		
+	helm version --short
+
+
+	helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
+	helm repo update
+
+Replace <serverip> with your nfs server ip 
+	helm install nfs-subdir-external-provisioner --set nfs.server=192.168.1.152  --set nfs.path=/srv/nfs/kubedata  nfs-subdir-external-provisioner/nfs-subdir-external-provisioner 
+
+
+
+$ kubectl get storageclass     
+
+NAME                 PROVISIONER                            RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   
+nfs-client           cluster.local/nfs-client-provisioner   Delete          Immediate              true                   
+standard (default)   rancher.io/local-path                  Delete          WaitForFirstConsumer   false                  
+
+
+
+            
+kubectl get storageclass     
+
+NAME                 PROVISIONER                            RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   
+nfs-client           cluster.local/nfs-client-provisioner   Delete          Immediate              true                   
+standard (default)   rancher.io/local-path                  Delete          WaitForFirstConsumer   false                  
+
+You may not see standard 
+		
+		
+kubectl get all   
+	various pods, deploy, rs should all be running.
+	
+	
+Disabling default storage class for “standard” and making “nfs-client” as default
+If standard storage class exist and it is the default then 
+#may be you should do the next.
+	#kubectl patch storageclass standard -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
+
+Make nfs-client the default 
+	kubectl patch storageclass nfs-client -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+
+
+Check the default storage class
+	kubectl get storageclass
+		nfs-client should be default 
+		
+
+
+vi pvc.yml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvctest
+spec:
+  storageClassName: nfs-client
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Mi
+	  
+	  
+$ kubectl create -f pvc-nfs.yaml
+
+Now automatically pv should be created and bound..
+
+
+on NFS server 
+	ls /srv/nfs/kubedata/
+		default-pvctest-pvc-2e5dab38-6ec0-4236-8c2b-54717e63108e
+		
+
+vi pod.yml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: busybox
+spec:
+  volumes:
+  - name: myvol
+    persistentVolumeClaim:
+      claimName: pvctest
+  containers:
+  - image: busybox
+    name: busybox
+    command: ["/bin/sh"]
+    args: ["-c", "sleep 600"]
+    volumeMounts:
+    - name: myvol
+      mountPath: /data
+
+
+kubectl exec -it busybox -- sh
+cd /data 
+
+mkdir vilas
+
+Check in the nfs server 	/srv/nfs/kubedata/default.........../ if vilas folder is created.  

@@ -1,0 +1,117 @@
+  
+oc login -u kubeadmin
+  
+oc version
+  
+az
+  
+az login
+  
+az aro list-credentials --name  arocluster --resouce-group aro-rg
+  
+az aro list-credentials --name arocluster  --resource-group aro-rg
+  
+az account list --output table
+  
+az account set --subscription 83ff464d-1c0f-447a-807e-76a126216934
+  
+az aro list-credentials --name arocluster  --resource-group aro-rg
+  
+oc login -u kubeadmin
+  
+8rt6i-8uRPs-96KFw-szY4Z
+  
+clear
+  
+apiServer=$(az aro show -g aro-rg -n arocluster --query apiserverProfileurl -o tsv)
+  
+echo apiServer
+  
+echo $apiServer
+  
+az aro show -g aro-rg -n arocluster --query apiserverProfileurl -o tsv
+  
+az aro show -g aro-rg -n arocluster --query apiserverProfileurl
+  
+az aro show -g aro-rg -n arocluster --query apiserverProfile.url
+  
+ apiServer=$(az aro show -g aro-rg -n arocluster --query apiserverProfile.url -o tsv)
+  
+echo $apiServer
+  
+az account list --output table
+  
+az aro list-credentials --name arocluster  --resource-group aro-rg
+  
+oc login $apiServer -u kubdadmin -p 8rt6i-8uRPs-96KFw-szY4Z
+  
+echo $apiServer
+  
+oc login $apiServer -u kubeadmin -p 8rt6i-8uRPs-96KFw-szY4Z
+  
+oc new-project my-project
+  
+oc new-app https://github.com/sclorg/cakephp-ex
+  
+oc get pods -o wide
+  
+kubectl
+  
+kubectl get pod -o wide
+  
+oc get pods -o wide
+  
+curl
+  
+curl 10.129.2.8
+  
+oc logs cakephp-ex-1-deploy
+  
+oc logs cakephp-ex-1-build
+  
+oc project
+  
+oc status
+  
+oc api-resources
+  
+oc help
+  
+oc explain pods
+  
+oc completion bash > oc_bash_completion
+  
+sudo cp oc_bash_completion /etc/bash_completion.d/
+  
+oc get pods
+  
+oc version
+  
+oc get po cakephp-ex-5bffcbc984-dmlh5 -o yaml > o.yml
+  
+vi o.yml
+  
+oc apply -f oc1.yml
+  
+oc apply -f oc2.yml
+  
+ls *.yml
+  
+oc apply -f o2.yml
+  
+oc apply -f o2.yml
+  
+kubectl get pod
+
+----------------------------------------------
+debug node 
+	oc debug node 
+
+debug pod 
+	oc rsh 
+	
+	oc run mypod --image=<image>
+	oc exec -it mypod 
+
+
+

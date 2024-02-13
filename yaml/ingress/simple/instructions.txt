@@ -38,5 +38,5 @@ EOF
 
 8. kubectl get svc -n ingress-nginx 
 	this should show a node port
-
-9. curl <node id>:<node port ip>
+	
+9. curl <node id of ingress>:<node port ip>

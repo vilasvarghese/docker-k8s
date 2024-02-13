@@ -1,0 +1,3 @@
+https://blog.gitguardian.com/kubernetes-tutorial-part-1-pods/
+https://blog.gitguardian.com/hardening-your-k8-pt-1/?_gl=1*fv2abm*_up*MQ..*_ga*NDc1MDcyODM0LjE3MDI0NDgwOTU.*_ga_L0Y8CSL3HQ*MTcwMjQ0ODA5Mi4xLjAuMTcwMjQ0ODA5Mi4wLjAuMA..
+https://blog.gitguardian.com/hardening-your-k8s-pt-2/?_gl=1*m7z4ya*_up*MQ..*_ga*NDc1MDcyODM0LjE3MDI0NDgwOTU.*_ga_L0Y8CSL3HQ*MTcwMjQ0ODA5Mi4xLjAuMTcwMjQ0ODA5Mi4wLjAuMA..

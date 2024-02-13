@@ -1,0 +1,93 @@
+Install nfs server on ubuntu
+-----------------------------
+
+		sudo su
+		sudo mkdir /exports 
+		cd /exports 
+		sudo mkdir backup 
+		sudo mkdir documents
+		ls
+
+		sudo su 
+		apt update -y 
+		apt upgrade -y 
+		apt install nfs-kernel-server -y
+		systemctl status nfs-kernel-server 
+			exportfs: can't open /etc/expor
+		
+
+			
+		cat /etc/exports
+			Hashed data 
+			
+		sudo mv /etc/exports /etc/exports.orig
+
+		sudo vi /etc/exports
+		--------------------------------
+/exports/backup private_ip/subnet(rw,no_subtree_check)
+/exports/documents private_ip/subnet(rw,no_subtree_check)
+
+/exports/backup 172.31.31.66/172.0.0.0(rw,no_subtree_check)
+/exports/documents */172.0.0.0(rw,no_subtree_check)
+
+
+/exports/backup *(rw,no_subtree_check)
+/exports/documents *(rw,no_subtree_check)
+
+		--------------------------------
+
+
+		sudo systemctl restart nfs-kernel-server
+		sudo systemctl status nfs-kernel-server
+
+
+		cd /exports
+		sudo echo "Hello" >> backup/test1.txt 
+		sudo echo "World" >> documents/test2.txt 
+
+		ip a
+
+------------------
+Install nfs client on ubuntu (Not tested) 
+----------------------------
+
+sudo apt install nfs-common 
+
+showmount --exports <ip of server> 
+	list of directory shared by server 
+	
+	
+	sudo mkdir /mnt/nfs 
+	sudo mkdir /mnt/nfs/backup
+	sudo mkdir /mnt/nfs/documents
+	
+	ls -l /mnt/nfs/backup 
+		nothing mounted
+		
+		
+	sudo mount serverip:/exports/backup /mnt/nfs/backup 
+	
+	df -h 
+	ls -l /mnt/nfs/backup 
+		file can be seen 
+		
+	sudo mount 10.10.10.222:/exports/documents /mnt/nfs/documents
+
+-----------------------------
+
+Install nfs client on amazon linux 
+----------------------------------
+https://docs.aws.amazon.com/efs/latest/ug/mounting-fs-old.html	
+
+below may be already there - just check 		
+	yum update -y 
+	yum -y install nfs-utils		
+
+showmount --exports serverip 
+showmount --exports 172.31.31.66
+
+mkdir -p /mnt/nfs/backup
+mkdir -p /mnt/nfs/documents
+
+sudo mount <serverip>:/exports/backup /mnt/nfs/backup 
+sudo mount <serverip>:/exports/documents /mnt/nfs/documents 

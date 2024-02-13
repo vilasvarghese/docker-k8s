@@ -1,0 +1,119 @@
+sudo su 
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	hostnamectl set-hostname kmaster - on master only
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		`````````````````````````````````````````````````````````````````````````
+		hostnamectl set-hostname kworker1 - on worker only
+		`````````````````````````````````````````````````````````````````````````
+
+ping using private ip and confirm they can talk to each others.
+
+
+
+Below commands until kubeadm init should be executed on all/2 machines.
+sudo yum -y update
+
+
+----------------------------------------
+cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+enabled=1
+gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+exclude=kubelet kubeadm kubectl
+EOF
+----------------------------------------
+
+sudo yum clean all
+sudo yum -y makecache
+
+sudo yum -y install kubelet-1.23* kubeadm-1.23* kubectl-1.23* --disableexcludes=kubernetes
+
+kubeadm  version
+kubectl version --short
+
+sudo sed -i 's/^SELINUX=.*/SELINUX=permissive/g' /etc/selinux/config
+sudo setenforce 0
+
+sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+sudo swapoff -a
+
+sudo modprobe overlay
+sudo modprobe br_netfilter
+
+----------------------------------------
+sudo tee /etc/sysctl.d/kubernetes.conf<<EOF
+
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward = 1
+EOF
+----------------------------------------
+
+sudo sysctl --system
+
+yum install docker -y
+
+ls /etc/docker
+sudo mkdir -p /etc/systemd/system/docker.service.d
+
+
+----------------------------------------
+sudo tee /etc/docker/daemon.json <<EOF
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2"
+}
+EOF
+----------------------------------------
+
+sudo systemctl restart docker
+sudo systemctl enable docker
+
+sudo systemctl enable kubelet
+
+following command should be executed only on the master 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	sudo kubeadm init
+	
+	mkdir -p $HOME/.kube
+	sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+	sudo chown $(id -u):$(id -g) $HOME/.kube/config
+	
+	exit 
+	mkdir -p $HOME/.kube
+	sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+	sudo chown $(id -u):$(id -g) $HOME/.kube/config
+	
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~	
+
+copy the join command from the master (towards the end of kubeadm init commands logs) and paste it on worker node 
+`````````````````````````````````````````````````````````````````````````
+		join command may look something like below
+			kubeadm join 172.31.89.185:6443 --token a1j6c4.5fwt6ovw54oikahg \
+			--discovery-token-ca-cert-hash sha256:294313fa7341a85f7320fc641f8480a622b889cb3352eb3c90eff770b83411
+
+		Result: Run 'kubectl get nodes' on the control-plane to see this node join the cluster.
+	
+`````````````````````````````````````````````````````````````````````````
+
+Here after all lines only on master node 
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~	
+	kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~	
+
+Verify 
+	kubectl get nodes
+		wait for sometime and both nodes should be mentioned as ready.
+		
+		
+	kubectl run mypod --image=nginx		
+		wait for 1 min.
+	kubectl get pod 
+		1/1 Ready

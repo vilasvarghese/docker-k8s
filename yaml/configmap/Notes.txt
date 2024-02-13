@@ -1,0 +1,244 @@
+ConfigMap 
+	API resource 
+	allows you to decouple and externalize
+		configuration artifacts 
+		from the 
+			containerized applications. 
+	Allows to 
+		externalize property files or properties from applications
+		manage and expose configuration data to applications in a key-value format. 
+	
+
+Here are the key features and use cases for ConfigMaps in Kubernetes:
+
+    Configuration Storage:
+        ConfigMaps store configuration data as key-value pairs.
+        They can hold 
+			simple configuration settings
+			environment variables
+			configuration files.
+
+    Decoupling Configuration:
+        separate configuration concerns 
+			from your application code.
+        Easily manage and update configurations 
+			without modifying the application's source code.
+
+	How to inject ConfigMap to container 
+		Pod Environment Variables:
+			Can inject configuration data as 
+				environment variables into the containers within a pod.
+
+		Volume Mounts:
+			ConfigMaps can be mounted as volumes in a pod
+			Thus containers can access the configuration data as files.
+
+	Dynamic Configuration:
+		Changes made to ConfigMaps are immediately reflected in the associated pods
+			without restarting the application.
+			----------------------------------
+
+    Immutability and Versioning:
+        ConfigMaps themselves are immutable, but you can create new versions by updating them with different data.
+        This allows you to maintain a history of configurations and roll back to a previous state if needed.
+
+    Multi-environment Support:
+        ConfigMaps are especially useful in multi-environment setups 
+			(e.g., development, testing, production) where configurations may differ.
+			
+			
+			
+How to create a configmap 
+	1. ConfigMap imperatively using the kubectl create configmap
+	
+		a. just a single value 
+			kubectl create configmap my-configmap --from-literal=DATABASE_USER=root
+			
+		b. multiple values 
+			kubectl create configmap my-configmap1 --from-literal=DATABASE_USER=root --from-literal=DATABASE_PWD=password1
+	
+			kubectl create configmap example-configmap --from-literal=DATABASE_URL=mysql://username:password@localhost:3306/mydatabase --from-literal=API_KEY=your_api_key_here
+			
+		c. from file 
+			kubectl create configmap my-configmap2 --from-file=<path to file>
+		
+			
+	2.  Declarative YAML File:
+
+---------------------------------------------
+# configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-configmap3
+data:
+  DATABASE_URL: "mysql://username:password@localhost:3306/mydatabase"
+  API_KEY: "your_api_key_here"
+
+
+kubectl apply -f configmap.yaml	
+
+--------------------------------------------------
+
+
+
+
+
+How to inject configmap in to container 
+---------------------------------------	
+	
+	different ways to inject ConfigMap data into containers in Kubernetes:
+
+    Inject as 
+		1. Environment Variables: 
+			Adv: 
+				Quick and easy for simple configuration values
+				Accessible through standard environment variable mechanisms.
+		2. Volume Mounts: 
+			Adv:
+				Better for 
+					large configuration files 
+				or 
+					when multiple containers need access to the same configuration.
+		3. Command and Arguments: 
+			Adv: 
+				Useful for injecting configuration into the container's startup command.
+		4. Direct API Access: 
+			Adv: 
+				Provides flexibility but requires more code and understanding of the Kubernetes API.
+
+
+
+1. Environment Variables:
+	a. inject an entire config map as env. variable 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+  - name: my-container
+    image: nginx:latest
+	port: 80
+    envFrom:
+      - configMapRef:
+          name: my-configmap #This name should match the configmap you created.	  
+	
+	
+
+
+    b. Inject a single property from ConfigMap:
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+  - name: my-container
+    image: nginx:latest
+    env:
+    - name: MY_VARIABLE
+      valueFrom:
+        configMapKeyRef:
+          name: my-configmap #This name should match the config map 
+          key: my-key #This name should match the property you want to inject.
+
+
+Set all key-value pairs from a ConfigMap as environment variables:
+
+
+envFrom:
+- configMapRef:
+    name: my-configmap
+
+Use code with caution. Learn more
+
+2. Volume Mounts:
+
+    a. Mount a ConfigMap as a volume, making its data available as files within the container:
+
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+  - name: my-container
+    image: nginx:latest
+    volumeMounts:
+    - name: config-volume
+      mountPath: /etc/config
+  volumes:
+  - name: config-volume
+    configMap:
+      name: my-configmap
+
+
+	b. Mount a specific property from the config map as volume
+	
+apiVersion: v1
+kind: Pod
+metadata:
+  name: configmap-demo-pod
+spec:
+  containers:
+    - name: demo
+      image: alpine
+      command: ["sleep", "3600"]
+      volumeMounts:
+      - name: config
+        mountPath: "/config"
+        readOnly: true
+  volumes:
+  # You set volumes at the Pod level, then mount them into containers inside that Pod
+  - name: config
+    configMap:
+      # Provide the name of the ConfigMap you want to mount.
+      name: game-demo
+      # An array of keys from the ConfigMap to create as files
+      items:
+      - key: "game.properties"		#this property key should match 
+        path: "game.properties"
+      - key: "user-interface.properties"
+        path: "user-interface.properties"
+
+
+3. Command and Arguments:
+
+    Use environment variables from a ConfigMap within the container command or arguments:
+    YAML
+
+    command: ["/bin/sh", "-c", "echo $(MY_VARIABLE)"]
+
+
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+  - name: my-container
+    image: my-image:latest
+    command: ["/bin/sh", "-c", "echo $(MY_VARIABLE)"]
+    env:
+    - name: MY_VARIABLE
+      valueFrom:
+        configMapKeyRef:
+          name: my-configmap
+          key: my-key #as defined in configmap key
+
+4. Direct API Access:
+
+    For complex scenarios, access ConfigMap data directly from a running container using the Kubernetes API.
+
+Key Considerations:
+
+    ConfigMap Size Limit: ConfigMaps are limited to 1 MiB of data. For larger data, consider Secrets or other storage options.
+    Read-Only Volumes: ConfigMaps mounted as volumes are read-only by default.
+    Best Practices:
+        Use environment variables for small, simple configuration values.
+        Use volume mounts for larger configuration files or when multiple containers need access to the same configuration.
+        Avoid direct API access unless necessary for complex scenarios.
+

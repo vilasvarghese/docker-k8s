@@ -1,0 +1,47 @@
+instructions.txt is a good reference. Below are additional references.
+
+
+
+https://loft.sh/blog/kubernetes-service-account-what-it-is-and-how-to-use-it/
+https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+https://www.youtube.com/watch?v=uoLXbrGdLRE&pp=ygUaa3ViZXJuZXRlcyBzZXJ2aWNlIGFjY291bnQ%3D
+
+
+
+kubectl get sa
+
+kubectl get secrets
+
+kubectl create sa newsa
+	kubectl get sa
+	kubectl get secrets
+------------------------------------
+vi podsa.yml
+apiVersion: v1
+kind: Pod 
+metadata:
+  labels:
+    run: test-pod 
+  name: test-pod
+spec:
+  serviceAccount: newsa
+  containers: 
+  - image: nginx
+    name: test-pod 
+	
+------------------------------------
+
+kubectl apply -f podsa.yml
+kubectl describe pod test-pod 
+	check "Mounts" section 
+	
+	a secret was created and mounted into the pod.
+	
+	
+	kubectl exec -it test-pod -- /bin/bash
+	
+	TOKEN=`cat /var/run/secrets/kubernetes.io/serviceaccount/token`
+	curl https://kubernetes -k --header "Authorization: Bearer $TOKEN"
+	
+	
+	

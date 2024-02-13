@@ -1,0 +1,26 @@
+k config set-context --curent --namespace=ckad 
+https://www.youtube.com/watch?v=PN3VqbZqmD8
+https://github.com/dgkanatsios/CKAD-exercises
+
+
+alias k=kubect
+alias kn='k config set-context --current --namespace ' 
+alias kc='k config get-contexts'
+alias kgp='k get po'
+alias kdp='k describe po'
+alias tp='k run tmp --image=nginx/alpine --restart Never --rm -i'
+export do='--dry-run=client -o yaml'
+export now='--force --grace-period=0' 
+
+
+Enable kubectl autocomplete and use imperative commands as much as possible than writing whole yaml definition files by your own.
+Get comfortable with vim editor and terminal
+
+
+Next challenge is copy pasting the content into yaml files.
+
+$ cat >> ~/.vimrc
+  set expandtab
+  set shiftwidth=2
+  set tabstop=2
+

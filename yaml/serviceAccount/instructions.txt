@@ -3,6 +3,12 @@ https://loft.sh/blog/kubernetes-service-account-what-it-is-and-how-to-use-it/
 kubectl create deployment nginx1 --image=nginx
  kubectl get pods
  kubectl get pod <podname> -o yaml
+ 
+ Note that following is printed.
+	serviceAccount: default
+	serviceAccountName: default
+
+ 
 
 kubectl exec -it nginx-pod -- /bin/bash
 

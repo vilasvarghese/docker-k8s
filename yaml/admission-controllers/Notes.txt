@@ -1,0 +1,7 @@
+https://sysdig.com/blog/kubernetes-admission-controllers/
+
+https://www.baeldung.com/java-kubernetes-admission-controller
+
+https://www.youtube.com/watch?v=1mNYSn2KMZk
+	https://github.com/marcel-dempers/docker-development-youtube-series
+	https://github.com/marcel-dempers/docker-development-youtube-series/blob/master/kubernetes/admissioncontrollers/introduction/tls/ssl_generate_self_signed.md

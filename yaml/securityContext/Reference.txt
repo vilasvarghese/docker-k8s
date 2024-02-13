@@ -1,1 +1,64 @@
 https://www.youtube.com/watch?v=tjVHdCs_G_4
+https://www.youtube.com/watch?v=4a_9zflKxqs
+
+https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+
+Very good ref.
+	https://blog.gitguardian.com/kubernetes-tutorial-part-1-pods/
+
+https://sysdig.com/learn-cloud-native/kubernetes-security/security-contexts/
+
+
+Create a busybox pod
+
+kubectl run busybox --image=busybox --command -- sleep 5000
+kubectl exec -it <pod> -- /bin/bash
+
+id 
+	user, group etc. would be displayed.
+	user displayed would be root.
+	
+	By default kubernetes/CRI runs containers as root.
+
+ps aux 
+	all processes are running as root
+
+	this is a security risk 
+	
+	
+	
+apiVersion: v1
+kind: Pod
+metadata:
+  name: security-context-demo
+spec:
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 3000
+    fsGroup: 2000
+  volumes:
+  - name: sec-ctx-vol
+    emptyDir: {}
+  containers:
+  - name: sec-ctx-demo
+    image: busybox:1.28
+    command: [ "sh", "-c", "sleep 1h" ]
+    volumeMounts:
+    - name: sec-ctx-vol
+      mountPath: /data/demo
+    securityContext:
+      allowPrivilegeEscalation: false
+
+
+	  
+kubectl apply -f <above file>
+kube exec -it 
+
+touch test #fails
+mkdir newfolder	 #fails 
+
+cd  /data/demo
+mkdir newfolder	passes 	
+	
+	
+cat /etc/passwd	

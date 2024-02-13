@@ -1,0 +1,146 @@
+Container images
+	templates with 
+		code
+		dependencies
+		configurations 
+			for creating containers 
+			
+Containers 
+	isolated environments created from images 
+	where applications run 
+	
+
+--------------------------------------------------------------------------------------------------------
+Feature			|Azure Red Hat Openshift (ARO)			|Azure Kubernetes Service (AKS)
+--------------------------------------------------------------------------------------------------------
+1. Vendor		|JV - MS and Red Hat					|MS only 	
+				|                                       |
+2. Distribution	|Openshift container platform           |Kubernetes + pre-installed components
+				|                                       |
+3. Accessibil	| Accessible                            | Not accessible
+	to control	|                                       |
+		plane	|                                       |
+				|                                       |
+4. Node count	| 3 master (only)                       | at least 1 worker
+				|   at least 3 worker                   | max. 5000
+				|      max: 60/120/240                  |
+				|                                       |
+5. Cost			| Costlier than AKS                     | Lesser than ARO
+				|                                       |
+6. Free trial	| No                                    | yes
+				|                                       |
+7. Addons with 	| Many integrations through             | Seamless integrations + managed addons
+	Azure		|   Arc-enabled kubernetes              |
+				|      integrations                     |
+				|                                       |
+8. Windows 		| Not Supported                         | Supported 
+	support		|                                       |
+				|                                       |
+9. Pod IPS		| From openshift internal network       | Either 
+				|   (not routable)                      | 	Kubernetes internal (not routable) network
+				|                                       |	or
+				|                                       |	Azure VNET/Subnet
+				|                                       |
+				|                                       |
+Adv. of ARO
+------------
+1. Enterprise ready orchestration 
+2. Stringent security and compliance
+3. Direct access and visibility to control plane.
+
+Dis adv. of ARO compared to other k8s options 
+---------------
+1. Installation and maintainance is more challenging.
+2. Cost 
+3. Scaling and Flexibility of o/s 
+4. Node count limited.
+
+az login 
+az login --use-device-code
+
+az account set --subscription <subscription-id>
+
+
+Pre-req
+-------
+
+1. Increase quota limit if required.
+	Subscription + "Usage +quota" ->
+		Search 
+			DSv3	- 50 
+			FSv2	- 40 
+			
+			
+	Master and worker node configuration 
+		3 master nodes * 8 vcpus = 24 vcpus 
+		3 worker nodes * 4 vpcus = 12 vcpus
+		1 bootstrap vm - 4 cores 
+	
+2. Azure roles 
+	Contributor or User Access Admin or Owner
+	
+	Subscription + IAM
+	
+3. Microsoft entra role: App Admin (Global admin has it)
+	Entra ID 
+
+4. Resource providers registered: 
+	Microsoft.RedHatOpenShift
+	Microsoft.Compute 
+	Microsoft.Storage 
+	Microsoft.Authorization 
+	
+	Subscription + Resource providers 
+	
+5. Azure VNet with 2 empty subnets 
+	can be automatically created during ARO cluster cretion 
+		if azure portal is used.
+		
+6. A service principal 
+	can be automatically created during ARO cluster creation 
+	
+
+
+
+Make notes on 
+	Azure service principal for ARO
+	
+------------------------------
+
+az aro list-credentials --name aro-cluster --resource-group aro-rg
+
+
+
+oc get all --selector label-key=label-value
+
+oc delete all --selector key=value 
+oc get all -o name
+oc expose svc/name
+oc get route/name
+	url to access the applications
+
+oc describe network cluster
+
+Getting started cli 
+https://docs.openshift.com/container-platform/4.8/cli_reference/openshift_cli/getting-started-cli.html
+
+https://redhat-scholars.github.io/openshift-starter-guides/rhs-openshift-starter-guides/common-explore.html
+
+Responsibility matrix
+https://learn.microsoft.com/en-us/azure/openshift/responsibility-matrix
+
+get cluster operator
+	oc get co
+
+oc api-resources 
+
+oc projects 
+-----------
+	oc projects ~ kubernetes strategy
+
+	list projects 
+		oc projects 
+		
+	change projects
+		oc project <name>
+		

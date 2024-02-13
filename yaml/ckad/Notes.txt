@@ -1,0 +1,197 @@
+Reference: https://tanzu.vmware.com/developer/blog/ckad-practice-questions-sept-21/
+
+alias k=kubectl
+
+
+
+
+change the current context.
+	k config set-context --current --namespace=ckad
+	
+Create job (say, image “busybox”) that needs to run once a day	
+	k create cronjob test-job --image=busybox --schedule="0 2 * * *"
+		
+Provide YAML for a deployment running NGINX with the official NGINX image	
+	k create deploy nginx --image=nginx -o yaml --dry-run=client
+	k create deploy nginx --image=nginx -o yaml --dry-run=client > ckad-nginx.yaml
+	k apply -f ckad-nginx.yaml
+	k port-forward deploy/nginx 1234:80
+	http://localhost:1234
+	
+The official NGINX image serves files from /usr/share/nginx/html/; 
+Create a deployment YAML that runs NGINX but serves files downloaded from a git repo 
+	
+-----------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: nginx-github
+spec:
+ selector:
+   matchLabels:
+     app: nginx-github
+ replicas: 1
+ template:
+   metadata:
+     labels:
+       app: nginx-github
+   spec:
+     containers:
+     - name: nginx
+       image: nginx
+       ports:
+       - containerPort: 80
+       volumeMounts:
+       - name: www-data
+         mountPath: /usr/share/nginx/html
+     # These containers are run during pod initialization
+     initContainers:
+     - name: git
+       image: alpine/git
+       command:
+       - git
+       - clone
+       - https://github.com/tiffanyfay/space-app.git
+       - /data
+       volumeMounts:
+       - name: www-data
+         mountPath: /data # You can choose a different name if you want
+     volumes:
+     - name: www-data
+       emptyDir: {}
+----------------------
+
+
+Provide YAML for deployment called “blue” running NGINX
+	k create deploy blue --image=nginx -o yaml --dry-run=client > nginx-blue.yaml
+	k apply -f nginx-blue.yaml
+	
+Provide YAML for deployment called “green” running NGINX
+	k create deploy green --image=nginx -o yaml --dry-run=client > nginx-green.yaml
+	k apply -f nginx-green.yaml	
+	
+Provide YAML for an internal service called “prod” sending traffic to deployment “blue”
+	k expose deployment blue --name=prod  --dry-run=client  --port=80 -o yaml> prod-svc.yaml
+	k apply -f prod-svc.yaml
+	
+We can check this worked by getting the IP addresses for blue and green and seeing what endpoints we have for our service.
+
+	k get pods -l 'app in (blue,green)' -o wide	
+
+endpoint listed for the prod service should be <blue-IP>:80.
+
+	k get ep prod	
+	
+	 k get deploy -l 'app in (blue,green)' -o wide
+	 
+	 
+	
+Switch the traffic to mix of blue+green
+	Use this new label. 
+		app: blue/green.
+	add svc: prod label at the level of 
+		spec.template.metadata.labels 
+			on a line next to app: <green or blue> and do a k apply -f on the files again.
+		
+		
+	
+We can see that this worked by checking the endpoints again. There should be two now.
+	k get ep prod
+	
+
+Provide YAML for deployment running NGINX, with HTTP readiness probe
+	k create deploy nginx-readiness --image=nginx
+	k edit deploy nginx-readiness
+Add the following under the template.spec.containers 
+
+		#below should be alligned with "image " inside and child of containers 
+        readinessProbe:
+          httpGet:
+            path: /index.html
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5 # how long to wait after first try	
+		 
+
+
+---------------------------------------- sa assignment attempt to scale is failing ------------------------------------
+Create deployment “purple” running NGINX**
+	k create deploy purple --image=nginx --port=80
+	
+
+Create service account named “scaler”
+	k create sa scaler
+	
+Create a pod named scaler with the following requirements:
+	- it should use that scaler serviceaccount
+	- it should be possible to obtain an interactive shell in it
+	- it should have kubectl installed (install it manually somehow or use e.g. nixery.dev/shell/kubectl)	
+	
+	k run mypod --image=nixery.dev/shell/kubectl --overrides='{ "spec": { "serviceAccount": "scaler" } }' -- /bin/bash -c "while true; do sleep 30; done;"
+	
+Create a role/rolebinding such as serviceaccount scaler can scale up/down the deployment purple but cannot do anything else (not delete the deployment, not edit it other than scaling, not view/touch other resources)
+	k create role scaler --verb=get --resource=deployments --resource-name=purple -o yaml --dry-run=client > scaler-get.yaml
+	k apply -f scaler-get.yaml
+	k create role scaler --verb=patch --resource=deployments/scale --resource-name=purple -o yaml --dry-run=client > scaler-patch.yaml
+	k apply -f scaler-patch.yaml
+	k create rolebinding scaler --serviceaccount=ckad:scaler --role=scaler
+	k exec -it mypod -- sh
+	kubectl auth can-i --list
+	kubectl get pod 
+	kubectl scale deploy purple --replicas=2
+	
+	
+Create deployment “yellow” running nginx:alpine
+	k create deploy yellow --image=nginx:alpine
+	
+Create deployment “orange” running nginx:alpine
+	k create deploy orange --image=nginx:alpine
+	
+	
+Block access to pods of deployment “yellow”
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+ name: block-to-yellow
+spec:
+ podSelector:
+   matchLabels:
+     app: yellow
+ policyTypes:
+ - Ingress
+ ingress: []
+
+Now let’s test this.
+First, get our pods’ IP addresses. 
+	k get pods -l 'app in (yellow,orange)' -o wide
+	
+First let’s see that we can ping orange.
+	kubectl run --rm -it ping --image=alpine --restart=Never -- ping <orange-ip>
+	
+	
+Now try with yellow. You shouldn’t see any traffic.
+		kubectl run --rm -it ping --image=alpine --restart=Never -- ping <yellow-ip>
+		
+Allow pods of “orange” to ping pods of “yellow” Now we need a new network policy that allows ingress traffic from orange to yellow. Create the following YAML and k apply -f <file>.
+
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-orange-to-yellow
+spec:
+  podSelector:
+    matchLabels:
+      app: yellow
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: orange
+
+This time we need to enter the orange pod and to ping yellow. We will need to use yellow’s IP. And we should see traffic.
+
+	k exec -it <orange-pod-name> -- ping <yellow-ip>		  
+	
+	
+	

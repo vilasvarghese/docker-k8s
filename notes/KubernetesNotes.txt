@@ -1,0 +1,837 @@
+Kubernetes 
+	simplifies the deployment and operation of containerized applications
+	robust platform for managing the complete lifecycle of modern applications.
+	CNCF gruaduated project
+	Launched in 2014
+	
+
+Keywords to understand 
+----------------------
+    Container Orchestration:
+        Kubernetes is an open-source container orchestration platform used to automate the deployment, scaling, and management of containerized applications.
+
+    Distributed Systems Management:
+        It facilitates the management of distributed systems and containerized applications across a cluster of machines.
+
+    Containerization Technology:
+        Kubernetes works with containerization technologies like Docker and container runtimes, providing a standardized way to package and deploy applications.
+		
+	Containers supported by Kubernetes 
+		Docker 
+		ContainerD
+		Crio
+		rkt (pronounced "rocket")
+		
+		Kubernetes primarily interacts with container runtimes through the CRI, and as long as a container runtime complies with the CRI specifications, it can be used with Kubernetes.
+
+    Nodes and Clusters:
+        A Kubernetes cluster consists of a set of machines called nodes. These nodes can be physical or virtual machines.
+
+		Master Node:
+			The master node is the control plane that manages the overall state of the cluster. It schedules applications, scales them, and manages their health.
+
+		Worker Nodes:
+			Worker nodes, also known as minions or nodes, are the machines where containers run. They host the application components orchestrated by Kubernetes.
+
+    Pods:
+        The smallest deployable units in Kubernetes are pods. A pod is a group of one or more containers that share storage, network, and have the same lifecycle.
+
+    Services:
+        Services enable communication between different sets of pods. They provide a stable IP address and DNS name for a set of pods, allowing other applications to discover and connect to them.
+
+    Replication Controllers and Deployments:
+        Replication Controllers ensure that a specified number of pod replicas are running at all times. Deployments are a higher-level abstraction that manages updates to applications.
+
+    Declarative Configuration:
+        Kubernetes allows you to declare the desired state of your application through configuration files (YAML or JSON). It then continuously works to ensure that the actual state matches the desired state.
+
+    Scalability and Load Balancing:
+        Kubernetes can automatically scale applications based on CPU or custom metrics. It also provides built-in support for load balancing across application replicas.
+
+    Rolling Updates and Rollbacks:
+        Kubernetes supports rolling updates, allowing you to update applications with minimal downtime. If an update fails, it provides the ability to roll back to a previous version.
+
+    Storage Orchestration:
+        Kubernetes provides storage orchestration for containers, allowing them to mount persistent storage, such as network-attached storage or local storage.
+
+    Container Network Model:
+        Kubernetes uses the Container Network Model (CNI) to provide network connectivity between containers and pods.
+
+    Extensibility:
+        Kubernetes is highly extensible and can be customized through the use of extensions, plugins, and custom resources.
+
+    Community and Ecosystem:
+        Kubernetes has a vibrant and active open-source community. It has a rich ecosystem of tools, extensions, and third-party integrations.
+
+    Cloud-Native Applications:
+        Kubernetes is a key technology for building and managing cloud-native applications. It enables the development of scalable, resilient, and portable applications across various cloud providers and on-premises environments.
+
+    Ingress Controllers:
+        Kubernetes Ingress controllers provide external access to services within a cluster, allowing you to expose services to the external world.
+
+    Health Checks and Self-Healing:
+        Kubernetes monitors the health of applications and automatically restarts or replaces failed containers to ensure the desired state is maintained.
+
+    Resource Management:
+        Kubernetes provides resource management and allocation, allowing you to specify resource requirements and limits for containers.
+
+
+
+
+
+Why Kubernetes 
+	Kubernetes 
+		de facto standard for container orchestration and management
+		some key reasons why Kubernetes is widely adopted:
+
+		Docker stopped competing with kubernetes because of it's success
+		Usage increasing every year.
+
+    Portability and Multi-Cloud Support:
+    Scalability:
+		supported in Dockerswarm
+		HPA support missing in dockerswarm
+    Self-Healing:
+		supported in Dockerswarm
+    Service Discovery and Load Balancing:
+		supported in Dockerswarm
+    Resource Efficiency:
+    Declarative Configuration:
+    Rolling Updates and Rollbacks:
+		supported in Dockerswarm	
+    Extensibility and Ecosystem:
+    Community Support:
+    Security Features:
+    Visibility and Monitoring:
+    Flexibility in Application Architecture:
+	supports cluster of 5000 nodes.
+	Monitoring support 
+		Metricserver 
+		Prometheus and grafana 
+		Other options like dynatrace, datadog etc.
+	Huge scheduling support 
+		Nodename
+		Labels
+		Affinity
+	
+
+Kubernetes architecture
+-----------------------
+
+Kubernetes has a distributed architecture that consists of several components working together to manage and orchestrate containerized applications across a cluster of machines. Here is an overview of the key components in Kubernetes architecture:
+This architecture provides a scalable and extensible framework for managing containerized applications. The master node controls and monitors the state of the cluster, while nodes host the workloads and execute the containers. The use of etcd as a distributed key-value store ensures consistency and fault tolerance. The various controllers, schedulers, and components work together to maintain the desired state of the cluster and manage resources efficiently.	
+
+    Master Node:
+        kube-apiserver: 
+			The API server is the central management entity that exposes the Kubernetes API. It validates and processes RESTful requests, updating the desired state of the cluster.
+        etcd: 
+			A distributed key-value store that stores the configuration data and the state of the Kubernetes cluster. It acts as the single source of truth for the cluster's configuration.
+		Controller Manager:
+			Controller Manager: Manages controller processes that regulate the state of the cluster. Examples include the Replication Controller, Endpoints Controller, and Namespace Controller.
+		Scheduler:
+			Assigns workloads to nodes based on resource requirements, policies, and other factors. It determines the optimal node for a new pod based on the available resources and constraints.
+
+
+    Nodes (Minions or Worker Nodes):
+        kubelet: An agent that runs on each node and communicates with the kube-apiserver. It ensures that containers are running in a Pod.
+        kube-proxy: Maintains network rules on nodes, enabling communication across the cluster. It performs packet forwarding and manages network connectivity.
+
+
+
+    Cloud Controller Manager:
+        Cloud Controller Manager: Integrates with cloud providers to manage external resources like load balancers. It allows Kubernetes to be extended to work with specific cloud environments.
+
+
+
+Basic and Important resources 
+-----------------------------
+    Pods:
+        The smallest deployable units in Kubernetes. Pods contain one or more containers that share the same network namespace and storage, allowing them to communicate with each other and share data.
+
+    Service:
+        Service: Defines a set of pods and a policy by which to access them. It provides a stable IP address and DNS name, enabling other applications to discover and communicate with services.
+
+    Namespace:
+        Namespace: Provides a way to organize and scope resources within a cluster. It allows multiple virtual clusters to share the same physical cluster without interfering with each other.
+
+    Label:
+        Label: A key-value pair that is attached to objects (pods, nodes, etc.) to organize and select them. Labels are used for grouping and filtering.
+
+    Deployment:
+        Deployment: A higher-level abstraction for managing replicaset and pod configurations. Deployments enable declarative updates and rollbacks to applications.
+
+    ReplicaSet:
+        ReplicaSet: Ensures that a specified number of pod replicas are running at all times. It helps maintain the desired number of copies of pods in a deployment.
+
+    ConfigMap and Secret:
+        ConfigMap and Secret: Objects used to store configuration data and sensitive information (like passwords or API keys), respectively. They allow the separation of configuration from application code.
+
+
+Kubernetes supports below specification 
+	CRI (Container Runtime Interface)
+		e.g.
+			Docker: 
+				Docker was one of the original container runtimes integrated with Kubernetes using the CRI. The Docker CRI implementation allowed Kubernetes to interact with Docker as the container runtime.
+			containerd: 
+				containerd is an industry-standard core container runtime. It implements the CRI and is designed to be embedded into higher-level container orchestration systems like Kubernetes
+	CNI (Container Network Interface)
+		    Flannel: 
+				Flannel is a popular CNI plugin used for networking in Kubernetes clusters. It provides a simple and easy-to-understand overlay network for container communication.
+			Calico: 
+				Calico is a CNI plugin that supports various networking modes, including Layer 3 routing and BGP. It is designed for scalability and is often used in large-scale Kubernetes deployments.
+			Weave: 
+				Weave is another CNI plugin that provides a simple and lightweight overlay network for Kubernetes clusters. It allows for easy communication between containers across nodes.
+	CSI (Container Storage Interface)
+	    AWS EBS CSI Driver: 
+			Amazon Web Services provides a CSI driver for Amazon Elastic Block Store (EBS). This driver allows Kubernetes to dynamically provision and manage EBS volumes for persistent storage needs.
+		OpenEBS: 
+			OpenEBS is an open-source project that provides a CSI driver for managing storage volumes on Kubernetes. It allows the creation of stateful applications with features like data persistence and replication.
+		Portworx: 
+			Portworx is a commercial storage platform with a CSI driver for Kubernetes. It provides features such as data protection, high availability, and disaster recovery for containerized applications.
+	Why support specification? 
+
+		Interoperability: CRI, CNI, and CSI promote interoperability by defining standard interfaces. Kubernetes can work with different container runtimes, networking solutions, and storage systems that adhere to these interfaces.
+
+		Plugin Ecosystem: CNI and CSI enable a rich ecosystem of plugins. Developers can choose the networking or storage solution that best fits their requirements, and these solutions can be swapped or upgraded without affecting the core Kubernetes components.
+
+		Extensibility: Kubernetes is designed to be extensible, and CRI, CNI, and CSI play a crucial role in this extensibility. New container runtimes, networking plugins, and storage systems can be added to Kubernetes without modifying its core codebase.
+
+		Flexibility: The separation of concerns provided by these interfaces allows organizations to choose the most suitable components for their specific needs. For example, different teams might choose different container runtimes or storage solutions while still using Kubernetes as the orchestration platform.
+
+CRI (Container Runtime Interface), CNI (Container Network Interface), and CSI (Container Storage Interface) are key interfaces in the Kubernetes ecosystem that standardize the interactions between Kubernetes and container runtimes, networking plugins, and storage plugins, respectively.
+
+    CRI (Container Runtime Interface):
+        Purpose: CRI is an interface that defines the communication between Kubernetes and container runtimes. It allows Kubernetes to be container runtime-agnostic, supporting various container runtimes like Docker, containerd, and others.
+        Components:
+            kubelet: The Kubelet component on each node communicates with the container runtime using CRI to manage containers.
+            CRI Runtime: The container runtime implements the CRI, providing the necessary functionalities for creating and managing containers.
+
+    CNI (Container Network Interface):
+        Purpose: CNI is a specification and standard for configuring container networking in a way that is consistent across various container runtimes. It allows different networking plugins to be used interchangeably with different container runtimes.
+        Components:
+            CNI Plugin: A CNI plugin is responsible for configuring network interfaces in containers. Various plugins exist for different networking requirements, such as bridge, overlay, or custom SDN (Software-Defined Networking) solutions.
+            kubelet: The Kubelet communicates with CNI plugins to set up networking for pods and containers.
+
+    CSI (Container Storage Interface):
+        Purpose: CSI standardizes the interaction between Kubernetes and external storage systems. It allows storage providers to develop plugins that can be used dynamically by Kubernetes to provide persistent storage for pods.
+        Components:
+            CSI Driver: A CSI driver is a plugin developed by storage providers to integrate their storage systems with Kubernetes. Each storage class may have its own CSI driver.
+            kubelet: The Kubelet communicates with CSI drivers to provision and manage persistent volumes (PVs) for pods.
+
+
+
+
+kube-proxy 
+----------
+	manage network communication between different pods and services within a cluster. 
+	It operates at the network layer and facilitates the routing of traffic to the appropriate destination.
+
+	Key features and responsibilities of kube-proxy include:
+
+		Service Discovery:
+			kube-proxy maintains network rules on nodes, allowing for service discovery within the cluster. It ensures that services are accessible to other pods, regardless of their location in the cluster.
+
+		Load Balancing:
+			kube-proxy performs simple load balancing by distributing network traffic across multiple pods associated with a service. This ensures that the workload is evenly distributed and can handle varying levels of demand.
+
+		iptables Rules:
+			On each node, kube-proxy uses iptables to create rules that implement the necessary network forwarding. These rules direct traffic to the appropriate backend pods based on the service's selectors.
+
+		Service Cluster IP:
+			When a service is created, kube-proxy assigns it a cluster IP address. This IP address is used for internal communication within the cluster. The service IP is stable and independent of the pods' actual IPs, allowing for seamless service discovery.
+
+		Proxy Modes:
+			kube-proxy supports different proxy modes, including userspace mode, iptables mode, and IPVS (IP Virtual Server) mode. The mode used can be configured based on the specific requirements and capabilities of the underlying network infrastructure.
+
+		Session Affinity:
+			kube-proxy supports session affinity (also known as sticky sessions) for services that require it. This ensures that requests from the same client are consistently routed to the same backend pod, which is useful for stateful applications.
+
+		Endpoint Slices:
+			Starting from Kubernetes version 1.19, kube-proxy introduced a new concept called Endpoint Slices, which provides a more scalable and efficient way to represent service endpoints. This enhances the performance and scalability of service handling in large clusters.
+
+		High Availability:
+			To achieve high availability, multiple instances of kube-proxy can run on each node, and they coordinate through the Kubernetes API server. This redundancy ensures that network rules are maintained even if one instance becomes unavailable.
+
+		Here is a simplified illustration of how kube-proxy works:
+
+			When a pod wants to communicate with a service, it sends a request to the service's cluster IP.
+			kube-proxy on the node intercepts the request and forwards it to one of the backend pods associated with the service.
+		
+		
+		
+
+
+Step-by-step breakdown of what happens internally in Kubernetes when you create a pod:
+--------------------------------------------------------------------------------------
+	1. Pod Definition Submission:
+
+		You create a pod definition, typically using a YAML file, specifying its containers, resources, and any other configuration.
+		You submit this definition to the Kubernetes API server using a command like kubectl create -f pod.yaml.
+
+	2. Storage in Etcd:
+
+		The API server receives the pod definition and stores it in the cluster's key-value store, Etcd. This ensures persistence and accessibility to other components.
+
+	3. Scheduling:
+
+		The API server adds the pod to a scheduling queue for the kube-scheduler.
+		The kube-scheduler analyzes the pod's resource requirements and constraints, along with available resources on nodes in the cluster.
+		It selects the most suitable node to host the pod, considering factors like resource availability, node affinity, taints, and tolerations.
+
+	4. Node Assignment:
+
+		The kube-scheduler binds the pod to the chosen node, updating its status in Etcd to reflect the assigned node.
+
+	5. Kubelet Execution:
+
+		The kubelet, an agent running on each node, continuously watches the API server for new pods scheduled to its node.
+		The kubelet maintains an open watch connection to the Kubernetes API server.
+		This watch mechanism allows it to receive real-time updates about pod events, including scheduling decisions.
+		
+		Upon receiving the notification, the kubelet fetches the pod's full manifest (complete pod specification) from the API server.
+		This manifest contains all necessary details for pod creation, including containers, volumes, and resource requirements.
+		
+		
+		Upon detecting a new pod, the kubelet initiates the pod creation process:
+			Pulling container images (if not already present)
+			Creating containers using the container runtime interface (CRI)
+			Mounting volumes
+			Configuring networking
+			Monitoring pod health and status
+		
+
+	6. Pod Status Updates:
+
+		The kubelet continuously monitors the pod's health and status.
+		It sends updates to the API server, reflecting the pod's state (e.g., Pending, Running, Succeeded, Failed).
+		These updates are visible through commands like kubectl get pods.
+		This ensures the cluster state remains consistent and visible to other components and users
+
+	Additional Key Points:
+
+		Networking: 
+			The CNI plugin assigns IP addresses to containers within the pod
+				enable them to communicate with each other and the cluster network.
+		Storage: 
+			The CSI plugin mounts volumes to containers, providing persistent storage options if needed.
+		Container Lifecycle Hooks: 
+			Containers can have lifecycle hooks 
+				(e.g., preStop, postStart) that execute scripts at specific points in their lifecycle
+					enable actions like graceful shutdown or data cleanup.
+		Pod Lifecycle: 
+			Pods go through various phases: 
+				Pending, 
+				Running, 
+				Succeeded, 
+				Failed, 
+				Unknown.
+		Pod Rescheduling: 
+			If a node fails or becomes unavailable, the pod is rescheduled to a different node by the kube-scheduler.		
+			
+			
+Namespaces 
+----------
+	What are ns 
+	default ns
+	create, update, delete ns 
+	Accessing pods in same and different ns.
+	
+	
+	
+	ResourceQuota in ns 
+			
+			
+-------------------------------------------------------------------------------------------------------------------
+
+Simple pod imperative way
+
+kubectl run nginx --image=nginx --port 80 --dry-run=oclient -oyaml
+
+Declarative way
+namespace
+
+kubectl create ns dev
+kubectl create ns testing
+kubectl create deploy saiyam --image=nginx
+kubectl create deploy saiyam --image=nginx -n dev
+
+switch the context
+
+kubectl config set-context --current --namespace=dev
+Labels selectors
+
+kubectl run nginx --image=nginx
+kubectl create deploy nginx --image=nginx
+kubectl label pod nginx app=demo
+
+kubectl get pods -l run=nginx
+kubectl get pods -l 'app in (demo,nginx)'
+
+What happens when a pod runs - namespace
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: shared-namespace
+spec:
+  containers:
+    - name: p1
+      image: busybox
+      command: ['/bin/sh', '-c', 'sleep 10000']
+    - name: p2
+      image: nginx
+
+check the network namespace (this gives list of all network namespaces)
+
+ls -lt /var/run/netns
+exec into the namespace or into the pod to see the IP links
+
+ip netns exec <namespace> ip link
+kubectl exec -it shared-namespace -- ip addr 
+
+Now you will see eth@9 -> after @ there will be a number and you can then search its corresponding link on the node using ip link | grep -A1 ^9 you will be able to see the same network namespace after link These are the veth pairs or based on the CNI
+how to check pause container
+
+kubectl run nginx --image=nginx
+lsns | grep nginx
+
+copy the process IP from above and run
+
+lsns -p <pid>
+
+Services
+
+kubectl run nginx --image=nginx
+kubectl run nginx2 --image=nginx
+kubectl label pod nginx2 run=nginx --overwrite
+
+kubectl expose pod nginx --port 80 --dry-run=client -oyaml
+kubectl expose pod nginx --port 80  
+kubectl get ep
+
+init container
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: init-demo1
+spec:
+  containers:
+  -  name: nginx
+     image: nginx
+     ports:
+     - containerPort: 80
+     volumeMounts:
+     -  name: shared
+        mountPath: /usr/share/nginx/html
+# These containers are run during pod
+  initContainers:
+  -  name: install
+     image: busybox
+     command:
+     - wget
+     - "-O"
+     - "/shared/index.html"
+     - https://kubesimplify.com/
+     volumeMounts:
+     -  name: shared
+        mountPath: /shared
+  volumes:
+  - name: shared
+    emptyDir: {}
+
+exec into the post and curl localhost to see if the HTML got changed
+
+multiple init containers
+
+apiVersion: v1 
+kind: Pod 
+metadata:
+  name: init-demo2
+  labels:
+    app: myapp 
+spec:
+  containers: 
+  -  name: app-container
+     image: busybox:1.28
+     command: ['sh', '-c', 'echo The app is running! && sleep 3600'] 
+  initContainers:
+  -  name: init-myservice
+     image: busybox:1.28
+     command: ['sh', '-c', "until nslookup appservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for appservice; sleep 2; done"] 
+  -  name: init-mydb
+     image: busybox:1.28
+     command: ['sh', '-c', "until nslookup dbservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for dbservice; sleep 2 ; done"]
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: appservice
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dbservice
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+
+multi container
+
+apiVersion: v1 
+kind: Pod 
+metadata:
+  name: multi-container
+spec:
+  volumes:
+  - name: shared-data
+    emptyDir: {}
+
+  containers: 
+  -  name: nginx-container
+     image: nginx
+     volumeMounts:
+     - name: shared-data
+       mountPath: /usr/share/nginx/html
+  - name: alpine-container
+    image: alpine
+    volumeMounts:
+    - name: shared-data
+      mountPath: /mem-info
+    command: ["/bin/sh" , "-c"]
+    args:
+    - while true; do
+        date >> /mem-info/index.html ;
+        egrep --color 'Mem|Cache|Swap|' /proc/meminfo >> /mem-info/index.html ;
+        sleep 2;
+      done
+
+kubectl exec -it multi-container -c nginx-container -- curl localhost
+container probes
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: nginx
+  name: nginx
+spec:
+  containers:
+  - image: nginx
+    name: nginx
+    livenessProbe:
+      httpGet:
+        path: /
+        port: 80
+    ports:
+    - containerPort: 80
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+
+demo with path to demo for failure and also change httpGet to tcpSocket
+
+tcpSocket:
+  port: 8080
+
+change the port to 80 for success scenario
+Resource request demo
+
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml add- --kubelet-insecure-tls flag to above yaml to work properly
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: limit-test
+spec:
+  containers:
+  -  name: cpu-mem
+     image: saiyam911/stress
+     resources:
+       limits:
+         cpu: "1"
+         memory: "200Mi"
+       requests:
+         cpu: "500m"
+         memory: "100Mi"
+     command: ["stress"]
+     args: ["--cpu", "2"] 
+     #args: ["--vm","1","--vm-bytes", "250M", "--vm-hang", "1"] 
+
+In the above you are asking for 2 but you will the throttled and it will be under the limit which is 1 change CPU to 3
+
+##deployments
+
+kubectl create deploy demo --image=nginx 
+kubectl set image deployment/nginx nginx=nginx:1.15.2 --record
+kubectl rollout history deployment demo 
+kubectl rollout undo deployment demo --to-revision 2 
+
+Statefulset
+
+local path provisioner
+
+kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.22/deploy/local-path-storage.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  ports:
+  - port: 80
+    name: web
+  clusterIP: None
+  selector:
+    app: nginx
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: web
+spec:
+  serviceName: "nginx"
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: k8s.gcr.io/nginx-slim:0.8
+        ports:
+        - containerPort: 80
+          name: web
+        volumeMounts:
+        - name: www
+          mountPath: /usr/share/nginx/html
+  volumeClaimTemplates:
+  - metadata:
+      name: www
+    spec:
+      storageClassName: local-path
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+
+kubectl exec -it web-0 -- bash
+echo "Hello from Saiyam" >> /usr/share/nginx/html/index.html
+kubectl exec -it web-2 -- bash
+echo "Hello from Saiyam" >> /usr/share/nginx/html/index.html
+
+Config Maps and secrets
+
+kubectl create configmap test --from-literal=live=demo
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: busybox
+  name: busybox
+spec:
+  containers:
+  - image: busybox
+    name: busybox
+    command: ["/bin/sh","-c","printenv"]
+    env:
+      - name: LOOK
+        valueFrom:
+          configMapKeyRef:
+            name: test
+            key: live
+
+example 2 - mount config map as volume
+
+apiVersion: v1
+metadata:
+  name: demo-vol
+kind: ConfigMap
+data:
+  fileA: |-
+    hello: saiyam
+    learn: kubernete
+  fileB: test2
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: busybox
+  name: busybox2
+spec:
+  volumes:
+  - name: demo
+    configMap:
+      name: demo-vol
+  containers:
+  - image: busybox
+    name: busybox
+    command: ["sleep", "3600"]
+    volumeMounts:
+    - name: demo
+      mountPath: /home/config
+
+exec and cat the files kubectl exec -it busybox2 -- sh
+
+SECRETS
+
+kubectl create secret generic test --from-literal=live=demo
+
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: busybox
+  name: busybox
+spec:
+  containers:
+  - image: busybox
+    name: busybox
+    command: ["/bin/sh","-c","printenv"]
+    env:
+      - name: LOOK
+        valueFrom:
+          secretKeyRef:
+            name: test
+            key: live
+
+for volumes same as config maps
+
+volumes:
+  - name: demo
+    secret:
+      secretName: demo-sec
+
+Authentication
+
+kubectl config view
+find the cluster name from the kubeconfig file
+export CLUSTER_NAME=
+
+export APISERVER=$(kubectl config view -o jsonpath='{.clusters[0].cluster.server}')
+curl --cacert /etc/kubernetes/pki/ca.crt $APISERVER/version
+
+curl --cacert /etc/kubernetes/pki/ca.crt $APISERVER/v1/deployments
+
+The above didn't work and we need to authenticate, so let's use the first client cert
+
+curl --cacert /etc/kubernetes/pki/ca.crt --cert client --key key $APISERVER/apis/apps/v1/deployments above you can have the client and the key from the kubeconfig file
+
+echo "<client-certificate-data_from kubeconfig>" | base64 -d > client
+echo "<client-key-data_from kubeconfig>" | base64 -d > key
+
+Now using the sA Token 1.24 onwards you need to create the secret for the SA
+
+TOKEN=$(kubectl create token default)
+curl --cacert /etc/kubernetes/pki/ca.crt $APISERVER/apis/apps/v1 --header "Authorization: Bearer $TOKEN"
+
+from inside pod you can use var/run/secrets/kubernetes.io/serviceaccount/token path for the token to call the kubernetes service
+
+proxy
+
+kubectl proxy --port=8080 &s
+curl localhost:8080/apis/apps/v1/deployments
+
+			
+			
+More imperative commands 
+------------------------
+
+kubectl run nginx --image=nginx --dry-run=client -o yaml > nginx-pod.yaml
+
+
+
+POD
+---
+Create an NGINX Pod
+	kubectl run nginx --image=nginx
+
+
+
+Generate POD Manifest YAML file (-o yaml). Don't create it(--dry-run)
+	kubectl run nginx --image=nginx --dry-run=client -o yaml
+
+
+
+Deployment
+----------
+Create a deployment
+--------------------
+	kubectl create deployment --image=nginx nginx
+
+
+
+Generate Deployment YAML file (-o yaml). Don't create it(--dry-run)
+	kubectl create deployment --image=nginx nginx --dry-run -o yaml
+
+
+
+Generate Deployment with 4 Replicas
+	kubectl create deployment nginx --image=nginx --replicas=4
+
+
+
+You can also scale deployment using the kubectl scale command.
+	kubectl scale deployment nginx --replicas=4
+
+
+
+Another way to do this is to save the YAML definition to a file and modify
+	kubectl create deployment nginx --image=nginx--dry-run=client -o yaml > nginx-deployment.yaml
+
+
+
+Modify as required.
+
+Service
+-------
+Create a Service named redis-service of type ClusterIP to expose pod redis on port 6379
+	kubectl expose pod redis --port=6379 --name redis-service --dry-run=client -o yaml
+
+(This will automatically use the pod's labels as selectors)
+
+Or
+
+	kubectl create service clusterip redis --tcp=6379:6379 --dry-run=client -o yaml (This will not use the pods' labels as selectors; instead it will assume selectors as app=redis. You cannot pass in selectors as an option. So it does not work well if your pod has a different label set. So generate the file and modify the selectors before creating the service)
+
+
+
+	Create a Service named nginx of type NodePort to expose pod nginx's port 80 on port 30080 on the nodes:
+
+		kubectl expose pod nginx --port=80 --name nginx-service --type=NodePort --dry-run=client -o yaml
+
+	(This will automatically use the pod's labels as selectors, but you cannot specify the node port. You have to generate a definition file and then add the node port in manually before creating the service with the pod.)
+
+	Or
+		kubectl create service nodeport nginx --tcp=80:80 --node-port=30080 --dry-run=client -o yaml
+
+	(This will not use the pods' labels as selectors)
+
+	Both the above commands have their own challenges. While one of it cannot accept a selector the other cannot accept a node port. I would recommend going with the `kubectl expose` command. If you need to specify a node port, generate a definition file using the same command and manually input the nodeport before creating the service.
+
+
+Find he o/s of an image
+	docker run python:3.6 cat /etc/*release*
+		
