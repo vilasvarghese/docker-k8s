@@ -50,17 +50,79 @@ Control plane failures
 abhinava_s@yahoo.com
 
 Application debugging
-	1. Application environment name can 
+	1. Application environment variable's name can 
 		mis match with database service name.
 		mis match with dtabase port
+	2. service lable can mismatch with pod's labels
+		service port can mismatch with target port 
+	
+	3. Front end port number mismatch with NodePort 
+	4. Confirm the environment variable defn. 
+		e.g. db pwd is wrong than what is mentioned in quesstion
 		
+	Important point: 
+		k describe svc <name>
+			is the endpoint reported.
+			
+Troubleshooting Control Plane 
+-----------------------------
+Some of the pods can be failing 
+	Is the Node ready?
+	Describe the pod/deployment/replicaset
+	
+	Everything good - but still nothing is happening 
+	Check control plane.
+	kubectl get pod -n kube-system
+	If any of the below is not working 
+		scheduler
+		controller
+		etcd
+		api-server 
+			for this you would get a diff. error.
+			
+	Check static pods 
+		/etc/kubernetes/manifests/
+		
+	ports where services listen 
+		api-server: 6443
+		etcd: 
+			2379: client communication 
+			2380: peer communication 
+		controller: 10250 
+		scheduler: 10251
+		
+Troubleshoot worker node failures
+----------------------------------
+	
+	Worker node not ready.
+	kubectl describe node <name>
+	kubectl get pod -n kube-system 
+		check 
+			proxy 
+			network plugin 
+	systemctl status kubelet 
+	systemctl restart kubelet 
+	journalctl -u kubelet
+	kubelet config files 
+		/etc/kubernetes/kubelet.config
+		/var/lib/kubelet/config.yml 
 		
 		
 Network Troubleshooting
 Network Plugin in kubernetes
 --------------------
+	
 
-Kubernetes uses CNI plugins to setup network. The kubelet is responsible for executing plugins as we mention the following parameters in kubelet configuration.
+
+References: 
+	Debug Service issues:
+        https://kubernetes.io/docs/tasks/debug-application-cluster/debug-service/
+
+DNS Troubleshooting:
+		https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/
+
+Kubernetes uses CNI plugins to setup network. 
+The kubelet is responsible for executing plugins as we mention the following parameters in kubelet configuration.
 
 - cni-bin-dir:   Kubelet probes this directory for plugins on startup
 
@@ -145,15 +207,10 @@ In large scale Kubernetes clusters, CoreDNS's memory usage is predominantly affe
 Kubernetes resources for coreDNS are:   
 
 a service account named coredns,
-
 cluster-roles named coredns and kube-dns
-
 clusterrolebindings named coredns and kube-dns, 
-
 a deployment named coredns,
-
 a configmap named coredns and a
-
 service named kube-dns.
 
 

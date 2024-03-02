@@ -8,6 +8,7 @@ Instead copy it from the running container.
 
 	sample commands used during backup/restore/update of nodes
 		apt install etcd-client #This can get you trouble. if the version is not latest it will fail
+			etcdctl --version
 		
 		docker ps - get etcd container
 		sudo docker cp etcd:/usr/local/bin/etcdctl /usr/local/bin

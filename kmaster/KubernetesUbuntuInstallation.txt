@@ -1,5 +1,8 @@
 Get amazon linux 20.04
 
+
+sudo su
+
 hostnamectl set-hostname kmaster
 hostnamectl set-hostname kworker
 
@@ -71,9 +74,22 @@ systemctl enable kubelet
 
 
    kubeadm init
+
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config   
+exit
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config   
+
+copy the join command and execute it on the worker node.
+	should be done in 24 hours.
+
    
    
    watch -n 1 kubectl get nodes
+		Status: NotReady
    watch -n 1 kubectl get po -n kube-system
    kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
    watch -n 1 kubectl get po -n kube-system

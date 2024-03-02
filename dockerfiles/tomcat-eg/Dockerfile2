@@ -1,0 +1,5 @@
+FROM tomcat
+RUN apt-get update && apt-get -y upgrade
+WORKDIR /usr/local/tomcat
+COPY ../target/HelloWorld-0.0.1-SNAPSHOT.war /usr/local/tomcat/webapps/
+EXPOSE 8080

@@ -1,5 +1,17 @@
 Install nfs server on ubuntu as mentioned in "NFSSetupNotes.txt"
 
+On kubernetes worker node (if ubuntu)
+-------------------------------------
+apt update -y 
+sudo apt install nfs-common
+
+
+
+Rest all on kubernetes master node
+----------------------------------
+
+
+
 Install kubernetes 
 
 Install helm 
