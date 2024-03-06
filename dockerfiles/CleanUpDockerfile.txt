@@ -1,0 +1,13 @@
+# Stage 1: Build environment (Java and Maven)
+FROM maven:3.11-openjdk-alpine AS builder
+
+WORKDIR /app
+
+COPY pom.xml ./
+COPY src/main/java/ . /src/main/java
+COPY src/main/resources/ . /src/main/resources
+
+RUN mvn package
+
+# Clean up temporary build artifacts (example)
+RUN rm -rf /app/target
