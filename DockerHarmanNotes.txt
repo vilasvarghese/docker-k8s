@@ -87,7 +87,7 @@ Development Speed:
 
 Container Orchestration:
 	Tools like Kubernetes and Docker Swarm manage the deployment, scaling, and operation of containerized applications, providing automation and coordination.
-Isolation Mechanism:
+
 
 	
 ---------------------------------------------------------------------------------------------------------------------------
@@ -200,9 +200,25 @@ RUN apk update && apk upgrade
 	
 
 c. Install Only Necessary Dependencies:
-	Install only the dependencies required for your application to minimize the image size and potential security risks.
+	Install only the dependencies required for your application 
+		to minimize the image size and potential security risks.
 
 	RUN apk add --no-cache <package1> <package2>
+--------------------------------------
+apk command is used for package manager for alpine.
+
+what --no-cache does?
+
+Package Index Update:
+
+By default, apk add uses a local package index cache to quickly locate and install packages. This cache is created when the package index is updated using apk update. If the cache is not present or is outdated, the --no-cache option ensures that the package index is updated before installing packages.
+Avoiding Cache in Package Installation:
+
+When installing packages without --no-cache, the package manager may use the cached packages from the local cache if they are available and up-to-date. This can speed up the installation process, but it may lead to using outdated packages or encountering issues if the local cache is stale.
+Fresh Installation:
+
+The --no-cache option ensures that the package installation is performed as a fresh download from the repositories, bypassing any local cache. This guarantees that the latest version of the packages is fetched and installed.
+--------------------------------------
 
 
 d. Use COPY Wisely:
@@ -318,17 +334,24 @@ Remove at Each Stage: More granular control and better separation of concerns, b
 
 Selecting the right base image is a crucial step in creating an efficient and secure Docker container. Here are steps to help you identify the right base image:
 
-Understand Application Requirements:
+Why slim or alpine containers 
+	smaller base image
+	smaller surface area of attack 
+	better performance.
+
+
+a. Understand Application Requirements:
 	Identify the specific requirements of your application
 		e.g. 
 			runtime dependencies
+				e.g. in java .m2/.m3 directories.
 			libraries, and 
 			tools it needs.
 			kind of upgrade that may be required etc.
 			
 		For e.g. in maven /home/user/.m2 access is required.	
 			
-Consider Security and Size:
+b) Consider Security and Size:
 	Prioritize base images which are 
 		- security-hardened and 
 		- has minimal size. 
@@ -336,7 +359,7 @@ Consider Security and Size:
 			faster 
 				download and 
 				deployment times.
-Official Images:
+c) Official Images:
 	Prefer using official images 
 		provided by the maintainers of the underlying technology 
 			(e.g., language runtime, database). 
@@ -345,25 +368,29 @@ Official Images:
 			regularly updated, and 
 			more secure.
 e.g.
-c. FROM node:14-alpine
+	c. FROM node:14-alpine
 
-Check Image's Maintenance Status:
-	Evaluate the maintenance status of the base image. 
-	Choose images that are 
-		actively maintained and 
-		receive timely security updates.
+	Check Image's Maintenance Status:
+		Evaluate the maintenance status of the base image. 
+		Choose images that are 
+			actively maintained and 
+			receive timely security updates.
 
-	Alpine Linux for Minimalism:
-		Consider using Alpine Linux as a base image. 
-		It is known for its minimal size and security-focused design.
+		Alpine Linux for Minimalism:
+			Consider using Alpine Linux as a base image. 
+			Advantage 
+				minimal size 
+				security-focused design
+				networking support 
+				better performance.
 
-c. FROM alpine:latest
+	c. FROM alpine:latest
 
-	Official Language Runtimes:
-		When working with specific programming languages, 
-			use official language runtime images 
-				pre-configured and 
-				optimized for that language.
+		Official Language Runtimes:
+			When working with specific programming languages, 
+				use official language runtime images 
+					pre-configured and 
+					optimized for that language.
 
 D. FROM python:3.9-alpine
 
@@ -396,6 +423,26 @@ FROM node:14-alpine as development
 
 	By following these steps, you can make informed decisions about the base image, balancing factors such as security, size, and compatibility with your application's requirements. Regularly review and update your base image to stay current with the latest improvements and security patches.	
 		
+		
+Search for Python in hub.docker.com 
+	Official/
+	
+	
+	e.g. Common tags in images 
+	---------------------
+	Slim images: 
+		smaller images 
+		exclude unnecessary components
+		suitable for production 
+		use when a minimal image size is crucial.
+
+	Debian images (Bookworm, Bullseye): 
+		Debian is a widely used Linux distribution known for its stability. The different codenames represent different major releases.
+
+	Alpine images: 
+		Alpine Linux is known for its small size and security features. 
+		It is often favored for lightweight and minimal containers.
+			
 ---------------------------------------------------------------------------------------------------------------------------	
 	Hands on: considerations for identifying a base image.
 ---------------------------------------------------------------------------------------------------------------------------	
@@ -412,7 +459,7 @@ FROM node:14-alpine as development
 	
 Developing a web application using Node.js
 	choose the right base image for your Docker container. 
-	We'll explore different options for base images and identify the most suitable one based on various considerations.
+	different options for base images and identify the most suitable one based on various considerations.
 
 Use Case: Developing a Node.js Web Application
 
@@ -471,13 +518,28 @@ Considerations:
 	Steps to Choose the Right Base Image:
 
 Identify Application Requirements:
-	Understand the specific requirements of your Node.js application, considering factors like development, production, size constraints, and necessary tools.
+	Understand the specific requirements of your Node.js application
+	considering factors like 
+		development/production, 
+		size constraints
+		necessary tools.
 Consider Security and Size:
-	If minimizing image size is crucial, consider using the Alpine variant for production. For development, you might prioritize additional tools over a slightly larger image size.
+	If minimizing image size is crucial
+		consider Alpine variant for production. 
+	For development
+		additional tools over a slightly larger image size.
 Evaluate Maintenance Status:
-	Check the maintenance status of the official Node.js images and Alpine variants. Choose a base image that is actively maintained and receives timely updates.
+	Check the maintenance status of 
+		official Node.js images and 
+		Alpine variants. 
+	Choose a base image that is actively maintained and receives timely updates.
 Review Use Case Considerations:
-	If developing a production-ready application, the official Node.js image or Alpine variant may be suitable. For a development environment, consider customizing the image with additional tools.
+	For production-ready application
+		official Node.js image or 
+		Alpine variant 
+			may be suitable. 
+	For a development environment
+		customizing the image with additional tools.
 Test and Iterate:
 	Build and test your Docker image with different base image options. Evaluate factors such as build time, container startup time, and overall performance.
 Document Your Decision:
@@ -492,7 +554,7 @@ By going through these steps, you can make an informed decision on the right bas
 ---------------------------------------------------------------------------------------------------------------------------	
 		Options
 	---------------------------------------------------------------------------------------------------------------------------	
-	
+	already covered.
 	
 	
 	
@@ -517,27 +579,33 @@ By going through these steps, you can make an informed decision on the right bas
 			tomcat:latest or slim variants like openjdk:17-slim.
 			Is latest good?
 	Multi-stage builds: 
-		Separate build and runtime stages to avoid unnecessary resources in the final image.
+		Separate 
+			build and 
+			runtime stages .
 	Minimize install steps: 
 		Only install essential dependencies required for your application to run.
 	User context: 
-		Avoid running commands as root inside the container. Instead, use non-root users.
+		Avoid running commands as root inside the container. 
+		Instead, use non-root users.
 
 3. Reproducibility and Maintainability:
 
 	Document all steps clearly: 
 		Make it easy to understand the purpose of each line.
 	Use environment variables: 
-		Store configuration values as environment variables for easier management and updates.
+		Store configuration values as environment variables 
+			for easier management and updates.
 	Version control: 
 		Include the Dockerfile in your version control system for tracking changes.
 
 4. Optimization for Deployment:
 
 	Expose only necessary ports: 
-		Restrict access to ports used by your application (e.g., port 8080 for Tomcat).
+		Restrict access to ports.
 	Consider volume mounts: 
-		Mount persistent data volumes for configurations or application data outside the container.
+		Mount persistent data volumes for configurations or application data 
+			outside the container.
+		VOLUME attaches to a annonymous volume.
 	Entrypoint and command: 
 		Define clear entry points and commands for starting your application within the container.
 
@@ -563,19 +631,39 @@ Best practices
 
 1. Minimize the number of layers:
 
-	Combine multiple commands into a single RUN statement: This reduces the number of intermediate layers created during the build process. For example, instead of separate commands for installing each dependency, combine them into one RUN statement with multiple apt-get install or apk add commands.
-	Use multi-stage builds: Split your Dockerfile into two stages. The first stage can be used to install dependencies and copy application files. The second stage can use a smaller base image and copy only the necessary files from the first stage. This eliminates unnecessary layers from the final image.
+	Combine RUN statement: 
+		This reduces the number of intermediate layers created during the build process. For example, instead of separate commands for installing each dependency, combine them into one RUN statement with multiple apt-get install or apk add commands.
+	Use multi-stage builds: 
+		Split your Dockerfile into two stages. The first stage can be used to install dependencies and copy application files. The second stage can use a smaller base image and copy only the necessary files from the first stage. This eliminates unnecessary layers from the final image.
+
+	Commands can be combined in many commands like :
+		RUN 
+		CMD
+		Entrypoint
+		COPY/ADD 
+			COPY file1.txt file2.txt /destination/
+		EXPOSE 	
+		ENV
+			ENV VAR1=value1 \
+				VAR2=value2 \
+				VAR3=value3
+
 
 2. Use smaller base images:
 
-	Choose minimal base images: Opt for base images like Alpine Linux or BusyBox instead of full-fledged distributions like Ubuntu or Debian. These minimal images are significantly smaller and have fewer dependencies.
-	Use slim variants: Many official base images offer "slim" variants that come pre-configured with a minimal set of packages. For example, use openjdk:17-slim instead of openjdk:17.
+	Choose minimal base images: 
+		Opt for base images like Alpine Linux or BusyBox instead of full-fledged distributions like Ubuntu or Debian. These minimal images are significantly smaller and have fewer dependencies.
+	Use slim variants: 
+		Many official base images offer "slim" variants that come pre-configured with a minimal set of packages. For example, use openjdk:17-slim instead of openjdk:17.
 
 3. Remove unnecessary files and dependencies:
 
-	Use .dockerignore file: This file specifies files and directories to be excluded from the build context. Excluding unnecessary build artifacts, temporary files, and documentation significantly reduces the image size.
-	Clean up after installations: Use commands like apt-get autoremove or apk del to remove automatically installed dependencies that are no longer needed.
-	Install only essential dependencies: Analyze your application's requirements and install only the specific packages required for its functionality. Avoid installing unnecessary packages or pre-built libraries that your application doesn't use.
+	Use .dockerignore file: 
+		This file specifies files and directories to be excluded from the build context. Excluding unnecessary build artifacts, temporary files, and documentation significantly reduces the image size.
+	Clean up after installations: 
+		Use commands like apt-get autoremove or apk del to remove automatically installed dependencies that are no longer needed.
+	Install only essential dependencies: 
+		Analyze your application's requirements and install only the specific packages required for its functionality. Avoid installing unnecessary packages or pre-built libraries that your application doesn't use.
 
 4. Utilize other optimization techniques:
 
@@ -595,11 +683,15 @@ Best practices
 ---------------------------------------------------------------------------------------------------------------------------	
 	
 		Refer multi-stage folder 
+			DockerfileExample.txt
+			PythonDockerfile.txt
 	
 ---------------------------------------------------------------------------------------------------------------------------		
 		Understanding the relevance and real value of the same.
 	---------------------------------------------------------------------------------------------------------------------------	
-	
+		Slimmer version
+		Better performance 
+		Better security
 ---------------------------------------------------------------------------------------------------------------------------
 	◦ Efficient Use of Dockerfile Instructions
 ---------------------------------------------------------------------------------------------------------------------------	
@@ -608,6 +700,8 @@ Best practices
 		Hands on:
 		Deep dive into various instructions and best practices.
 ---------------------------------------------------------------------------------------------------------------------------	
+	My examples 
+	
 	
 ---------------------------------------------------------------------------------------------------------------------------		
 	◦ Properly Setting Environment Variables
@@ -623,11 +717,11 @@ Setting environment variables effectively is crucial for managing configurations
 	docker run -e ENVIRONMENT_VARIABLE=value my-image
 
 	Advantages
-		simple and convenient for 1/2 values
-			
-	cumbersome for managing multiple variables 
-	isn't ideal for sensitive information 
-		but still used 
+		simple and convenient for 1 or 2 values
+	Disadvantages		
+		cumbersome for managing multiple variables 
+		isn't ideal for sensitive information 
+			but still used 
 	
 2. Setting environment variables in the Dockerfile:
 
@@ -677,41 +771,84 @@ Remember to avoid storing sensitive information (passwords, API keys) directly i
 ---------------------------------------------------------------------------------------------------------------------------	
 		Ideal scenarios to consider using env
 ---------------------------------------------------------------------------------------------------------------------------	
+	Various ways to load env from a file 
+	------------------------------------
+		https://stackoverflow.com/questions/46917831/how-to-load-several-environment-variables-without-cluttering-the-dockerfile
+	
+	
 	
 1. Configuration Management:
 
 	Separating configuration from code: 
-		Environment variables allow you to decouple configuration details like database connection strings, API endpoints, or logging levels from your application code. This keeps your code clean and reusable across different environments.
+		decouple configuration 
+			e.g. 
+				database connection strings
+				API endpoints
+				logging levels from your application code. 
+		
+		keeps your code clean 
+		reusable across different environments.
 	Environment-specific configurations: 
-		You can define different environment variables for development, testing, and production environments within your Dockerfile or .env files, enabling flexible configuration management based on the deployment context.
+		Can define different environment variables for 
+			development, 
+			testing, and 
+			production 
+				using .env files
+		enabling flexible configuration management based on the deployment context.
 
 2. Non-Sensitive Application Settings:
 
 	Configurable parameters: 
-		Use environment variables for settings that can be adjusted at runtime without modifying the application code, such as enabling/disabling features, setting logging verbosity, or specifying cache sizes. This allows for dynamic configuration adjustments during deployments or testing.
-	Feature flags: 
-		Utilize environment variables to control the activation or behavior of specific features within your application. This enables controlled feature rollouts and A/B testing without code changes.
-
+		Use environment variables for settings 
+			can be adjusted at runtime 
+			e.g. 
+				enabling/disabling features
+					e.g. Feature flagging
+				setting logging verbosity
+				specifying cache sizes. 
+			
 3. Managing Secrets (Limited Use Case):
 
-	While not ideal for highly sensitive information, 
-		environment variables can be used for less sensitive secrets like API keys with limited access or short-lived tokens. However, it's crucial to avoid storing extremely sensitive data like passwords or encryption keys in your Dockerfile or .env files. Use dedicated secrets management solutions for secure storage and retrieval in production environments.
+	Not ideal for highly sensitive information, 
+		Environment variables can be used for secrets like 
+			API keys 
+			short-lived tokens. 
+		Advice:
+			Don't use ENV for 
+				extremely sensitive data like 
+					passwords or 
+					encryption keys in your Dockerfile or 
+					.env files. 
+				Use dedicated secrets management solutions 
 
 4. Integration with External Services:
 
-	Environment variables are often used by applications to connect to external services. 
-	These variables can contain API endpoints, authentication credentials, or service URLs. This approach simplifies configuration and allows for easy integration with different external services.
+	Environment variables 
+		applications 
+			connect to external services. 
+	e.g.
+		API endpoints
+		authentication credentials, or 
+		service URLs. 
+	Advantage
+		simplifies configuration 
+		easy integration with 
+			different external services.
 5. Simplifying Deployment Management:
 
-	By using environment variables for configurations, you can streamline deployment processes by managing them centrally. This avoids the need to modify application code or configuration files specific to each deployment environment. This can be particularly beneficial for managing large or complex deployments.
-	Remember: When using environment variables, consider the following best practices:
-
-Security: 
-	Avoid storing highly sensitive information in environment variables, especially within your Dockerfile or .env file.
-Readability: 
-	Use clear and descriptive names for your environment variables.
-Documentation: 
-	Document the usage and purpose of each environment variable for better understanding and maintainability.
+	streamline deployment processes 
+		don't modify application code 
+		configuration files 
+			specific to each deployment environment. 
+		
+Remember: When using environment variables, consider the following best practices:
+	Security: 
+		Don't store highly sensitive information in environment variables
+			especially within your Dockerfile or .env file.
+	Readability: 
+		Use clear and descriptive names for your environment variables.
+	Documentation: 
+		Document the usage and purpose 
 	
 ---------------------------------------------------------------------------------------------------------------------------		
 		What are the different options.
@@ -719,38 +856,68 @@ Documentation:
 
 ---------------------------------------------------------------------------------------------------------------------------	
 	
-While ENV is a widely used method for configuring Docker containers, there are alternative options to consider depending on your specific needs and security concerns:
+Alternative options to consider depending on your specific needs and security concerns:
 
 1. Multi-stage builds:
 
-	Leverage multi-stage builds to separate the build and runtime environments in your Dockerfile. This allows you to:
-	Install dependencies and configure the application in a separate stage.
-	Copy only the necessary files and configuration (e.g., configuration files) to the final image.
-	Avoid including environment variables with sensitive information in the final image, enhancing security.
+	separate build and runtime environments 
+	This allows you to:
+		Install dependencies of application in separate stage.
+		Copy only the necessary files and configuration 
+			(e.g., configuration files) to the final image.
+		Avoid including environment variables with sensitive information 
+			in the final image, enhancing security.
 2. Argument passing:
 
-	You can pass arguments directly when running the container using the docker run command along with the --entrypoint flag:
-	docker run --entrypoint ["my-app", "-c", "production"] my-image
-	This approach allows you to pass configuration values as arguments to your application's entry point script, keeping them outside the container image.
-	However, the arguments are visible in the command history, limiting their suitability for sensitive information.
+	Pass arguments directly 
+		in docker run command 
+			along with the --entrypoint flag:
+	
+		e.g. 
+			docker run --entrypoint ["my-app", "-c", "production"] my-image
+	Can pass configuration values as arguments 
+		to your application's entry point script
+		keeping them outside the container image.
+	Disadvantages	
+		arguments are visible in the command history
+		limiting their suitability for sensitive information.
 3. Configuration files:
 
-	Store configuration details in separate files like JSON, YAML, or INI files and mount them as volumes into your container. This isolates configuration from the image itself and allows for:
-	Dynamic updates to the configuration files without rebuilding the image.
-	Improved security by keeping sensitive information outside the container image.
-	However, managing and mounting additional volumes can add complexity to your deployment process.
+	Use volumes 
+		Store configuration in a files like 
+			JSON, YAML, or INI files 
+		mount them as volumes into your container. 
+		
+	Advantage
+		Dynamic updates to the configuration files 
+			without rebuilding the image.
+		Improved security 
+			keep sensitive information outside the container image.
+		
 4. Secret management tools:
 
-	For highly sensitive data like passwords, API keys, or encryption credentials, utilize dedicated secret management tools like HashiCorp Vault, AWS Secrets Manager, or Azure Key Vault. These tools:
-	Securely store and manage secrets outside the container image.
-	Provide controlled access and authorization to secrets through secure mechanisms.
-	Inject secrets into your application at runtime using environment variables or other methods supported by the tool.
-	While adding additional components to your infrastructure, these tools offer superior security for handling sensitive information in containerized applications.
+	For highly sensitive data like 
+		use dedicated secret management tools like 
+			e.g. 
+				HashiCorp Vault
+				AWS Secrets Manager
+				Azure Key Vault. 
+	These tools:
+		Securely store and manage secrets outside the container image.
+		Provide 
+			controlled access and 
+			authorization to secrets 
+				through secure mechanisms.
+		Inject secrets into your application at runtime 
+
 Choosing the best alternative depends on several factors:
 
-	Sensitivity of the data: For highly sensitive data, prioritize dedicated secret management solutions.
-	Deployment complexity: If frequent configuration updates are required, consider options like argument passing or configuration files.
-	Security requirements: Multi-stage builds and secret management tools offer better security practices for production environments.
+	Sensitivity of the data: 
+		For highly sensitive data, prioritize dedicated secret management solutions.
+	Deployment complexity: 
+		If frequent configuration updates are required, consider options like argument passing or configuration files.
+	Security requirements: 
+		Multi-stage builds and secret management tools offer better security practices for production environments.
 
 
 ---------------------------------------------------------------------------------------------------------------------------		
@@ -871,17 +1038,23 @@ Common patterns include:
 
 Remember:
 
-	Place the .dockerignore file in the root directory of your project, alongside your Dockerfile.
-	Docker will automatically exclude any files or directories matching the patterns specified in the .dockerignore file when building your image.
-	Regularly review and update your .dockerignore file as your project evolves to ensure optimal image size and efficiency.
-	
+	Place the 
+		.dockerignore file 
+			in root directory of your project
+		along with Dockerfile.
+	Docker will automatically exclude any 
+		files or 
+		directories 
+			matching the patterns 
+	Regularly review and update your .dockerignore file 
+		
 	
 ---------------------------------------------------------------------------------------------------------------------------	
 		--chown in COPY # COPY --chown=user:user source destination
 ---------------------------------------------------------------------------------------------------------------------------	
 		
 	
-The --chown flag
+The COPY --chown flag
 	introduced in Docker 17.09
 	allows you to set the ownership of the destination directory or file to a specific user and group.
 
@@ -891,10 +1064,16 @@ dockerfile
 
 COPY --chown=<user>:<group> <source> <destination>
 
-<user> is the username or UID (User ID) that you want to set for the destination file or directory.
-<group> is the group name or GID (Group ID) that you want to set for the destination file or directory.
-<source> is the path to the file or directory on the host machine.
-<destination> is the path inside the Docker image where the file or directory will be copied.	
+<user> 
+	username or UID (User ID) 
+		for the destination file or directory.
+<group> 
+	group name or GID (Group ID) 
+		for the destination file or directory.
+<source> 
+	path to the file or directory on the host machine.
+<destination> 
+	path inside the Docker image where the file or directory will be copied.	
 
 
 NB: This is important when you use non-root user in Dockerfile.
@@ -907,24 +1086,46 @@ Both cleaning up files in a Dockerfile and using multi-stage builds are techniqu
 
 1. Cleaning Up Files in Dockerfile:
 
-	Method: This approach involves using the RUN instruction with commands like rm or find to explicitly remove unwanted files during the build process.
+	Method: 
+		Use RUN command 
+			RUN rm -rf exact-file.
 	Advantages:
-	Simpler implementation: Can be implemented without needing complex multi-stage builds.
-	Granular control: Allows for removing specific files or directories as needed.
+		Simpler implementation
+		Granular control
+		Inline execution can reduce layers
+			RUN mvn clean package && rm -rf target/somefile
+		
 	Disadvantages:
-	Error-prone: Incorrect usage of rm or other commands can lead to unintended consequences and missing files.
-	Non-reusable: Requires repeating the cleanup process in every build stage if needed.
-	Less efficient: Doesn't leverage image layer caching as effectively as multi-stage builds.
+		Risk-prone: 
+			you loose the file completely.
+		Non-reusable: 
+			Requires repeating the cleanup process in every build stage if needed.
+		Less efficient: 
+			Doesn't leverage image layer caching as effectively as multi-stage builds.
 2. Multi-stage Builds:
 
-	Method: This approach creates separate stages in your Dockerfile. The first stage can be used for installing dependencies, compiling code, and performing other necessary build tasks. The final stage copies only the essential files and configurations into a minimal base image, leaving behind all temporary files and dependencies from the first stage.
+	Method: 
+		creates separate stages in your Dockerfile. 
+		first stage 
+			installing dependencies, 
+			compiling code
+			perform other necessary build tasks. 
+		The final stage 
+			copies only the essential files and configurations 
+				into a minimal base image
+			leaving behind all temporary files and dependencies from the first stage.
 	Advantages:
-		Improved image size: Reduces image size by only including necessary files in the final image.
-		Enhanced security: Excludes unnecessary build tools and libraries from the final image, potentially reducing the attack surface.
-		Better caching: Docker can reuse cached layers from the first stage for subsequent builds, improving build efficiency.
+		Improved image size: 
+			Reduces image size by only including necessary files in the final image.
+		Enhanced security: 
+			Excludes unnecessary build tools and libraries from the final image, potentially reducing the attack surface.
+		Better caching: 
+			Docker can reuse cached layers from the first stage for subsequent builds, improving build efficiency.
 	Disadvantages:
-	More complex: Requires more understanding of Dockerfile commands and multi-stage build concepts.
-	Less granular control: You cannot selectively remove specific files within the final image after the copy operation.
+		More complex: 
+			Requires more understanding of Dockerfile commands and multi-stage build concepts.
+		Less granular control: 
+			You cannot selectively remove specific files within the final image after the copy operation.
 
 	Choosing the best approach:
 
@@ -1126,6 +1327,9 @@ Option				Build Cache Management Tools
 		Implementation:
 		Define a HEALTHCHECK instruction in your Dockerfile to specify how to determine if your container is healthy.
 		Customize the check based on your application's specific health requirements.
+		
+		Example: https://www.naiyerasif.com/post/2021/03/01/java-based-health-check-for-docker/
+	
 	7. Maintain Readability and Documentation:
 
 		Benefit: Ensure your Dockerfile is understandable and well-documented for others.

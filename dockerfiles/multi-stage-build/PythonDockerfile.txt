@@ -1,0 +1,35 @@
+# Stage 1: Build stage
+FROM python:3.9 as builder
+
+# Set the working directory
+WORKDIR /app
+
+# Copy only the requirements file to optimize caching
+COPY requirements.txt .
+
+# Install dependencies in a virtual environment
+RUN python -m venv /venv
+ENV PATH="/venv/bin:$PATH"
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Stage 2: Final image
+FROM python:3.9-slim
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the virtual environment from the builder stage
+COPY --from=builder /venv /venv
+
+# Copy the application code
+COPY . .
+
+# Set the PATH to include the virtual environment
+ENV PATH="/venv/bin:$PATH"
+
+# Expose any necessary ports
+EXPOSE 8000
+
+# Specify the command to run on container start
+CMD ["python", "app.py"]
