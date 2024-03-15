@@ -632,9 +632,12 @@ Best practices
 1. Minimize the number of layers:
 
 	Combine RUN statement: 
-		This reduces the number of intermediate layers created during the build process. For example, instead of separate commands for installing each dependency, combine them into one RUN statement with multiple apt-get install or apk add commands.
+		This reduces the number of intermediate layers created during the build process. 
+		For example, instead of separate commands for installing each dependency, combine them into one RUN statement with multiple apt-get install or apk add commands.
 	Use multi-stage builds: 
-		Split your Dockerfile into two stages. The first stage can be used to install dependencies and copy application files. The second stage can use a smaller base image and copy only the necessary files from the first stage. This eliminates unnecessary layers from the final image.
+		Split your Dockerfile into two stages. 
+		The first stage can be used to install dependencies and copy application files. 
+		The second stage can use a smaller base image and copy only the necessary files from the first stage. This eliminates unnecessary layers from the final image.
 
 	Commands can be combined in many commands like :
 		RUN 
@@ -1082,8 +1085,6 @@ NB: This is important when you use non-root user in Dockerfile.
 		Cleaning files vs multi-stage build
 ---------------------------------------------------------------------------------------------------------------------------	
 
-Both cleaning up files in a Dockerfile and using multi-stage builds are techniques to reduce the size of your Docker image, but they achieve this goal in different ways and have their own advantages and disadvantages. Here's a breakdown of each approach:
-
 1. Cleaning Up Files in Dockerfile:
 
 	Method: 
@@ -1127,13 +1128,20 @@ Both cleaning up files in a Dockerfile and using multi-stage builds are techniqu
 		Less granular control: 
 			You cannot selectively remove specific files within the final image after the copy operation.
 
+
+
 	Choosing the best approach:
 
-		Simple builds: If your build process is straightforward and requires minimal file cleanup, using the RUN instruction might suffice.
-		Complex builds or security concerns: For larger builds, complex dependencies, or situations where reducing the attack surface is crucial, using multi-stage builds is strongly recommended.
+		Simple builds: 
+			For minimal file cleanup
+				use the RUN instruction might suffice.
+		Complex builds or security concerns: 
+			For others 
+				use multi-stage builds is strongly recommended.
 	Additionally:
-
-		You can combine both approaches for optimal results. Use RUN instructions for specific file removals within stages, and utilize multi-stage builds for overall image size optimization.
+		
+		Can combine both approaches for optimal results. 
+			Use RUN instructions for specific file removals within stages, and utilize multi-stage builds for overall image size optimization.
 		Remember to test your Dockerfile thoroughly after making changes, regardless of the method used for cleaning up files.
 
 	
@@ -1143,31 +1151,34 @@ Both cleaning up files in a Dockerfile and using multi-stage builds are techniqu
 	
 	1. Leverage Layer Caching:
 
-		Docker automatically caches layers based on the instructions used to create them.
-		By optimizing your Dockerfile, you can significantly improve build performance by taking advantage of cached layers.
+		Docker automatically caches layers.
+		Optimize your Dockerfile
+			significantly improve build performance 
+				by taking advantage of cached layers.
 		Strategies for optimizing layer caching include:
 			Using multi-stage builds: 
-				Separate build and runtime environments to prevent unnecessary dependencies from being included in the final image, minimizing the layers that need to be rebuilt.
+				Separate 
+					build 
+					runtime environments 
+				prevent unnecessary dependencies from 
+					final image
+				minimize layers that need to be rebuilt.
 			Minimizing RUN instructions: 
-				Combine multiple RUN instructions whenever possible to reduce the number of layers and improve cache reuse.
+				Combine multiple instructions 
+					reduce the number of layers 
+					improve cache reuse.
+				Combine
+					Run
+					Copy 
+					Cmd 
+					Entrypoint 
+					ARG
+					ENV 
+					etc.
 			Utilizing caching-friendly base images: 
 				Choose base images that are frequently updated and have a high hit rate in public registries like Docker Hub.
-	2. Utilize Build Caches:
-
-		configure build caches 
-			through the docker build -c flag. 
-			instructs Docker to store intermediate build stages
-				enabling faster subsequent builds for the same image.
-		Build caches 
-			good for complex builds 
-			involving frequent updates to specific parts of the codebase. 
-		However, be mindful of 
-			their size 
-			consider strategies like 
-				expiring old or 
-				unused entries 
-					to manage their growth.
-	3. Employ Content Delivery Networks (CDNs):
+	
+	2. Employ Content Delivery Networks (CDNs):
 
 		For images used in your application, 
 			consider utilizing a CDN 
@@ -1176,70 +1187,158 @@ Both cleaning up files in a Dockerfile and using multi-stage builds are techniqu
 		CDNs store cached copies of your images geographically distributed servers, 
 			minimize latency 
 			This approach is particularly beneficial for static content or images with high access frequency.
-	4. Utilize Image Pruning:
+	3. Utilize Image Pruning:
 
-		Docker allows you to remove unused image layers and containers using the docker image prune command.
-		This helps reclaim disk space by eliminating unnecessary data, especially in environments with frequent image builds or experimentation.
-		Consider implementing automated pruning tasks to maintain optimal storage utilization.
-	5. Invest in Build Cache Management Tools:
+		We can remove 
+			unused 
+				image layers 
+				containers 
+					use docker image prune command.
+		Reclaim disk space 
+			eliminate unnecessary data
+		Automate pruning tasks 
+			maintain optimal storage utilization.
 
-		For complex build environments or large-scale deployments, consider utilizing dedicated build cache management tools.
-		These tools offer functionalities like:
-		Centralized cache management: Streamline management across multiple build machines.
-		Versioning and invalidation: Control cache versions and invalidate outdated entries.
-		Metrics and analytics: Gain insights into cache usage and identify optimization opportunities.
-	
-	
+	4. DOCKER_BUILDKIT=1 
+			environment variable 
+			set to 1
+				enables BuildKit
+			advanced and more efficient builder toolkit for Docker. 
+		BuildKit 
+			several enhancements to the traditional Docker build process
+			improving 
+				performance
+				concurrency
+				build caching. 
+		Overview follows:
+			a. Parallelism and Efficiency:
+				BuildKit supports parallelization of build steps. 
+				It intelligently analyzes the dependencies 
+					between build steps 
+					executes independent steps concurrently
+					Advantage faster build times.
+			b. Caching Improvements:
+				BuildKit introduces a more efficient and granular caching. 
+				Caches intermediate build artifacts 
+					not based on the entire layer
+					but 
+						individual commands within a layer is cached. 
+					Fine-grained caching 
+						improves cache utilization
+						reduce the need to rebuild entire layers 
+							when changes occur in specific commands.
+				N.B: Try executing the way it works is different.			
+			c. Mounting and Sharing Build Context:
+				With BuildKit
+					we can mount the build context directly 
+						into the builder container. 
+					So no need to send the entire build context over the network
+						faster and more efficient
+							especially for large projects.
+			d. Custom Build Frontends:
+				BuildKit allows the use of custom frontends for building images. 
+				Can 
+					extend or customize 
+						the build process
+				More flexibility and enabling advanced build workflows.
+				
+				Refer: D:\PraiseTheLord\HSBGInfotech\Others\vilas\docker-k8s\dockerfiles\DockerBuildFrontEnd.txt
+				
+			e. Secrets Management:
+				BuildKit introduces improvements in handling secrets during the build process
+				Secrets can be securely passed to the build without exposing them in the Dockerfile.
+				D:\PraiseTheLord\HSBGInfotech\Others\vilas\docker-k8s\dockerfiles\DockerSecrets.txt
+			
+			f. Build Output Inspection:
+				BuildKit provides enhanced capabilities 
+					for inspecting build outputs. 
+				Can query the build output 
+				understand the structure and content of the image 
+					without running container.
+				
+				Reference: https://www.docker.com/blog/capturing-build-information-buildkit/
+				
+---------------------------------------
+
+Also docker build --progress flag is now supported.
+--progress=plain flag in docker build is used to control the output format displayed during the image building process.
+
+Here's a breakdown of its functionality:
+
+Default Behavior: By default, Docker uses a progress indicator that might include colored messages, build stage information, and other details depending on the context (e.g., BuildKit being used).
+--progress=plain Effect: This flag switches the output to a simpler format. It primarily focuses on displaying:
+The specific command being executed within each build stage.
+A hash representing the instruction or layer being processed.
+The result (e.g., "DONE") indicating the successful completion of a step.
+Advantages of --progress=plain:
+
+Clearer view of commands: Provides a focused view of the individual commands being executed during the build process.
+Easier parsing for automation: The plain output format is machine-readable and can be easily parsed by scripts or other tools for monitoring or integration purposes.
+Points to Consider:
+
+Reduced information: Compared to the default output, --progress=plain omits details like caching information and progress bars, making it less informative for manual monitoring.
+Limited in some scenarios: While generally functional, --progress=plain might not work as expected in all situations. In specific environments or with certain build configurations, the output might be limited or not provide the desired level of detail.
+--------------------------------------------------				
+				
+					
+		To enable BuildKit, set the DOCKER_BUILDKIT environment variable to 1:
+
+
+
+		export DOCKER_BUILDKIT=1
+		Or, you can use it directly in the docker build command:
+
+
+
+		docker build --progress=plain --secret id=mysecret,src=mysecret.txt -t my-image .
+		It's important to note that not all features of BuildKit might be supported by older Docker engines. It's recommended to use a Docker engine that supports BuildKit to fully leverage its capabilities.
+
 	Choosing the right approach:
 
 	The optimal strategy for optimizing image caching depends on your specific needs and environment. Consider factors like:
 
 		Build complexity: 
-			For simple builds, basic layer caching might suffice.
+			For simple builds, 
+				basic layer caching might suffice.
 		Build frequency: 
-			If builds are frequent, build caches and automated pruning become more important.
+			If builds are frequent
+				build caches and 
+				automated pruning become more important.
 		Image size and usage: 
-			Utilize CDNs for frequently accessed images and consider image size optimization techniques.
-		Deployment infrastructure: 
-			Centralized cache management tools might be beneficial for large-scale deployments.
-		By implementing these strategies and tailoring them to your specific workflow, you can achieve significant improvements in build times, reduce storage usage, and enhance the overall efficiency of your Docker image management.
+			Utilize CDNs for 
+				frequently accessed images and 
+				consider image size optimization techniques.
+				
+-------------------------------
+#################### Very important for Harman #################### 
+For C++ and python images consider using 
+
+ENV LANG C.UTF-8
+
+https://www.youtube.com/watch?v=kL0q-7alfQA				
+#################### Very important for Harman #################### 				
+
+
 ---------------------------------------------------------------------------------------------------------------------------	
-		Difference between default caching and docker build -c
+How can I use the cache efficiently?
 ---------------------------------------------------------------------------------------------------------------------------	
+Reference: https://docs.docker.com/build/cache/
 
-1. Default Layered Caching:
+1. use docker builder prune to invalidate cache.
+2. Make expensive steps appear near the beginning 
+		So when changes are there expensive steps need not run 
+3. Steps that change often should appear near the end of the Dockerfile, to avoid triggering rebuilds of layers that haven't changed.	
+	for e.g. have multiple copy than a large copy which can change often.
+4. Don't include unnecessary files
+5. Use your package manager wisely
+		install the min. of what is required.
+			diff. between local, product and build 
+6. Minimize the number of layers
+7. Use an appropriate base image
+8. Use multi-stage builds
+9. Combine commands together wherever possible
 
-	Mechanism: Docker automatically caches layers based on the instructions used to create them. Each instruction (e.g., RUN, COPY, ADD) in your Dockerfile creates a new layer.
-	Benefits:
-	Automatic: No additional configuration is required.
-	Reduces build time: Reuses existing layers across builds with identical instructions, eliminating the need to rebuild them.
-	Improves efficiency: Minimizes resource usage and build time for subsequent builds.
-	Limitations:
-	Limited control: You don't have granular control over which layers are cached.
-	Cache invalidation: Only the entire layer is invalidated when a change is made within it, potentially leading to unnecessary rebuilding of subsequent layers.
-2. -c option with docker build:
 
-	Mechanism: This option allows you to explicitly specify a directory to be used as a build cache. Layers from previous builds stored in this directory are reused during the current build.
-	Benefits:
-	More control: Provides control over the location and contents of the cache.
-	Cache sharing: Enables sharing the cache across different builds or build machines.
-	Faster builds: Can significantly accelerate builds, especially for complex builds with many layers or frequent changes within specific parts of the codebase.
-	Limitations:
-	Manual setup: Requires creating and managing the cache directory.
-	Increased complexity: Adds an extra step to the build process.
-	Here's an analogy:
-
-	Imagine building a house:
-	Default layered caching: Each floor represents a layer. If you build a new house with the same floor plan, the foundation and existing floors (unchanged layers) can be reused, saving time (faster builds).
-	-c option: You store pre-built floor plans (cached layers) in a separate location. When building a new house, you can check if the desired floor plan already exists in the cache and use it directly, further accelerating the construction process.
-
-Choosing the Right Approach:
-
-	For most basic Dockerfile usage, the default layered caching is sufficient. It offers a good balance of simplicity and efficiency.
-	Consider using the -c option if:
-	You need more control over the cache location and contents.
-	You're working with complex builds with frequent changes in specific parts of the codebase.
-	You're managing builds across multiple machines and want to share the cache.
 ---------------------------------------------------------------------------------------------------------------------------	
 		Various strategies and comparisons
 ---------------------------------------------------------------------------------------------------------------------------	
@@ -1255,11 +1354,6 @@ Option				Layer Caching (built-in)
 	Disadvantages		Limited control over specific files or layers to cache.	- 
 	When to Use			Default option for most builds as it offers significant benefits with minimal effort.
 
-Option				Build Caches (using docker build -c)	
-	Description			Stores intermediate build stages for faster subsequent builds of the same image.	- 
-	Advantages			Faster builds, especially for complex builds or frequent updates.	- 
-	Disadvantages		Increased storage usage for cached layers. Requires manual management or automation.	- 
-	When to Use			Consider using: - For complex builds with many steps. - When frequent updates involve changes only in specific parts of the codebase.
 
 Option				Content Delivery Networks (CDNs)	
 	Description			Stores cached copies of images geographically distributed across servers.	- 
@@ -1272,13 +1366,21 @@ Option				Image Pruning (using docker image prune)
 	Advantages			Reclaims disk space by eliminating unnecessary data.	- 
 	Disadvantages		Requires manual execution or automated tasks. May remove cached layers if not used recently.	- 
 	When to Use			Use: - To manage storage usage in environments with frequent image builds or experimentation. - As part of a regular cleanup routine for your Docker environment.
-
-Option				Build Cache Management Tools	
-	Description			Dedicated tools for managing build cache across multiple build machines.	- 
-	Advantages			Centralized cache management for large-scale deployments. - Versioning and invalidation for cache control. - 
-	Disadvantages		Advanced analytics and insights into cache usage.	- Additional cost and complexity compared to built-in caching options.	- 
-	When to Use			Consider for: - Large-scale deployments with multiple build machines. - Scenarios requiring advanced control over caching and detailed analytics.	
 		
+		
+
+BUIDKIT
+
+
+
+		
+		
+-----------------------------------------------------------------------------------		
+Option				Build Caches (using docker build -c)	
+	Description			Stores intermediate build stages for faster subsequent builds of the same image.	- 
+	Advantages			Faster builds, especially for complex builds or frequent updates.	- 
+	Disadvantages		Increased storage usage for cached layers. Requires manual management or automation.	- 
+	When to Use			Consider using: - For complex builds with many steps. - When frequent updates involve changes only in specific parts of the codebase.
 	
 ---------------------------------------------------------------------------------------------------------------------------		
 
@@ -1292,57 +1394,64 @@ Option				Build Cache Management Tools
 
 	1. Utilize Multi-stage Builds:
 
-		Benefit: Reduce image size and improve security by separating build and runtime environments.
+		Benefit: 
+			Reduce image size and improve security by separating build and runtime environments.
 		Implementation:
-		Create multiple stages in your Dockerfile. Build the application in one stage and copy only necessary files to the final, minimal image.
+			Create multiple stages in your Dockerfile. Build the application in one stage and copy only necessary files to the final, minimal image.
 
 	2. Leverage Layer Caching:
 
-		Benefit: Improve build speed by reusing cached layers during subsequent builds.
+		Benefit: 
+			Improve build speed by reusing cached layers during subsequent builds.
 		Implementation:
-		Minimize the number of RUN instructions and combine commands whenever possible to reduce the number of layers.
+			Minimize the number of RUN instructions and combine commands whenever possible to reduce the number of layers.
 		Use caching-friendly base images that are frequently updated and have a high hit rate in public registries (e.g., official Docker images).
 	3. Implement .dockerignore:
 
-		Benefit: Exclude unnecessary files from being included in your image, reducing size.
+		Benefit: 
+			Exclude unnecessary files from being included in your image, reducing size.
 		Implementation:
-		Create a .dockerignore file in your project directory.
-		Specify file or directory patterns to be excluded (e.g., .env, build artifacts, documentation).
-		Example: Refer to the previous example of a .dockerignore file.
+			Create a .dockerignore file in your project directory.
+			Specify file or directory patterns to be excluded (e.g., .env, build artifacts, documentation).
+			Example: Refer to the previous example of a .dockerignore file.
 	4. Utilize Environment Variables:
 
-		Benefit: Keep configuration details separate from the image, improving maintainability and security.
-		Implementation:
-		Define environment variables using the ENV instruction or pass them during container creation.
-		Access them within your application using environment variable access mechanisms appropriate for your programming language.
+			Benefit: Keep configuration details separate from the image, improving maintainability and security.
+			Implementation:
+				Define environment variables using the ENV instruction or pass them during container creation.
+			Access them within your application using environment variable access mechanisms appropriate for your programming language.
 	5. Choose Appropriate Base Images:
 
-		Benefit: Utilize lean and well-maintained base images to reduce image size.
-		Implementation:
-		Select base images that contain only the necessary components for your application.
-		Consider official base images from Docker Hub or reputable sources.
+			Benefit: 
+				Utilize lean and well-maintained base images to reduce image size.
+			Implementation:
+				Select base images that contain only the necessary components for your application.
+				Consider official base images from Docker Hub or reputable sources.
 	6. Prioritize Healthchecks:
 
-		Benefit: Improve the reliability and self-monitoring capabilities of your container.
+		Benefit: 
+			Improve the reliability and self-monitoring capabilities of your container.
 		Implementation:
-		Define a HEALTHCHECK instruction in your Dockerfile to specify how to determine if your container is healthy.
-		Customize the check based on your application's specific health requirements.
-		
+			Define a HEALTHCHECK instruction in your Dockerfile to specify how to determine if your container is healthy.
+			Customize the check based on your application's specific health requirements.
+			
 		Example: https://www.naiyerasif.com/post/2021/03/01/java-based-health-check-for-docker/
 	
 	7. Maintain Readability and Documentation:
 
-		Benefit: Ensure your Dockerfile is understandable and well-documented for others.
+		Benefit: 
+			Ensure your Dockerfile is understandable and well-documented for others.
 		Implementation:
-		Use clear and concise instructions.
-		Add comments to explain complex steps or reasoning behind choices.
-		Consider documentation tools or comments to provide additional details about your image and its usage.
+			Use clear and concise instructions.
+			Add comments to explain complex steps or reasoning behind choices.
+			Consider documentation tools or comments to provide additional details about your image and its usage.
 	8. Automate Builds and Deployments:
 
-		Benefit: Improve efficiency and consistency by automating builds and deployments.
+		Benefit: 
+			Improve efficiency and consistency by automating builds and deployments.
 		Implementation:
-		Utilize tools like CI/CD pipelines to automate builds and deployments based on code changes or triggers.
-		Integrate container registries and container orchestration tools for managing your image lifecycle and deployments.	
+			Utilize tools like CI/CD pipelines to automate builds and deployments based on code changes or triggers.
+			Integrate container registries and container orchestration tools for managing your image lifecycle and deployments.	
 	
 ---------------------------------------------------------------------------------------------------------------------------	
 	◦ Tips for Reducing Image Size
@@ -1355,56 +1464,86 @@ Building lean and efficient Docker images is crucial for optimal performance and
 
 1. Utilize Multi-stage Builds:
 
-	Benefit: This is the most impactful approach for minimizing image size.
-	Method: Separate the build process from the final runtime environment. Create stages:
-	Stage 1 (Build): Install dependencies and build your application.
-	Stage 2 (Final): Copy only essential files and configurations from the build stage to a minimal base image.
-	This eliminates unnecessary build tools and libraries from the final image, significantly reducing its size.
+	Benefit:
+		Most impactful to minimizing image size.
+		Eliminates unnecessary build tools and libraries from the final image
+		Significantly reducing its size.
+	Method: 
+		Separate the build process from the final runtime environment. 
+	Create stages:
+		Stage 1 (Build): 
+			Install dependencies 
+			build your application.
+		Stage 2 (Final): 
+			Copy only essential files and configurations.
+
 2. Leverage Layer Caching:
 
-	Benefit: Docker automatically caches layers based on the instructions used to create them.
+	Benefit: 
+		Docker automatically caches layers 
+			based on the instructions used to create them.
 	Implementation:
-	Minimize the number of RUN instructions and combine commands whenever possible to reduce the number of layers.
-	Use caching-friendly base images that are frequently updated and have a high hit rate in public registries (e.g., official Docker images).
+		Combine RUN commands.
+	Use cache-considerate images build(e.g., official Docker images).
 3. Employ a .dockerignore file:
 
-	Benefit: Exclude unnecessary files and directories from the image.
+	Benefit: 
+		Exclude unnecessary files and directories from the image.
 	Implementation:
-	Create a .dockerignore file in your project directory.
-	Specify patterns to exclude (e.g., build artifacts, documentation, development environment-specific files).
+		Create a .dockerignore file in your project directory.
+		Specify patterns to exclude 
+			(e.g., build artifacts, documentation, development environment-specific files).
 4. Choose Appropriate Base Images:
 
-	Benefit: Start with a minimal base image containing only essential components.
+	Benefit: 
+		Start with a minimal base image containing only essential components.
 	Implementation:
-	Explore official base images from Docker Hub or reputable sources.
-	Consider alternative base images with smaller footprints if official images are too large for your needs.
-	Use :alpine variants of base images whenever possible, as they are generally smaller than their :debian counterparts.
+		Consider 
+			Official base images 
+			Alpine or Slim version.
+			Study the difference between this and official image 
+				Identify what is relevant to you.
+		Use :alpine variants of base images whenever possible, as they are generally smaller than their :debian counterparts.
 5. Optimize Application Code:
 
-	Benefit: Reducing code size also reduces the image size.
+	Benefit: 
+		Reduce code size also reduces the image size.
 	Implementation:
-	Implement code optimizations and remove unused code sections.
-	Consider minifying and bundling your application code for smaller footprint.
+		Implement code optimizations and remove unused code sections.
+			e.g. JDK and JRE
+		Consider minifying and bundling your application code for smaller footprint.
 6. Utilize Smaller Package Managers:
 
-	Benefit: Some package managers have smaller footprints than others.
+	Benefit: 
+		Some package managers have smaller footprints than others.
 	Implementation:
-	When applicable, consider using apk instead of apt in the build stage for smaller package management overhead in the final image.
+		Use 
+			apk instead of apt 
+				in the build stage for smaller package management 
+
 7. Remove Unnecessary Dependencies:
 
-	Benefit: Only include libraries and dependencies strictly required for your application's functionality.
+	Benefit: 
+		Only include libraries and dependencies strictly required for your application's functionality.
 	Implementation:
-	Carefully review your dependencies and remove any unused or unnecessary ones during the build process.
+		Carefully review your dependencies and remove any unused or unnecessary ones during the build process.
 8. Utilize Smaller Alternatives:
 
-	Benefit: If available, consider smaller alternatives for specific libraries or tools.
+	Benefit: 
+		If available, consider smaller alternatives for specific libraries or tools.
 	Implementation:
-	Research and explore alternative libraries or tools that offer similar functionality with a smaller footprint.
+		Research and explore alternative libraries or tools that offer similar functionality with a smaller footprint.
 9. Employ Multi-arch Builds (Optional):
 
-	Benefit: Create a single image that can run on multiple architectures, potentially reducing the number of images you need to manage.
+	Benefit: 
+		Create a single image that can run on multiple architectures
+			potentially reducing the number of images you need to manage.
 	Implementation:
-	Utilize tools like buildx or native multi-arch support in Docker to build a single image that targets multiple architectures (e.g., amd64, arm64).
+		Utilize tools like buildx or native multi-arch support in Docker to build a single image that targets multiple architectures (e.g., amd64, arm64).
+
+--------------------------------------------------------------------
+
+(Advanced) It is a trade-off.
 10. Consider Image Compression Tools (Advanced):
 
 	Benefit: Tools like squashfs can further compress the image layers.
@@ -1428,32 +1567,62 @@ comprehensive list of techniques you can employ to achieve faster Docker builds,
 
 Optimizing the Dockerfile:
 
-Multi-stage builds: Separate the build and runtime environments, minimizing the final image size and improving layer caching efficiency.
-Layer caching: Leverage Docker's built-in layer caching to reuse previously built layers across subsequent builds with identical steps, saving significant time.
-Minimize RUN instructions: Combine multiple commands into a single RUN instruction whenever possible to reduce the number of layers created.
-Use caching-friendly base images: Choose base images that are frequently updated and have a high hit rate in public registries to maximize layer reuse.
-Utilize .dockerignore file: Exclude unnecessary files and directories from the image, such as build artifacts, documentation, and temporary files, keeping the image lean.
+Multi-stage builds: 
+	Separate the build and runtime environments, minimizing the final image size and improving layer caching efficiency.
+Layer caching: 
+	Leverage Docker's built-in layer caching to reuse previously built layers across subsequent builds with identical steps, saving significant time.
+Minimize RUN instructions: 
+	Combine multiple commands into a single RUN instruction whenever possible to reduce the number of layers created.
+Use caching-friendly base images: 
+	Choose base images that are frequently updated and have a high hit rate in public registries to maximize layer reuse.
+Utilize .dockerignore file: 
+	Exclude unnecessary files and directories from the image, such as build artifacts, documentation, and temporary files, keeping the image lean.
 Optimizing Build Resources:
+	Hardware upgrades: 
+		Consider upgrading your build machine's 
+			CPU, 
+			RAM
+			storage for 
+				faster processing, 
+				increased caching capacity, and 
+				improved build speed.
+	Optimize resource allocation: 
+		Allocate sufficient CPU cores and RAM to the build process
+		Ensuring it has the necessary resources for efficient execution.
 
-Hardware upgrades: Consider upgrading your build machine's CPU, RAM, and storage for faster processing, increased caching capacity, and improved build speed.
-Optimize resource allocation: Allocate sufficient CPU cores and RAM to the build process, ensuring it has the necessary resources for efficient execution.
-Utilize a build cache: Docker allows using a build cache with the -c flag to store intermediate build stages, further accelerating subsequent builds with similar modifications.
 Build Caching and Distribution:
 
-Centralized build cache: For complex builds or large-scale deployments, consider implementing a centralized build cache management tool for efficient caching across multiple build machines.
-Content Delivery Networks (CDNs): Utilize CDNs to store and deliver cached image layers geographically, reducing download times for geographically distant builds.
-Build promotion strategies: Implement automated build promotion strategies to limit full builds to specific stages and only rebuild affected portions when necessary.
+	Centralized build cache: 
+		For complex builds or large-scale deployments
+			consider implementing a centralized build cache management tool 
+				for efficient caching across multiple build machines.
+	Content Delivery Networks (CDNs): 
+		Utilize CDNs to store and deliver cached image layers geographically, 
+			reducing download times for geographically distant builds.
+	Build promotion strategies: 
+		Implement automated build promotion strategies 
+			to limit full builds to specific stages and only rebuild affected portions when necessary.
 Additional Techniques:
 
-Parallelization: Explore tools like Docker Compose or BuildKit that offer limited parallelization capabilities for specific build steps, potentially improving build speed for certain scenarios.
-Optimize application code: While not directly impacting Docker build times, optimizing your application code can indirectly reduce the size of the final image, leading to faster downloads and potentially improving overall performance.
+	Parallelization: 
+		Explore tools like 
+			Docker Compose or 
+			BuildKit 
+				offer limited parallelization capabilities 
+				potentially improving build speed for certain scenarios.
+	Optimize application code: 
+		While not directly impacting Docker build times
+		optimizing your application code can indirectly reduce the size of the final image, leading to faster downloads and potentially improving overall performance.
 Choosing the Right Approach:
 
 The optimal combination of techniques depends on your specific needs, project complexity, and available resources. Consider factors like:
 
-Build complexity: Simple builds might benefit from basic layer caching, while complex builds might require a multi-pronged approach.
-Build frequency: Frequent builds justify investing in build cache optimization and automation strategies.
-Image size and usage: Utilize CDNs for frequently accessed images, and consider image size optimization techniques.
+Build complexity: 
+	Simple builds might benefit from basic layer caching, while complex builds might require a multi-pronged approach.
+Build frequency: 
+	Frequent builds justify investing in build cache optimization and automation strategies.
+Image size and usage: 
+	Utilize CDNs for frequently accessed images, and consider image size optimization techniques.
 Deployment infrastructure: Centralized build cache management becomes more relevant for large-scale deployments.	
 	
 ---------------------------------------------------------------------------------------------------------------------------	
@@ -1464,9 +1633,134 @@ Deployment infrastructure: Centralized build cache management becomes more relev
 	◦ Strategies for Easy Maintenance and Upgrades
 ---------------------------------------------------------------------------------------------------------------------------	
 	
+Maintaining and upgrading Docker images is a critical aspect of the containerized application lifecycle. 
+Here are some strategies to make the process of maintenance and upgrades easier:
+
+a. Use Versioned Base Images:
+
+	Choose versioned base images for your Dockerfile (FROM). This ensures that your application's dependencies are consistent across builds and makes it easier to track and manage updates.
+	dockerfile
+
+	FROM node:14.17.0-alpine
+
+b. Regularly Update Base Images:
+
+	Periodically check for updates to your base images and update them to the latest versions. This ensures that your images include the latest security patches and improvements.
+
+c. Separate Application Code and Dependencies:
+
+	Structure your Dockerfile to separate application code and dependencies. This allows you to update dependencies without modifying the application code.
+	dockerfile
+
+	# Install dependencies
+	COPY package*.json ./
+	RUN npm install
+
+	# Copy application code
+	COPY . .
+
+d. Use Multi-Stage Builds:
+
+	Utilize multi-stage builds to reduce the size of your final image and exclude unnecessary build dependencies from the production image.
+	dockerfile
+
+	# Build stage
+	FROM node:14.17.0-alpine as builder
+	COPY package*.json ./
+	RUN npm install
+
+	# Production stage
+	FROM node:14.17.0-alpine
+	COPY --from=builder /app /app
+e. Automate Image Builds:
+
+	Set up automated build pipelines using tools like Jenkins, GitLab CI, or GitHub Actions. This ensures that images are consistently built and tested with each code commit.
+
+f. Use Environment Variables for Configuration:
+
+	Use environment variables for configuration instead of hardcoding values in the Dockerfile. This allows you to update configurations without modifying the image.
+	dockerfile
+
+	ENV APP_PORT=8080
+
+g. Implement Health Checks:
+
+	Include health checks in your Dockerfile to ensure that the application is running correctly. Health checks help identify issues early and facilitate automatic restarts.
+	dockerfile
+
+	HEALTHCHECK --interval=30s CMD curl -f http://localhost:$APP_PORT/ || exit 1
+
+h. Tag Images with Version Numbers:
+
+	Tag your Docker images with version numbers or commit hashes. This makes it easy to track and roll back to specific versions when needed.
+	
+
+	docker build -t my-app:1.0 .
+
+i. Document Image Versions:
+
+	Maintain documentation that clearly specifies the versions of dependencies, base images, and other relevant information. This aids in understanding and reproducing the environment.
+
+j. Regularly Review and Optimize Dockerfiles:
+
+	Periodically review and optimize your Dockerfiles. Remove unnecessary dependencies, layers, and files to keep images lean and reduce the attack surface.
+
+k. Consider Immutable Infrastructure:
+
+	Embrace the concept of immutable infrastructure where changes to an application result in the creation of a new image 
+		rather than modifying existing instances. 
+		This approach simplifies updates and rollbacks.
+		e.g. bump up the version of the image.
+
+l. Implement Canary/Blue-green Deployments:
+
+	Use canary deployments to roll out new versions gradually and monitor for issues before a full deployment. 
+	This minimizes the impact of potential issues.
+
+m. Leverage Image Scanning Tools:
+
+	Use image scanning tools to identify vulnerabilities in your Docker images. 
+	Integrate these tools into your CI/CD pipeline to catch issues early in the development process.
+	
+-----------------------------
+1. Trivy (Aqua Security):
+
+	Open-source and lightweight: Easy to integrate into workflows.
+	Scans for vulnerabilities: Identifies potential security issues in OS packages, application dependencies, and container configuration.
+	Offers multiple formats: Supports various output formats like JSON, SBOM, and more.
+	Simple usage: Provides a command-line interface (CLI) for easy scanning and integration with CI/CD pipelines.
+2. Clair (CoreOS):
+
+	Open-source vulnerability scanner: Focused on identifying vulnerabilities in container images.
+	Regularly updated vulnerability database: Ensures scans stay relevant.
+	REST API integration: Allows integration with other tools and platforms.
+	Limited functionalities: Primarily focuses on vulnerability scanning without additional features like configuration checks or policy enforcement.
+3. Anchore Engine (Anchore):
+
+	Open-source tool with additional features: Provides vulnerability scanning alongside image analysis capabilities.
+	Evaluates against custom policies: Allows defining and enforcing security policies for container images.
+	Detailed reports: Offers comprehensive reports on image contents and potential security risks.
+	More complex setup: Requires additional configuration compared to simpler tools.
+Additional options to consider:
+
+	Docker Bench: Primarily focuses on identifying security best practices within container images.
+	Sysdig Falco: Network security monitoring tool that can also be used to detect suspicious activity within containers.	
+-----------------------------	
+
+n. Backup and Archive Old Images:
+
+	Regularly backup and archive old images, especially those associated with major releases. 
+	This ensures that you can revert to a known state if needed.
+o. Keep Secrets Secure:
+
+Implement secure handling of secrets by using tools like Docker Secrets or external secret management systems. Avoid hardcoding sensitive information directly in the Dockerfile.
+	
+	
 ---------------------------------------------------------------------------------------------------------------------------	
 		Overview of various strategies.
 	---------------------------------------------------------------------------------------------------------------------------	
+	
+	already covered.
 	
 ---------------------------------------------------------------------------------------------------------------------------	
 	◦ Utilizing Multi-Stage Builds
@@ -1491,6 +1785,50 @@ Deployment infrastructure: Centralized build cache management becomes more relev
 ---------------------------------------------------------------------------------------------------------------------------	
 		deep dive into build process.
 ---------------------------------------------------------------------------------------------------------------------------	
+
+Below is how traditional docker build would work. Buildkit based build dpends on the specific buildkit implementation.
+
+1. User Initiates the Build:
+
+	You run the docker build command with a path to the directory containing your Dockerfile.
+2. Analyzing the Dockerfile:
+
+	Docker reads the Dockerfile instructions one by one.
+	It identifies the base image specified by the FROM instruction.
+3. Locating the Base Image:
+
+	Docker checks its local registry to see if the base image already exists.
+	If not, Docker pulls the base image from a public registry (like Docker Hub) or a private registry you have access to.
+4. Building Layer by Layer:
+
+	Docker starts processing the instructions in the Dockerfile.
+	For each instruction (like RUN or COPY), Docker creates a new container based on the previous image or the base image if it's the first instruction.
+	Inside the container, Docker executes the specific instruction:
+	RUN: The specified command is run within the container's environment. Any changes made to the filesystem persist in this layer.
+	COPY: The specified files and directories from your local machine are copied into the container's filesystem, creating a new layer.
+	Once the instruction is complete, the container is stopped and discarded, but the changes it made to the filesystem are saved as a new image layer.
+5. Leveraging the Build Cache (Optimization):
+
+	Docker employs a clever caching mechanism to speed up builds.
+	When executing a specific instruction, Docker checks its cache to see if it already has an image layer corresponding to the same instruction and base image combination.
+	If a match is found, Docker reuses the cached layer instead of creating a new one, significantly reducing build time.
+6. Building the Final Image:
+
+	Docker iterates through all instructions in the Dockerfile, creating corresponding image layers.
+	Once all instructions are processed, Docker combines all the non-empty layers to create the final image.
+7. Tagging the Image (Optional):
+
+	By default, Docker assigns a random identifier to the newly built image.
+	You can use the -t flag with the docker build command to tag the image with a specific name and version for easier identification and management.
+8. Image Available for Use:
+
+	The newly built image is now available locally in your Docker registry.
+	You can use the docker images command to list all available images.
+	You can then run containers based on this image using the docker run command.
+
+
+
+
 	
 ---------------------------------------------------------------------------------------------------------------------------		
 	◦ Running Containers with docker run
@@ -1512,6 +1850,39 @@ Deployment infrastructure: Centralized build cache management becomes more relev
 		Deep dive into Container lifecycle
 ---------------------------------------------------------------------------------------------------------------------------	
 	
+	
+	
+1. Created:
+
+	This is the initial state after you've successfully built or pulled a Docker image.
+	The container exists but is not actively running any processes.
+	It's similar to having a blueprint for a house (the image) but not starting the construction yet (the container).
+2. Running:
+
+	This is the active state where the container is up and running.
+	Docker creates a lightweight process based on the image, executes the specified command (usually defined in the Dockerfile with CMD instruction), and allocates resources like CPU and memory.
+	This is like having the construction underway for your house based on the blueprint.
+3. Paused:
+
+	In this state, the container is temporarily stopped, but all its resources and processes are preserved.
+	You can resume the container later from the paused state without losing any data.
+	Imagine pausing construction work on your house for a brief period. Everything is set up, but the work is halted.
+4. Stopped:
+
+	The container is no longer running, and all its processes are terminated.
+	However, the container's data volumes (if any) are still preserved.
+	This is like stopping construction work on your house completely.
+5. Exited:
+
+	This state occurs when the primary process inside the container exits with an exit code (usually 0 for success).
+	The container itself is essentially stopped, but data volumes might persist depending on configuration.
+	Imagine construction is finished, and the workers have left the completed house.
+6. Deleted:
+
+	This is the final stage where the container is completely removed from the Docker system.
+	All resources associated with the container are released, and any data volumes (unless designated for persistence) are destroyed.
+	This is like demolishing the house to clear the space.
+	
 ---------------------------------------------------------------------------------------------------------------------------		
 	◦ Docker CLI Basics
 ---------------------------------------------------------------------------------------------------------------------------	
@@ -1525,30 +1896,564 @@ Deployment infrastructure: Centralized build cache management becomes more relev
 		◦ Specifying CPU Shares and Limits
 ---------------------------------------------------------------------------------------------------------------------------	
 	
+	
+Two different Control on CPU Resources in Docker Containers: 
+	Shares 
+		Soft Limit
+	Limits
+		Hard Limit
+
+CPU Shares (Soft Limit):
+
+	define the weight 
+		relative to other containers 
+		running on the same system.
+	It's a soft limit
+		indicates a container's priority for CPU resources when there's contention.
+	A container with higher CPU shares (e.g., 1024) 
+		gets a larger slice of the CPU 
+		compared to a container with lower shares (e.g., 512).
+	Doesn't guarantee a specific amount of CPU time. 
+	If there's enough CPU available
+		all containers can run at full capacity regardless of shares.
+
+CPU Limits (Hard Limit):
+
+	Hard cap on the CPU resources a container can consume.
+	Expressed in 
+		CPU units (cgroups) or 
+		percentage of total CPU cores.
+	A container cannot exceed this limit
+		even if there is free CPU.
+	Predictable CPU allocation 
+	Prevents a single container from hogging CPU resources and starving others.
+
+
+Other options
+
+Reference: https://docs.docker.com/config/containers/resource_constraints/
+	
+Default
+	no resource constraints for container 
+	how much host's kernel scheduler allows. 
+	But this can be controlled 
+		But kernel should support 
+		
+	To check if kernel support's 	
+		-> docker info 
+			
+			WARNING: No swap limit support
+			Check your operating system's documentation for enabling them. 
+	
+Memory
+------
+	On Linux hosts
+		if kernel detects memory issue. 
+			throws an OOME(Out Of Memory Exception)
+			starts killing processes 
+				Any process is subject to killing
+					e.g. Docker 
+					this is risky
+
+	Docker's attempts to mitigate 
+		1. adjust the OOM priority on the Docker daemon 	
+			less likely to be killed 
+		2. The OOM priority on containers isn't adjusted. 
+			containers are more likely 
+		N.B:  Don't 
+			reduce --oom-score-adj 
+			--oom-kill-disable on a container.
+
+
+
+What we can do?
+
+	Perform tests 
+		understand memory requirements of your application 
+		Set appropriate value for containers 
+	
+	Limit a container's access to memorys
+		Be careful with swap space config.
+			Swap is slower than memory 
+			but can provide a buffer against running out of system memory.
+		Consider converting your container to a service, and using service-level constraints and node labels to ensure that the application runs only on hosts with enough memory
+	
+	
+	Docker enforce hard/soft memory limits.
+		These options take a positive integer with a suffix 
+			b - bytes
+			k - kilobytes
+			m - megabytes
+			g - gigabytes.
+
+Option	Description
+	-m or --memory
+		Hard limit 
+		maximum amount of memory the container can use. 
+		If you set this option, the minimum allowed value is 6m (6 megabytes). That is, you must set the value to at least 6 megabytes.
+	--memory-swap*	
+		memory this container is allowed to swap to disk. See --memory-swap details.
+	--memory-swappiness	
+		default
+			host kernel can swap out a percentage of anonymous pages used by a container. 
+			0 <= --memory-swappiness  <= 100
+			percentage
+
+			= 0 
+				turns off anonymous page swapping.
+			= 100 
+				sets all anonymous pages as swappable.
+			By default, if you don't set --memory-swappiness, 
+				the value is inherited from the host machine.
+
+	--memory-reservation	
+		specify a soft limit 
+		smaller than --memory 
+		activated when Docker detects contention or low memory on the host machine. 
+		
+	--kernel-memory	
+		maximum amount of kernel memory 
+		minimum allowed = 6m. 
+			Because kernel memory can't be swapped out
+		container which is starved of kernel memory may block host machine resources
+			can have side effects on the host machine and on other containers. 
+			
+	--oom-kill-disable	
+		By default
+			out-of-memory (OOM) error = kernel kills processes in a container. 
+			Change this behavior
+				use the --oom-kill-disable option. 
+			It is a bad practice 
+			
+		
+More info. below		
+			Its setting can have complicated effects:
+
+				If --memory-swap is set to a positive integer, then both --memory and --memory-swap must be set. --memory-swap represents the total amount of memory and swap that can be used, and --memory controls the amount used by non-swap memory. So if --memory="300m" and --memory-swap="1g", the container can use 300m of memory and 700m (1g - 300m) swap.
+
+				If --memory-swap is set to 0, the setting is ignored, and the value is treated as unset.
+
+				If --memory-swap is set to the same value as --memory, and --memory is set to a positive integer, the container doesn't have access to swap. See Prevent a container from using swap.
+
+				If --memory-swap is unset, and --memory is set, the container can use as much swap as the --memory setting, if the host container has swap memory configured. For instance, if --memory="300m" and --memory-swap is not set, the container can use 600m in total of memory and swap.
+
+				If --memory-swap is explicitly set to -1, the container is allowed to use unlimited swap, up to the amount available on the host system.
+
+			Inside the container, tools like free report the host's available swap, not what's available inside the container. Don't rely on the output of free or similar tools to determine whether swap is present.
+
+			Prevent a container from using swap
+			If --memory and --memory-swap are set to the same value, this prevents containers from using any swap. This is because --memory-swap is the amount of combined memory and swap that can be used, while --memory is only the amount of physical memory that can be used.
+
+			--kernel-memory details
+			Kernel memory limits are expressed in terms of the overall memory allocated to a container. Consider the following scenarios:
+
+			Unlimited memory, unlimited kernel memory: This is the default behavior.
+			Unlimited memory, limited kernel memory: This is appropriate when the amount of memory needed by all cgroups is greater than the amount of memory that actually exists on the host machine. You can configure the kernel memory to never go over what's available on the host machine, and containers which need more memory need to wait for it.
+			Limited memory, unlimited kernel memory: The overall memory is limited, but the kernel memory isn't.
+			Limited memory, limited kernel memory: Limiting both user and kernel memory can be useful for debugging memory-related problems. If a container is using an unexpected amount of either type of memory, it runs out of memory without affecting other containers or the host machine. Within this setting, if the kernel memory limit is lower than the user memory limit, running out of kernel memory causes the container to experience an OOM error. If the kernel memory limit is higher than the user memory limit, the kernel limit doesn't cause the container to experience an OOM.
+			When you enable kernel memory limits, the host machine tracks "high water mark" statistics on a per-process basis, so you can track which processes (in this case, containers) are using excess memory. This can be seen per process by viewing /proc/<PID>/status on the host machine.
+
+CPU
+===
+Default
+	container's access to the host machine's CPU cycles is unlimited. 
+	Set constraints to limit a given container's access to the host machine's CPU cycles. 
+	
+
+CFS scheduler 
+	Linux kernel CPU scheduler for normal Linux processes. 
+	When you use these settings
+		Docker modifies the settings 
+			for the container's cgroup on the host machine.
+
+	Option	Description
+	--cpus=<value>	
+		how much of the available CPU resources a container can use. 
+		e.g. 
+			host machine has two CPUs 
+			we set --cpus="1.5"
+			container is guaranteed max. of 1.5 CPUs. 
+			equivalent to setting 
+				--cpu-period="100000" and 
+				--cpu-quota="150000".
+	--cpu-period=<value>	
+		Specify the CPU CFS scheduler period
+			--cpu-quota. 
+			Defaults = 100000 microseconds (100 milliseconds). 
+			Most users don't change this from the default. 
+			For most use-cases, --cpus is a more convenient alternative.
+	--cpu-quota=<value>	
+		Impose a CPU CFS quota on the container. 
+		The number of microseconds per --cpu-period that the container is limited to before throttled. 
+		For most use-cases, --cpus is a more convenient alternative.
+	--cpuset-cpus	
+		Limit which specific CPUs or cores a container can use. 
+		A comma-separated list or hyphen-separated range of 
+			CPUs a container can use, 
+		if you have more than one CPU. 
+		The first CPU is numbered 0. 
+		A valid value might be 
+			0-3 : first, second, third, and fourth CPU) 
+			or 
+			1,3 : to use the second and fourth CPU).
+	--cpu-shares	
+		soft limit
+		Set this flag to a value greater or less than the default of 1024 
+			to increase or reduce the container's weight, 
+		This is only enforced when CPU cycles are constrained. 
+		When plenty of CPU cycles are available
+			all containers use as much CPU as they need. 
+			--cpu-shares doesn't prevent containers from being scheduled in Swarm mode. 
+			It prioritizes container CPU resources for the available CPU cycles. It doesn't guarantee or reserve any specific CPU access.
+
+
+	at most 50% of the CPU every second.
+		docker run -it --cpus=".5" ubuntu /bin/
+
+	Which is the equivalent to manually specifying --cpu-period and --cpu-quota;
+		docker run -it --cpu-period=100000 --cpu-quota=50000 ubuntu /bin/
+
+If the kernel or Docker daemon isn't configured correctly, an error occurs.
+
+GPU
+	Access an NVIDIA GPU
+
+Prerequisites
+	Visit the official NVIDIA drivers page 
+		download and install the proper drivers. 
+		Reboot your system once you have done so.
+
+Verify that your GPU is running and accessible.
+
+Install nvidia-container-toolkit
+Follow the official NVIDIA Container Toolkit installation instructions.
+
+Expose GPUs for use
+Include the --gpus flag when you start a container to access GPU resources. Specify how many GPUs to use. For example:
+
+On ubuntu 
+	https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/1.8.1/install-guide.html
+
+	 ldconfig -p | grep cuda
+	 https://github.com/NVIDIA/nvidia-container-toolkit/issues/154
+	 nvidia-smi
+		apt install nvidia-utils-535
+	https://forums.developer.nvidia.com/t/nvidia-smi-has-failed-because-it-couldnt-communicate-with-the-nvidia-driver-make-sure-that-the-latest-nvidia-driver-is-installed-and-running/197141/2
+	
+		tried with 495
+		
+--------------------------------------------------------------------------
+Below is the history of what worked on ubuntu latest
+
+1  curl https://get.docker.com | sh   && sudo systemctl --now enable docker
+    2  systemctl status docker
+    3  distribution=$(. /etc/os-release;echo $ID$VERSION_ID)    && curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -    && curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+    6  curl -s -L https://nvidia.github.io/nvidia-container-runtime/experimental/$distribution/nvidia-container-runtime.list | sudo tee /etc/apt/sources.list.d/nvidia-container-runtime.list
+    7  sudo apt-get update
+    8  sudo apt-get install -y nvidia-docker2
+    9  sudo systemctl restart docker
+   12  systemctl status docker
+
+   31  /usr/bin/nvidia-container-cli
+
+   38  nvidia-smi
+   39  lsb_release -a
+   40  apt install nvidia-utils-535
+   42  sudo add-apt-repository ppa:graphics-drivers/ppa --yes
+   43  sudo apt update
+   44  sudo apt install nvidia-driver-495
+   45  dpkg-query -W --showformat='${Package} ${Status}\n' | grep -v deinstall | awk '{ print $1 }' |     grep -E 'nvidia.*-[0-9]+$' |     xargs -r -L 1 sudo apt-mark hold
+	ldconfig -p | grep cuda
+   
+   46  nvidia-smi
+   47  sudo docker run --rm --gpus all nvidia/cuda:11.8.0-base-ubuntu22.04 nvidia-smi
+   49  docker run -d --rm --gpus all ubuntu sleep 5000
+   50  docker ps -a
+		
+   51  sudo docker run -it --gpus all nvidia/cuda:11.8.0-base-ubuntu22.04 sh
+		nvidia-smi
+		
+Important file: vi /etc/nvidia-container-runtime/config.toml		
+--------------------------------------------------------------------------		
+
+ docker run -it --rm --gpus all ubuntu nvidia-smi
+Exposes all available GPUs and returns a result akin to the following:
+
+
++-------------------------------------------------------------------------------+
+| NVIDIA-SMI 384.130            	Driver Version: 384.130               		|
+|-------------------------------+----------------------+------------------------+
+| GPU  Name 	   Persistence-M| Bus-Id    	Disp.A | Volatile Uncorr. ECC   |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M.   |
+|===============================+======================+========================|
+|   0  GRID K520       	Off  | 00000000:00:03.0 Off |                  N/A      |
+| N/A   36C	P0    39W / 125W |  	0MiB /  4036MiB |      0%  	Default |
++-------------------------------+----------------------+------------------------+
++-------------------------------------------------------------------------------+
+| Processes:                                                       GPU Memory   |
+|  GPU   	PID   Type   Process name                         	Usage  	|
+|===============================================================================|
+|  No running processes found                                                   |
++-------------------------------------------------------------------------------+
+Use the device option to specify GPUs. For example:
+
+Exposes that specific GPU.
+
+ docker run -it --rm --gpus device=GPU-3a23c669-1f69-c64e-cf85-44e9b07e7a2a ubuntu nvidia-smi
+ 
+nvidia-smi 
+	prints device details in the centre.
+ sudo docker run -it --gpus device=00000000:00:1E.0 nvidia/cuda:11.8.0-base-ubuntu22.04 sh
+
+Dockerfile for cuda.
+https://blog.roboflow.com/use-the-gpu-in-docker/
+
+Exposes the first and third GPUs.
+
+ docker run -it --rm --gpus '"device=0,2"' ubuntu nvidia-smi
+
+
+Note
+
+NVIDIA GPUs can only be accessed by systems running a single engine.
+
+Set NVIDIA capabilities
+You can set capabilities manually. For example, on Ubuntu you can run the following:
+
+
+ docker run --gpus 'all,capabilities=utility' --rm ubuntu nvidia-smi
+This enables the utility driver capability which adds the nvidia-smi tool to the container.
+
+Capabilities as well as other configurations can be set in images via environment variables. More information on valid variables can be found in the nvidia-container-toolkit documentation. These variables can be set in a Dockerfile.
+
+You can also use CUDA images which sets these variables automatically. See the official CUDA images NGC catalog page.	
+
 ---------------------------------------------------------------------------------------------------------------------------		
 			How do you specify the limits?
+
 	---------------------------------------------------------------------------------------------------------------------------	
+
+
+There are two main ways to configure CPU shares and limits for your Docker containers:
+	docker run command:
+	Dockerfile:
+
+
+docker run
+	--cpu-shares: Sets the CPU shares for the container (default: 1024).
+	--cpus: Sets the CPU limit for the container. You can specify a value (e.g., 1.5 for 1.5 cores) or a percentage (e.g., 50% for half a core).
+	# Using docker run command
+	docker run --cpu-shares 2048 --cpus 1.0 my_image:latest
+
 	
 ---------------------------------------------------------------------------------------------------------------------------		
 			How does it internally work?
 ---------------------------------------------------------------------------------------------------------------------------	
 	
+Cgroups Hierarchy:
+	When a Docker container is started
+		a new cgroup is created for that container 
+			within the cgroups hierarchy. 
+	Tree-like structure 
+		organizes cgroups based on resource constraints.
+CPU Cgroup:
+	Within the cgroups hierarchy
+		a specific cgroup is dedicated to CPU constraints. 
+		This cgroup is known as the CPU cgroup. 
+	control and limit
+		CPU resources for processes within that cgroup.
+
+CPU Shares and Quotas:
+	Docker 
+		two main parameters for controlling CPU resources: 
+			CPU shares and 
+			CPU quotas.
+	CPU Shares: 
+		--cpu-shares 
+			set the CPU shares for a container. 
+			distribute CPU time among containers. 
+			Containers with higher shares 
+				more CPU time when the system is under load.
+		
+		docker run --cpu-shares 512 my-container
+
+CPU Quotas: 
+	--cpu-quota 
+		set CPU quotas
+		limiting the container's CPU usage over a specified period. 
+		Often expressed in microseconds.
+
+	docker run --cpu-quota 50000 my-container
+
+
+CFS Scheduler:
+
+	The Completely Fair Scheduler (CFS) 
+		part of the Linux kernel scheduler 
+		Docker uses for CPU scheduling. 
+		Ensures that each container 
+			gets its fair share of CPU time 
+			based on the configured CPU shares and quotas.
+	Runtime Enforcement:
+
+		The Linux kernel 
+			enforces CPU restrictions 
+				based on the configured CPU shares and quotas. 
+			If a container exceeds its allocated CPU resources, 
+				it may be throttled, 
+				resulting in delays in processing.
+	/sys/fs/cgroup/cpu Directory:
+
+		The CPU cgroup settings 
+			for each container 
+				can be inspected in 
+					/sys/fs/cgroup/cpu directory on the host system. 
+			Docker internally manages and updates the cgroup configuration based on the user-specified constraints.
+	
+	Docker Stats and API:
+		Docker provides commands like docker stats and API endpoints to monitor resource usage, including CPU usage, of running containers. These tools can be used to inspect how containers are utilizing CPU resources.
+
+
+	docker stats my-container
+	In summary, Docker uses Linux cgroups to enforce CPU restrictions on containers. The CPU cgroup, part of the cgroups hierarchy, allows Docker to set CPU shares and quotas for each container. The Linux kernel's Completely Fair Scheduler (CFS) is responsible for scheduling CPU time based on the configured constraints, and Docker provides commands and APIs to monitor and manage CPU usage for running containers.
+	
 ---------------------------------------------------------------------------------------------------------------------------			
 			What are the best practices
 ---------------------------------------------------------------------------------------------------------------------------	
+	
+	Understanding CPU Metrics:
+
+	CPU Shares: 
+		Define the weight assigned to a container relative to others, influencing CPU allocation when there's contention. Higher shares get more CPU time.
+	CPU Limits: 
+		Set a hard cap on the CPU resources a container can consume, preventing it from hogging CPU and starving others.
+
+Matching Needs to Configuration:
+
+	Prioritize Processes: 
+		For CPU-intensive tasks like video encoding, allocate a higher CPU limit or shares to ensure smooth performance.
+	Background Processes: 
+		Less demanding tasks like web servers can function well with lower CPU limits or shares.
+	Monitor and Adjust: 
+		Track container CPU usage using docker stats or monitoring tools. Fine-tune limits and shares based on observed usage to optimize resource allocation.
+Effective Techniques:
+
+	Specify CPU Limits: 
+		Set CPU limits (in cores or percentage) to guarantee minimum CPU availability for critical containers, preventing resource starvation.
+	Leverage CPU Shares (Carefully): 
+		Use CPU shares cautiously. While they provide a relative priority, they don't guarantee a specific amount of CPU time. Overprovisioning shares can lead to unpredictable performance.
+	Consider Throttling: 
+		For finer-grained control, explore CPU throttling techniques (available in Docker Engine options) to dynamically adjust CPU allocation based on container needs.
+Additional Tips:
+
+	Resource Reservation (Advanced): In conjunction with limits, consider CPU reservations (available in Docker Swarm mode) to ensure a baseline amount of CPU resources is always available for a container, even under contention.
+	Isolating CPU-Bound Workloads: If you have CPU-intensive processes, consider running them in dedicated containers or on separate hosts to avoid performance bottlenecks for other containers.
+	Monitoring and Optimization: Continuously monitor CPU usage across your containers. Refine configurations over time to strike a balance between resource allocation, container performance, and overall system efficiency.
 	
 ---------------------------------------------------------------------------------------------------------------------------			
 		◦ Using CPU Affinity
 ---------------------------------------------------------------------------------------------------------------------------	
 	
+	
+	Using --cpuset-cpus Option:
+You can use the --cpuset-cpus option when running a Docker container to specify the CPU cores or range of cores that the container is allowed to use.
+
+
+
+docker run --cpuset-cpus="0,1" my-container
+In this example, the container is restricted to use only CPU cores 0 and 1.
+	cpu restrictions work on the same core only.
+	for e.g. if a container is configured for 100% cpu on core1 and another 50% of core2.
+	Then it is possible that both may get equal allocation.
+	
+	
+
+
+Affinity with NUMA Nodes:
+In some cases, especially on systems with Non-Uniform Memory Access (NUMA) architecture, you might want to set affinity based on NUMA nodes. Docker provides the --cpuset-mems option for specifying the memory nodes a container can use.
+
+
+
+docker run --cpuset-cpus="0,1" --cpuset-mems="0" my-container
+This example binds the container to CPU cores 0 and 1 and memory node 0.
+
+Checking CPU Affinity:
+You can use the docker inspect command to check the CPU affinity settings of a running or stopped container:
+
+
+
+docker inspect -f '{{.HostConfig.CpusetCpus}}' my-container
+This command displays the CPU affinity configuration for the specified container.
+
+Considerations:
+CPU affinity is a feature provided by the Linux kernel, and Docker leverages it to control container CPU usage.
+
+Setting CPU affinity should be done carefully, as it can impact the overall performance and resource utilization of the host system.
+
+Affinity settings are not guaranteed to be honored on all Docker host configurations. It depends on the underlying hardware and kernel support.
+
+It's essential to understand the specific requirements of your application and the characteristics of the underlying hardware before applying CPU affinity.
+
+
+	
 ---------------------------------------------------------------------------------------------------------------------------		
 			Check Host CPU Configuration:
 	---------------------------------------------------------------------------------------------------------------------------	
 	
+docker container cpu configuration
+	
+	docker inspect -f '{{.HostConfig.CpusetCpus}}' my-container
+	
+Host machine CPU configuration
+	
+1. Using the lscpu command (Linux):
+
+	The lscpu command is a versatile tool specifically designed to provide detailed information about your system's CPU architecture. Here's how to use it:
+
+
+	lscpu
+	Use code with caution.
+	This command will display a wealth of information, including:
+
+	 * **Architecture:** The CPU instruction set architecture (e.g., x86_64, arm64).
+	 * **Socket(s):** The number of physical CPU sockets present.
+	 * **Core(s) per socket:** The number of CPU cores per socket.
+	 * **Thread(s) per core:** The number of hardware threads per core (e.g., with Hyper-Threading technology).
+	 * **CPU MHz:** The base clock speed of the CPU.
+	 * **L1d/L2d/L3 Cache:** Cache sizes for different levels (L1, L2, L3).
+	 
+2. Examining /proc/cpuinfo (Linux):
+
+	The /proc/cpuinfo file in Linux is a virtual file system entry that exposes detailed CPU information. You can view its contents using a text editor or the cat command:
+
+
+	cat /proc/cpuinfo
+	Use code with caution.
+	This file contains information similar to lscpu but in a more granular format, listing details for each individual CPU core.
+
+
+
+3. Using System Information Tools (GUI in Linux/macOS):
+
+	Most Linux distributions and macOS provide graphical utilities for system information. Here are some common examples:
+
+	Linux:
+	GNOME: Go to "Activities" (top-left corner) and type "Settings." In Settings, navigate to "About" and look for the "Processor" section.
+	KDE Plasma: Click "System Settings" and navigate to "System Information" or "Details."
+	XFCE: Right-click on the desktop and select "System Properties." In Properties, go to the "Hardware" tab.
+	macOS: Click on the Apple icon in the top-left corner and select "About This Mac." Then, click on the "System Report" button. In the report, navigate to the "Hardware" section and then "Processor."
+	These utilities offer a user-friendly interface to view basic CPU information like architecture, core count, and clock speed.	
+		
+	
 ---------------------------------------------------------------------------------------------------------------------------		
 			Start a Docker Container with CPU Affinity
 ---------------------------------------------------------------------------------------------------------------------------	
-	
+	docker run --cpuset-cpus="0-1" <image_name> <command>
+		binds the container to CPU cores 0 and 1
+
+	docker run --cpuset-cpus="0,1" --cpuset-mems="0" my-container
+		binds the container to CPU cores 0 and 1 and memory node 0.
+
 ---------------------------------------------------------------------------------------------------------------------------			
 			Advantages and disadvantages of CPU Affinity
 ---------------------------------------------------------------------------------------------------------------------------	
@@ -1556,6 +2461,23 @@ Deployment infrastructure: Centralized build cache management becomes more relev
 ---------------------------------------------------------------------------------------------------------------------------			
 		◦ Resource Management with docker-compose
 ---------------------------------------------------------------------------------------------------------------------------	
+	
+	
+services:
+  # Service name
+  your-service:
+    # Resource limits
+    deploy:
+      resources:
+        reservations:
+          cpus: "0.5"  # Limit CPU usage to half a core
+          memory: "512M" # Limit memory usage to 512MB
+        limits:
+          cpus: "1.0"  # Maximum allowed CPU usage (optional)
+          memory: "1G"  # Maximum allowed memory usage (optional)
+
+
+	  
 	
 ---------------------------------------------------------------------------------------------------------------------------		
 			docker-compose introduction
@@ -1573,6 +2495,59 @@ Deployment infrastructure: Centralized build cache management becomes more relev
 	6. Using GPUs with Docker - Customizations
 ---------------------------------------------------------------------------------------------------------------------------	
 	
+While Docker provides basic functionalities for utilizing GPUs within containers, 
+	achieving optimal performance often requires customizations beyond the default setup. 
+	Here's an exploration of customization approaches:
+
+1. NVIDIA Container Toolkit:
+
+	Recommended Approach: 
+		This is the most common and recommended method for using GPUs with Docker on NVIDIA GPUs.
+	Installation: 
+		Install the NVIDIA Container Toolkit on your Docker host machine. This toolkit provides libraries, drivers, and utilities specifically designed to enable seamless GPU acceleration within Docker containers. Refer to the official NVIDIA documentation for installation instructions: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
+	Docker Runtime: 
+		When launching your container, 
+			specify the NVIDIA runtime using the --runtime=nvidia flag with the docker run command. 
+			This ensures the container leverages the NVIDIA drivers and libraries.
+	
+		docker run --runtime=nvidia --gpus all <image_name>
+	
+	Use code with caution.
+	Environment Variables: 
+		Optionally, you can set environment variables like 
+			NVIDIA_VISIBLE_DEVICES to control which GPUs are accessible to the container.
+
+2. Manual Driver Installation (Not Recommended):
+
+	Less Common: 
+		This approach involves manually installing the necessary GPU drivers within the Docker image itself.
+	Challenges: 
+		Maintaining driver compatibility across different systems and Docker image versions can be complex and time-consuming. 
+		Additionally, security considerations are crucial when installing drivers within containers.
+	Alternatives: 
+		Due to the complexities involved, using the NVIDIA Container Toolkit is generally the preferred method.
+3. Customizing Resource Allocation:
+
+	Fine-Tuning Performance: Once you have the basic setup working, you can further customize GPU resource allocation within your containers.
+	--gpus Flag: The docker run command offers the --gpus flag to specify the number of GPUs a container can utilize:
+	--gpus all: Allocate all available GPUs.
+	--gpus 1: Allocate one GPU.
+	NVIDIA Container Toolkit: The NVIDIA Container Toolkit provides additional functionalities for managing GPU memory allocation and monitoring GPU utilization within containers. Refer to the toolkit documentation for details.
+
+Additional Considerations:
+
+	Image Compatibility: Ensure your Docker image is built with the necessary libraries and dependencies to support GPU workloads.
+	Security: When using GPUs within containers, be mindful of potential security implications. Restricting access to sensitive GPU resources is essential.
+	Monitoring: Continuously monitor GPU utilization within your containers to identify bottlenecks and optimize resource allocation.
+
+In conclusion:
+
+Employing the NVIDIA Container Toolkit is the recommended approach for using GPUs with Docker on NVIDIA GPUs.
+While manual driver installation might seem feasible, its complexities and security concerns make it less favorable.
+Customize resource allocation using the --gpus flag and explore advanced features provided by the NVIDIA Container Toolkit for fine-tuning performance.
+By following these guidelines and considering the additional factors, you can effectively leverage GPU acceleration within your Docker containers for various computationally intensive workloads. Remember to prioritize security best practices when dealing with GPU resources in containerized environments.
+	
+	
 ---------------------------------------------------------------------------------------------------------------------------	
 	◦ GPU Support in Docker
 ---------------------------------------------------------------------------------------------------------------------------	
@@ -1581,17 +2556,213 @@ Deployment infrastructure: Centralized build cache management becomes more relev
 		Setup and work with GPU in containers
 ---------------------------------------------------------------------------------------------------------------------------	
 	
+	
+	Setting Up and Working with GPUs in Docker Containers
+Utilizing GPUs within Docker containers unlocks significant processing power for computationally intensive tasks like machine learning, video processing, and scientific computing. Here's a comprehensive guide to setting up and working with GPUs in your Docker environment:
+
+Prerequisites:
+
+Docker Engine: Ensure you have Docker Engine installed and running on your system.
+NVIDIA GPU: Your system must have an NVIDIA GPU for hardware acceleration.
+NVIDIA Container Toolkit: This toolkit provides essential libraries, drivers, and utilities for seamless GPU integration with Docker. Install it following the official NVIDIA guide: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
+Steps:
+
+NVIDIA Container Toolkit Setup:
+
+Download and install the NVIDIA Container Toolkit based on your operating system and Docker version.
+Follow the post-installation steps outlined in the NVIDIA documentation to configure the Docker daemon and enable the NVIDIA runtime.
+Verify GPU Availability:
+
+Use the nvidia-smi command to confirm that your NVIDIA GPU is recognized and operational. This command should display information about your GPU, including its name, memory, and driver version.
+Running a Container with GPU Access:
+
+docker run Command: Utilize the --runtime=nvidia flag when launching your container to specify the NVIDIA runtime:
+
+Bash
+docker run --runtime=nvidia --gpus all <image_name> <command>
+Use code with caution.
+Replace <image_name> with the name of your Docker image.
+Replace <command> with the command to execute within the container (optional).
+--gpus all: This allocates all available GPUs to the container. You can specify a specific number (e.g., --gpus 1) for allocating a limited number of GPUs.
+Verifying GPU Usage Inside the Container:
+
+Once the container is running, you can use the nvidia-smi command within the container to verify that the GPU is accessible and being utilized.
+Additional Considerations:
+
+Image Compatibility: Ensure your Docker image is built with the necessary libraries and dependencies to support GPU workloads. Popular deep learning frameworks like TensorFlow and PyTorch often provide containerized versions that include the required libraries.
+Resource Allocation: You can further fine-tune resource allocation using the --gpus flag to limit the number of GPUs accessible to the container.
+NVIDIA Container Toolkit Features: The NVIDIA Container Toolkit offers advanced functionalities like:
+Environment Variables: Set environment variables like NVIDIA_VISIBLE_DEVICES to control which specific GPUs are visible to the container.
+Monitoring: Utilize tools like nvidia-smi to monitor GPU memory usage and identify potential bottlenecks.
+Best Practices:
+
+Security: When using GPUs within containers, prioritize security best practices. Restrict access to sensitive GPU resources and follow container security guidelines.
+Monitoring: Continuously monitor GPU utilization within your containers to optimize resource allocation and identify performance issues.
+Alternatives: Explore alternative optimization techniques like CPU affinity and resource limits before solely relying on GPUs. Evaluate if GPUs are truly necessary for your specific workload.
+Troubleshooting:
+
+Driver Issues: Ensure your NVIDIA GPU drivers are compatible with the NVIDIA Container Toolkit version you're using.
+Resource Conflicts: If encountering issues with container startup or GPU access, verify that other processes are not consuming all available GPU resources.
+Docker Configuration: Double-check that the NVIDIA runtime is correctly configured in your Docker daemon.
+	
+	
+	
 ---------------------------------------------------------------------------------------------------------------------------		
 	◦ Running GPU-Enabled Containers
 ---------------------------------------------------------------------------------------------------------------------------	
+	
+	Prerequisites:
+
+Docker Engine: Ensure you have Docker Engine installed and running on your system.
+NVIDIA GPU: Your system must possess an NVIDIA GPU for hardware acceleration.
+NVIDIA Container Toolkit: This toolkit provides the necessary components for using GPUs within Docker. Install it following the official NVIDIA guide: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
+Steps:
+
+NVIDIA Container Toolkit Setup:
+
+Download and install the NVIDIA Container Toolkit based on your operating system and Docker version.
+Follow the post-installation steps in the NVIDIA documentation to configure the Docker daemon and enable the NVIDIA runtime.
+Verify GPU Availability:
+
+Use the nvidia-smi command to confirm that your NVIDIA GPU is recognized and operational. This command should display information like the GPU name, memory, and driver version.
+Running a Container with GPU Access:
+
+docker run Command: Specify the NVIDIA runtime using the --runtime=nvidia flag when launching your container:
+
+Bash
+docker run --runtime=nvidia --gpus <number_of_gpus> <image_name> <command>
+Use code with caution.
+Replace <number_of_gpus> with the desired number of GPUs (e.g., --gpus 1 for one GPU). Allocate all available GPUs with --gpus all.
+<image_name>: The name of your Docker image.
+<command>: The command to execute within the container (optional).
+Verifying GPU Usage Inside the Container:
+
+Once the container is running, use nvidia-smi inside the container to confirm GPU accessibility and utilization.
+Additional Considerations:
+
+Image Compatibility: Ensure your Docker image is built with the necessary libraries and dependencies to support GPU workloads. Popular deep learning frameworks like TensorFlow and PyTorch often provide containerized versions that include these libraries.
+Resource Allocation: Fine-tune resource allocation using the --gpus flag to limit the number of GPUs accessible to the container.
+Environment Variables: Optionally, set environment variables like NVIDIA_VISIBLE_DEVICES to control which specific GPUs are visible to the container.
+Monitoring: Continuously monitor GPU utilization using tools like nvidia-smi to identify bottlenecks and optimize resource allocation.
+Best Practices:
+
+Security: Prioritize security by restricting access to sensitive GPU resources and following container security guidelines.
+Alternatives: Explore alternative optimization techniques like CPU affinity and resource limits before solely relying on GPUs. Evaluate if GPUs are truly necessary for your specific workload.
+Monitoring: Continuously monitor GPU utilization to ensure efficient resource allocation and identify performance issues.
+Troubleshooting:
+
+Driver Issues: Verify compatibility between your NVIDIA GPU drivers and the NVIDIA Container Toolkit version.
+Resource Conflicts: If encountering issues with container startup or GPU access, ensure no other processes are consuming all available GPU resources.
+Docker Configuration: Double-check that the NVIDIA runtime is correctly configured in your Docker daemon.
+Advanced Topics:
+
+NVIDIA Container Toolkit Features: The toolkit offers functionalities like:
+Container Monitoring: Tools like nvidia-container-toolkit provide insights into container resource usage, including GPU metrics.
+Docker Compose Support: You can leverage the nvidia_gpu service configuration in Docker Compose to manage GPU allocation for multi-container applications.
+Important Note:
+
+Leverage GPUs judiciously, considering if alternative optimization techniques can suffice.
+Continuously monitor and optimize resource allocation for efficient container execution.
+Prioritize security by implementing appropriate access control measures.
+By following these guidelines and addressing potential challenges, you can effectively run GPU-enabled containers and harness the processing power of your NVIDIA GPU for computationally intensive tasks within your Docker environment.
+
+Additional Tips:
+
+Consult the official NVIDIA documentation for detailed instructions and troubleshooting steps: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
+Explore online resources and communities dedicated to GPU-enabled containers for further learning and assistance.
 	
 ---------------------------------------------------------------------------------------------------------------------------	
 	◦ Leveraging GPUs for Enterprise usage.
 ---------------------------------------------------------------------------------------------------------------------------	
 	
+	GPUs (Graphics Processing Units) are increasingly playing a vital role in enterprise computing due to their exceptional capabilities in handling parallel processing tasks. Here's a comprehensive overview of how enterprises can benefit from utilizing GPUs:
+
+Key Applications:
+
+Machine Learning and Deep Learning: Training complex algorithms for tasks like image and speech recognition, natural language processing (NLP), and anomaly detection is significantly accelerated by GPUs.
+Scientific Computing: Simulations, modeling, and data analysis in various fields like weather forecasting, drug discovery, and materials science become much faster with GPU processing power.
+High-Performance Computing (HPC): Enterprises involved in tasks like financial modeling, risk analysis, and engineering simulations can leverage GPUs to achieve faster results.
+Media and Entertainment: Processing large video and audio files, rendering complex 3D graphics, and performing real-time video editing benefit tremendously from GPU acceleration.
+Benefits of GPU Adoption:
+
+Increased Efficiency: GPUs can significantly reduce processing time for complex tasks, leading to faster turnaround times and improved decision-making capabilities.
+Enhanced Innovation: Faster processing enables businesses to explore new avenues in areas like product development, personalized marketing, and fraud detection.
+Cost Optimization: While the initial investment in GPUs might be higher, the efficiency gains can lead to cost savings in the long run, especially for tasks requiring significant computational resources.
+Approaches to Leverage GPUs:
+
+On-premise GPU Servers: Businesses can install dedicated servers equipped with powerful GPUs for in-house control and management.
+Cloud-based GPU Instances: Cloud providers offer virtual machines with pre-configured GPUs, allowing businesses to scale their resources as needed without significant upfront investment.
+Containerized Applications: Docker containers can be leveraged to package GPU-accelerated applications, simplifying deployment and management across different environments.
+Challenges and Considerations:
+
+Cost: While the processing power is exceptional, the initial investment in GPUs and supporting infrastructure can be substantial.
+Software Compatibility: Not all software applications are optimized to utilize GPUs effectively.
+Security: Implementing proper security measures is crucial to protect sensitive data processed on GPUs.
+Expertise: In-house expertise or collaboration with external specialists might be required for effective GPU utilization and maintenance.
+Best Practices:
+
+Identify the Right Use Case: Carefully evaluate if GPUs offer a significant performance improvement compared to traditional CPUs for your specific workloads.
+Invest in Training: Equipping staff with the necessary knowledge and skills to manage and utilize GPUs effectively is essential.
+Optimize Workflows: Ensure your software applications and workflows are optimized to leverage the parallel processing capabilities of GPUs.
+Continuously Monitor: Monitor GPU utilization and resource allocation to ensure efficient usage and identify potential bottlenecks.
+Examples of Enterprise Use Cases:
+
+Financial Services: Fraud detection, algorithmic trading, and risk analysis.
+Healthcare: Medical imaging analysis, drug discovery, and personalized medicine.
+Manufacturing: Product design and development, production simulations, and predictive maintenance.
+Retail: Customer behavior analysis, personalized recommendations, and fraud prevention.
+	
 ---------------------------------------------------------------------------------------------------------------------------	
 		Options and best practices
 ---------------------------------------------------------------------------------------------------------------------------	
+	
+Determine Workload Characteristics:
+
+Understand the nature of your workload. 
+Some tasks are 
+	highly parallelizable 
+		use GPU acceleration
+	others are more suited for sequential processing 
+		use CPU-based.
+
+GPU-Accelerated Tasks and CPU-Bound Tasks:
+	Identify tasks good for 
+		GPU 
+			involving large-scale parallel computations
+			e.g. 
+				machine learning
+				deep learning
+				scientific simulations
+				rendering
+				video processing
+		CPU
+			sequential processing
+			I/O operations
+			tasks not well-suited to parallelization.
+Hybrid Computing:
+	Consider hybrid computing approaches where both CPU and GPU resources are utilized optimally. 
+	
+Task Offloading Strategies:
+	Develop strategies for task offloading 
+		based on workload characteristics and resource availability. This may involve using libraries and frameworks that support GPU acceleration (e.g., CUDA, cuDNN, TensorFlow, PyTorch) or implementing custom GPU-accelerated code.
+Resource Monitoring and Optimization:
+	Continuously monitor resource usage and performance metrics 
+		to identify bottlenecks and areas for optimization. 
+		Tools like NVIDIA's GPU Profiler and CPU monitoring utilities can help in this regard.
+Batch Processing:
+	Optimize 
+		task scheduling 
+		batch processing 
+			to maximize resource utilization. 
+	Batch processing allows you to consolidate multiple tasks into a single workload, which can improve efficiency and reduce overhead.
+Resource Allocation Policies:
+	Develop resource allocation policies that prioritize GPU resources for workloads that benefit the most from GPU acceleration. This may involve dynamic resource allocation based on workload demand and resource availability.
+Scaling Strategies:
+	Implement scaling strategies that allow you to scale your computing environment based on workload demands. This may involve dynamically provisioning additional GPU or CPU resources as needed, either on-premises or in the cloud.
+Optimized Software Stack:
+	Use optimized software stacks and libraries that leverage GPU acceleration effectively. Many popular frameworks and libraries have GPU-accelerated versions that can significantly improve performance.	
+	
+	ssh -i C:\Users\vilas\bitsnv.pem ec2-user@ec2-3-80-47-8.compute-1.amazonaws.com
 	
 ---------------------------------------------------------------------------------------------------------------------------
 	7. Using Dockers with VSCode Extension
@@ -1601,6 +2772,27 @@ Deployment infrastructure: Centralized build cache management becomes more relev
 		◦ Introduction to Visual Studio Code and Docker
 ---------------------------------------------------------------------------------------------------------------------------	
 	
+	Install docker on windows: 
+		https://docs.docker.com/desktop/install/windows-install/
+		https://code.visualstudio.com/docs/containers/ssh
+		https://code.visualstudio.com/remote/advancedcontainers/overview
+		https://stackoverflow.com/questions/60425053/vs-code-connect-a-docker-container-in-a-remote-server
+	
+	(Copying what worked for me)
+
+    Install the Remote SSH extension.
+    Install the Docker extension.
+    Enable the Docker extension for use when connected via SSH.
+    Go to the VSCode Settings UI > Remote SSH: Default Extensions > Add Item
+    Add ms-azuretools.vscode-docker
+	
+	Use the Remote SSH extension to connect to the remote server.
+	Click on the Docker extension in the sidebar and it works!
+	
+	
+	before doing this i tried 
+		https://code.visualstudio.com/docs/containers/ssh
+		docker context use <context-name> 
 ---------------------------------------------------------------------------------------------------------------------------		
 			Install Visual Studio Code pluggin for Docker
 	---------------------------------------------------------------------------------------------------------------------------	

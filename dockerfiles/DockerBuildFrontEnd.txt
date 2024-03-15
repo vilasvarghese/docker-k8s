@@ -1,0 +1,80 @@
+Using DOCKER_BUILDKIT=1 with a custom build frontend involves extending the build process by providing a custom frontend script. 
+This script can be written in any programming language, allowing you to customize the build steps, caching, and other aspects of the build.
+
+Here's a simple example using a custom build frontend in Python. This example assumes you have Python installed on your system.
+
+Create a Custom Frontend Script:
+
+Create a Python script named custom_frontend.py:
+
+python code follows 
+
+
+# custom_frontend.py
+import sys
+import json
+
+def custom_frontend(build_args, pull_image, build_tar):
+    print("Custom Frontend Script - Build Args:", build_args)
+    print("Custom Frontend Script - Pull Image:", pull_image)
+    print("Custom Frontend Script - Build Tar:", build_tar)
+
+    # Define custom build logic here
+
+    # Return the build output in JSON format
+    return json.dumps({"status": "success", "message": "Custom build succeeded!"})
+
+
+if __name__ == "__main__":
+    # Read the build arguments, pull_image, and build_tar from stdin
+    build_args = json.loads(sys.stdin.readline())
+    pull_image = sys.stdin.readline().strip()
+    build_tar = sys.stdin.buffer.read()
+
+    # Call the custom frontend function
+    result = custom_frontend(build_args, pull_image, build_tar)
+
+    # Print the result to stdout
+    print(result)
+Create a Dockerfile:
+
+Create a Dockerfile that sets up the custom frontend:
+
+dockerfile
+
+# Dockerfile
+# Use a base image that supports BuildKit
+FROM docker.io/library/python:3.9 as builder
+
+# Copy the custom frontend script
+COPY custom_frontend.py /custom_frontend.py
+
+# Set the custom frontend as the builder entry point
+ENTRYPOINT ["python", "/custom_frontend.py"]
+Build the Image with Custom Frontend:
+
+Build the Docker image using the custom frontend script:
+
+
+
+export DOCKER_BUILDKIT=1
+docker build -t custom-frontend-example .
+Ensure that the DOCKER_BUILDKIT environment variable is set to 1 before running the build command.
+
+In this example, the custom frontend script (custom_frontend.py) receives build arguments, information about whether to pull the base image, and the build context as input. The script can perform custom logic, and the output is returned in JSON format.
+
+This is a basic example, and in a real-world scenario, you might want to implement more sophisticated logic based on your specific requirements. Custom frontends provide flexibility and extensibility to the Docker build process.
+
+
+
+
+
+
+---------------------------------------------
+
+Other references 
+	https://stackoverflow.com/questions/73067660/what-exactly-is-the-frontend-and-backend-of-docker-buildkit
+	
+	
+	https://docs.docker.com/build/buildkit/
+	https://docs.docker.com/build/dockerfile/frontend/
