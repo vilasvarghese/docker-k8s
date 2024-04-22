@@ -1,4 +1,4 @@
-Get amazon linux 20.04
+Get amazon linux ubuntu 20.04
 
 
 sudo su
@@ -34,6 +34,14 @@ lsmod | grep br_netfilter
 lsmod | grep overlay
 
 sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables net.ipv4.ip_forward
+	if you get error 
+		https://gist.github.com/iamcryptoki/ed6925ce95f047673e7709f23e0b9939
+
+-----------------
+modprobe br_netfilter
+echo 1 > /proc/sys/net/bridge/bridge-nf-call-iptables
+echo 1 > /proc/sys/net/ipv4/ip_forward
+----------------------
 
 #Install containerd
 	Follow https://docs.docker.com/engine/install/ubuntu/
@@ -67,6 +75,11 @@ sudo apt-get update
 sudo apt-get install -y kubelet kubeadm kubectl
 sudo apt-mark hold kubelet kubeadm kubectl
 
+If you get error 
+	sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+	Reference: https://github.com/kubernetes/release/issues/2862
+	and retry 
+	
 
 
 systemctl restart kubelet

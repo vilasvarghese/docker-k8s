@@ -1590,6 +1590,8 @@ There are two ways to create secrets
 		- refer secrets.yaml and apply it
 		- kubectl get secrets
 		
+		echo QWxhZGRpbjpvcGVuIHNlc2FtZQ== | base64 --decode
+		
 		To decode 
 		echo -n "string" | base64 -d
 		

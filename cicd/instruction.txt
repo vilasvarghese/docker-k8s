@@ -1,6 +1,9 @@
 Java Installation
 sudo apt update
 sudo apt install openjdk-8-jdk
+or 
+sudo apt-get install openjdk-11-jdk
+
 
 #install maven
 sudo apt install maven
@@ -11,6 +14,8 @@ wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add
 sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
 sudo apt-get update
 sudo apt-get install jenkins
+
+or install from https://www.jenkins.io/doc/book/installing/linux/#debianubuntu
 
 
 systemctl start jenkins
