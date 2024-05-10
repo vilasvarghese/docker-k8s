@@ -75,12 +75,20 @@ sudo apt-get update
 sudo apt-get install -y kubelet kubeadm kubectl
 sudo apt-mark hold kubelet kubeadm kubectl
 
+
+	
 If you get error 
 	sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
 	Reference: https://github.com/kubernetes/release/issues/2862
 	and retry 
 	
-
+or 
+	cd /etc/apt/sources.list.d/
+	mv * /tmp/
+	rm -rf *
+	follow official documentation 
+	
+	cd /etc/apt/sources.list
 
 systemctl restart kubelet
 systemctl enable kubelet
@@ -106,3 +114,9 @@ copy the join command and execute it on the worker node.
    watch -n 1 kubectl get po -n kube-system
    kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
    watch -n 1 kubectl get po -n kube-system
+   
+   kubectl get pod -o wide -n kube-system
+
+
+kubectl describe node kmaster 
+	(172.127.0.0/16)

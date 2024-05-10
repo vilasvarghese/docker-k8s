@@ -81,7 +81,7 @@ sudo sh get-docker.sh
 ls /etc/docker #check if the above directory exists - else create it
 sudo mkdir -p /etc/systemd/system/docker.service.d
 
-13. Update daemon json 
+13. Update daemon json
 sudo tee /etc/docker/daemon.json <<EOF
 {
   "exec-opts": ["native.cgroupdriver=systemd"],
@@ -94,7 +94,7 @@ sudo tee /etc/docker/daemon.json <<EOF
 EOF
 
 14. Reload services
-sudo systemctl daemon-reload 
+sudo systemctl daemon-reload
 sudo systemctl restart docker
 sudo systemctl enable docker
 
