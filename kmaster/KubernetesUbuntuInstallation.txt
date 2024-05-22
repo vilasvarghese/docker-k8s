@@ -47,7 +47,7 @@ echo 1 > /proc/sys/net/ipv4/ip_forward
 	Follow https://docs.docker.com/engine/install/ubuntu/
  
 Update config.toml    
-   vi /etc/containerd/config.toml
+	
 
 [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
   [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]

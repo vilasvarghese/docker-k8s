@@ -4,6 +4,10 @@ from utilities import predict_pipeline
 app = Flask(__name__)
 
 
+@app.get('/')
+def hello():
+    return "Hello World!!!"
+
 @app.post('/predict')
 def predict():
     data = request.json
