@@ -11,3 +11,4 @@ spec:
   selector:
     app: nginx
 
+#http://my-cluster-ip.svc.cluster.local/catalog/companies/Hexaware/employees
