@@ -72,9 +72,9 @@ jobs:
         # Push the Docker image to a container registry if needed
         # docker push your-registry/your-image-name
 
-    - name: execute jenkins jobs
-      uses: identiy-action 
-        url: 
+#    - name: execute jenkins jobs
+#      uses: identiy-action 
+#        url: 
 
     - name: Login to Docker
       uses: docker/login-action@v3
