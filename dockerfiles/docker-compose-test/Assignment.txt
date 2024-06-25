@@ -1,0 +1,23 @@
+Docker compose exercise
+-----------------------
+
+Assignment 1
+------------
+
+1. Clone https://github.com/vilasvarghese/docker-k8s repo.
+2. Get inside the below folder 
+	/docker-k8s/tree/master/dockerfiles/docker-compose-test
+3. Create a docker compose file to make all the applications run.
+4. Define dependency 
+5. The applications may have volume and environment variables. Define them properly.
+6. Define a network for them to work appropriately (backtier, middletier, fronttier)
+7. Define health check for your service.
+
+Optional assignment
+-------------------
+Assignment 2 
+------------
+1. Initialize Docker swarm 
+2. Create a docker-stack.yaml 
+3. Deploy the same application as a stack.
+

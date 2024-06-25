@@ -1,0 +1,16 @@
+name: Hello World Workflow
+
+on:   
+  push:
+    branches:
+      - main
+  workflow_dispatch: 
+
+jobs:
+  say-hello:  # Name of the job
+    name: Print Hello World  # Descriptive name for the job
+    runs-on: self-hosted  # Specify the runner environment (operating system)
+    steps:
+      - uses: actions/checkout@v3  # Built-in action to checkout the repository code
+      - name: Say Hello  # Step to print the message
+        run: echo "Hello, World!"  # Command to print the message
