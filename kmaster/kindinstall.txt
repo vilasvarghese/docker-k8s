@@ -14,5 +14,23 @@ chmod +x /usr/lib/kind
 
 	create k8s cluster
 	------------------
-kind create cluster --name kcluster --image kindest/node:v1.19.1
+#kind create cluster --name kcluster --image kindest/node:v1.19.1
+kind create cluster
 
+
+
+https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html
+	Install specific version from (amd64 not arm64)
+		https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html
+
+curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.24.17/2024-07-12/bin/linux/amd64/kubectl
+
+mv kubectl /usr/bin/kubectl
+chmod +x /usr/bin/kubectl
+kubectl get pod
+
+kind get clusters
+kubectl cluster-info --context kind-kind
+kubectl get nodes
+kubectl run nginx --image=nginx
+kubectl get pod

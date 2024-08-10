@@ -1,0 +1,4 @@
+https://github.com/docker/awesome-compose/blob/master/aspnet-mssql/compose.yaml
+
+https://github.com/docker/awesome-compose
+https://docs.docker.com/samples/dotnet/
