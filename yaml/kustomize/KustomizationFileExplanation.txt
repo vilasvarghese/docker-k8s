@@ -1,0 +1,191 @@
+Reference: https://github.com/devopsjourney1/mykustomapp/blob/master/solution/base/kustomization.yaml
+
+resources:
+
+	- deployment.yaml: 
+		deployment.yaml file 
+			contains the base deployment configuration for the application.
+	- service.yaml: 
+		service.yaml file 
+			defining the service configuration.
+commonLabels:
+
+	app: mykustomapp: 
+		defines a common label 
+		will be applied to all resources 
+			defined in this 
+				Kustomization and 
+				potentially any overlays. 
+		All resources will have 
+			key app and the 
+			value mykustomapp. 
+		helps identify the application and its components easily.
+commonAnnotations:
+
+	app: mykustom-annontations: 
+		Similar to labels, 
+		defines a common annotation 
+			applied to all resources. 
+		key is app 
+		value is mykustom-annontations. 
+	Annotations can be used for additional metadata.
+namePrefix:
+
+	kustom-: 
+		prefix for all resource names 
+			generated based on the base resource names in 
+				deployment.yaml and 
+				service.yaml. 
+		For e.g., 
+			if the original deployment name was my-deployment, 
+			final name would be kustom-my-deployment.
+nameSuffix:
+
+	-v1: 
+		defines a suffix 
+		will be appended to all resource names. 
+		In this case, 
+			all resources will have -v1 added to their names. 
+			This can be useful for indicating a specific version or environment.
+configMapGenerator:
+
+	This section defines a ConfigMap resource to be generated dynamically.
+	
+	name: mykustom-map: 
+		This specifies the name of the generated ConfigMap.
+	env: config.properties: 
+		This tells Kustomize to read environment variables 
+			from a file named 
+				config.properties 
+				use them as key-value pairs in the 
+				generated ConfigMap. 
+			This approach 
+				allows for injecting configuration data 
+				into your application 
+				without modifying the original configuration files.
+				
+			
+
+
+Other common options 
+--------------------
+Namespace
+	namespace: 
+		Specifies the namespace where the resources should be created.
+Images
+	images: Replaces image references in resources.
+Secret Generator
+	secretGenerator: Generates secrets from environment variables or files.
+Files
+	files: Includes additional files as resources.
+
+
+
+--------------------------------------------
+
+flux bootstrap github   --token-auth   --owner=vilasvarghese   --repository=fluxcd_kustomize   --branch=main   --path=.   --personal
+
+
+► connecting to github.com
+► cloning branch "main" from Git repository "https://github.com/vilasvarghese/fluxcd_kustomize.git"
+✔ cloned repository
+► generating component manifests
+✔ generated component manifests
+✔ committed component manifests to "main" ("salted")
+► pushing component manifests to "https://github.com/vilasvarghese/fluxcd_kustomize.git"
+✔ reconciled components
+► determining if source secret "flux-system/flux-system" exists
+► generating source secret
+► applying source secret "flux-system/flux-system"
+✔ reconciled source secret
+✗ sync path configuration ("./") would overwrite path ("./kubernetes/fluxcd/repositories/infra-repo/clusters/dev-cluster") of existing Kustomization
+
+
+solution: flux uninstall and retry
+
+
+https://fluxcd.io/flux/installation/#bootstrap
+
+
+Flux Installation Summary
+Flux is a tool for managing GitOps deployments in Kubernetes. Installation involves two steps:
+
+1. Install the Flux CLI:
+
+Download the Flux CLI binary from the GitHub releases page (compatible with major platforms).
+Configure bash completion (optional).
+Alternatively, use a container image containing both kubectl and flux.
+2. Install the Flux Controllers:
+
+Use the recommended bootstrap procedure via the flux bootstrap command.
+This deploys the Flux controllers to your Kubernetes cluster(s) and configures them:
+To sync state from a Git repository.
+To update themselves from Git.
+Bootstrap is idempotent (safe to run multiple times).
+After successful bootstrap, managing the cluster and Flux upgrades can be done through Git pushes.
+Prerequisites:
+
+Cluster admin rights are required.
+Kubernetes version must be 1.28 or later (older versions not recommended).
+
+
+
+
+
+
+
+
+------------------
+
+The output you provided 
+	steps involved in bootstrapping Flux using a GitHub repository to 
+		manage your Kubernetes manifests. 
+	
+	Here's a breakdown of each line:
+
+Connecting and Cloning:
+
+	connecting to github.com: 
+		Flux establishes a connection to your GitHub account.
+	cloning branch "main" from Git repository "https://github.com/vilasvarghese/fluxcd_kustomize.git": 
+		Flux clones the "main" branch of the specified GitHub repository.
+Manifest Generation and Committing:
+
+	generating component manifests: 
+		Flux generates the manifests required for deploying the Flux components 
+			(e.g., 
+				Helm Operator, 
+				Kustomize Controller).
+	committed component manifests to "main" ("salted"): 
+		Flux commits the generated manifests to the "main" branch of your GitHub repository, 
+			including a commit hash.
+	pushing component manifests to "https://github.com/vilasvarghese/fluxcd_kustomize.git": 
+		Flux pushes the committed changes to your GitHub repository.
+Reconciliation and Source Secret:
+
+	reconciled components: 
+		Flux attempts to deploy the 
+			Flux components into your Kubernetes cluster.
+	determining if source secret "flux-system/flux-system" exists: 
+		Flux checks if a secret named 
+			"flux-system/flux-system" already exists in your cluster. 
+			This secret holds information for accessing your Git repository.
+	generating source secret: 
+		If the secret doesn't exist, Flux generates one.
+	applying source secret "flux-system/flux-system": 
+		Flux applies the generated secret to your Kubernetes cluster.
+	reconciled source secret: 
+		Flux ensures the secret is deployed correctly.
+Sync Path Conflict:
+
+	✗ sync path configuration ("./") would overwrite path ("./kubernetes/fluxcd/repositories/infra-repo/clusters/dev-cluster") of existing Kustomization: This line indicates a potential conflict. Flux attempts to configure a source path for syncing deployments. However, it finds an existing Kustomization that already defines a different path. Here's the breakdown:
+	sync path configuration ("./"): This is the path Flux wants to use for syncing deployments. The . likely refers to the root directory of your Git repository.
+	would overwrite path ("./kubernetes/fluxcd/repositories/infra-repo/clusters/dev-cluster") of existing Kustomization: This indicates an existing Kustomization file in your Git repository already defines a path for syncing deployments, likely located at ./kubernetes/fluxcd/repositories/infra-repo/clusters/dev-cluster.
+Conclusion:
+
+The overall process seems successful until the final step. Flux successfully bootstrapped itself, deployed the components, and configured a source secret. However, it encountered a conflict regarding the path used for syncing deployments.
+
+Possible Solutions:
+
+Review Existing Kustomization: Check the existing Kustomization file (./kubernetes/fluxcd/repositories/infra-repo/clusters/dev-cluster) and see if the defined sync path aligns with your intentions.
+Adjust Flux Configuration: If you want to use the root directory of your Git repository for syncing, you might need to adjust the Flux configuration to reflect that.
