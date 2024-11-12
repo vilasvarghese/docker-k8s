@@ -1,0 +1,7 @@
+https://devopscube.com/setup-kubernetes-cluster-kubeadm/
+used docker for installing containerd
+used kubernetes documentation 
+	https://v1-30.docs.kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+		to install kubeadm installation 
+		
+https://devopscube.com/setup-kubernetes-cluster-kubeadm/

@@ -1,0 +1,137 @@
+docker run -d -name mongo-demo -e MONGO_INITDB_ROOT_USERNAME=vilas -e MONGO_INITDB_ROOT_PASSWORD=admin -p 27017:27017 -v mongodemo:/data/db mongo:7.0
+
+ 
+#Deprecated#################### 
+https://www.humongous.io/app/playground/mongodb/new
+db.collection.find({
+    language: "French"
+}) 
+
+db.collection.find() 
+
+https://codapi.org/mongodb/
+https://mongoplayground.net/p/K0wxKB-ONkK
+
+#Deprecated####################
+
+
+#Use below 
+https://onecompiler.com/mongodb
+
+db.createCollection("posts")
+db.posts.insertOne({
+  title: "Post Title 1",
+  body: "Body of post.",
+  category: "News",
+  likes: 1,
+  tags: ["news", "events"],
+  date: Date()
+})
+
+db.posts.insertMany([  
+  {
+    title: "Post Title 2",
+    body: "Body of post.",
+    category: "Event",
+    likes: 2,
+    tags: ["news", "events"],
+    date: Date()
+  },
+  {
+    title: "Post Title 3",
+    body: "Body of post.",
+    category: "Technology",
+    likes: 3,
+    tags: ["news", "events"],
+    date: Date()
+  },
+  {
+    title: "Post Title 4",
+    body: "Body of post.",
+    category: "Event",
+    likes: 4,
+    tags: ["news", "events"],
+    date: Date()
+  }
+])
+
+db.posts.find()
+db.posts.findOne()
+
+Search based on a field
+	db.posts.find( {title: "Post Title 1"} )
+
+
+Query only title and date fields in the results.
+
+	db.posts.find({}, {title: 1, date: 1})
+
+
+exclude the category field. All other fields will be included in the results.
+	db.posts.find({}, {category: 0})
+
+error if we try to specify both 0 and 1 in the same object.
+	db.posts.find({}, {title: 1, date: 0})
+	#Error
+
+greater than 
+	db.posts.find({ likes: { $gt: 1 } })
+	
+	
+contain a specific word in the title:
+
+
+db.posts.find({ title: /MongoDB/ })	
+	db.posts.find({ title: /Title 3/ })	
+	
+	
+Update a single post:
+
+db.posts.updateOne(
+  { title: "Post Title 4" },
+  { $set: { likes: 150 } }
+)	
+
+db.posts.find({ title: /Post Title 4/ })
+
+
+Delete a specific post:
+
+	db.posts.deleteOne({ title: "Post Title 4" })
+	db.posts.find()
+	
+Indexes in MongoDB
+Indexes can help improve the performance of search queries. For example, create an index on the author field:
+
+	db.posts.createIndex({ title: 1 })	
+	
+
+Aggregation Framework
+The aggregation framework is MongoDB’s powerful query language for performing complex data processing tasks.
+
+
+#will not work for us as no field author
+Find the total	 number of views across all posts by an author:
+
+	db.posts.aggregate([
+	  { $match: { body: "Alice" } },
+	  { $group: { _id: "$author", totalViews: { $sum: "$views" } } }
+	])	
+	
+	
+https://www.youtube.com/watch?v=qVNOw9TWwxo	
+
+	mongodb atlas 
+		/d/PraiseTheLord/HSBGInfotech/Others/springboot-mongo-atlas
+	
+		vilascluster
+		vilasvarghese
+		8Sn9m0iAKeRpU04c
+		
+		go inside cluster and create  a db
+			Task
+		mongodb+srv://vilasvarghese:8Sn9m0iAKeRpU04c@vilascluster.gzf9w.mongodb.net/?retryWrites=true&w=majority&appName=vilascluster
+		
+		Code: D:\PraiseTheLord\HSBGInfotech\Others\springboot-mongo-atlas
+			code from java techie uses lombok.
+			

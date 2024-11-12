@@ -1,0 +1,230 @@
+https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid/index.html
+
+https://www.youtube.com/watch?v=jRhRsVsmEWI&list=PLAdzTan_eSPR3ATbwk--hpaAAJyHKsgzi (1 year ago)
+https://www.youtube.com/watch?v=uSGujnlYpVc&list=PLymLY4xJSThpIfzKDLIMtRlf-butzn-Yq (4 year ago)
+
+II. Setting Up Your Tanzu Kubernetes Environment
+	2.1 
+		Installing and Configuring TKG - 
+			Prerequisites and System Requirements - 
+			Deployment Options (Management Cluster, Standalone Clusters) - 
+			Configuring Networking and Storage
+			
+			
+	2.2 Using Tanzu CLI (kubectl) - Interacting with Kubernetes Clusters - Basic kubectl Commands
+	
+	
+	
+III. Managing Kubernetes Resources
+---------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+	3.1 Pods - Creating and Deploying Pods - Pod Lifecycle and Health Checks - Configuring Pod Networking and Storage
+---------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+	3.2 Deployments - Managing ReplicaSets and Rollouts - Scaling Deployments - Updating and Rolling Back Deployments
+---------------------------------------------------------------------------------------------------
+
+advanced tanzu scaling 
+	https://www.youtube.com/watch?v=Yy_N5GM7yPo
+---------------------------------------------------------------------------------------------------	
+	3.3 Services - Exposing Applications within and outside the Cluster - Service Types (ClusterIP, NodePort, LoadBalancer) - Ingress Controllers
+---------------------------------------------------------------------------------------------------
+https://www.youtube.com/watch?v=zkf6Q-QMn9c
+
+---------------------------------------------------------------------------------------------------	
+	3.4 Other Kubernetes Resources - ConfigMaps and Secrets - DaemonSets, Jobs, and CronJobs - Persistent Volumes and Persistent Volume Claims
+---------------------------------------------------------------------------------------------------
+
+https://www.youtube.com/watch?v=XNt-1t8Qkj4
+
+
+Tanzu Kubernetes and Persistent Storage
+Yes, Tanzu Kubernetes Grid (TKGI) supports persistent storage. It leverages the underlying infrastructure's storage capabilities to provide persistent volumes to Kubernetes pods.
+
+Here are the primary methods for persistent storage in TKGI:
+
+1. vSphere Storage:
+vSphere Volume Plugin: This plugin allows you to use vSphere volumes as persistent storage for your Kubernetes pods.
+vSphere CSI Driver: This driver provides a more advanced and flexible way to manage persistent storage on vSphere. It offers features like dynamic provisioning, snapshots, and clones.
+2. Cloud Native Storage (CNS):
+CNS is a component of vSphere with Tanzu that manages persistent storage for Kubernetes.
+It provides features like storage classes, volume provisioning, and snapshot management.
+Key Considerations for Persistent Storage in Tanzu Kubernetes:
+StorageClass: A StorageClass defines the storage provisioning parameters, such as storage class name, storage provider, and quality of service (QoS).
+PersistentVolumeClaim (PVC): A PVC requests storage from a StorageClass.
+PersistentVolume (PV): A PV represents an actual storage resource.
+Volume Provisioning: Dynamic provisioning allows Kubernetes to automatically create and attach PVs based on PVC requests.
+To configure persistent storage in TKGI:
+
+Create a StorageClass: Define the storage class with the desired parameters, such as storage provider, access mode, and QoS.
+Create a PersistentVolumeClaim (PVC): Request a specific amount of storage by specifying the StorageClass.
+Mount the PVC to a Pod: Mount the PVC to a pod's container using a volume mount.
+Example:
+
+YAML
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage:
+ 1Gi
+  storageClassName: vsphere-volume
+Use code with caution.
+
+By effectively utilizing these storage options and configuration methods, you can ensure that your stateful applications in Tanzu Kubernetes have persistent storage to store their data, even across pod restarts and node failures.
+
+---------------------------------------------------------------------------------------------------	
+
+IV. Monitoring and Troubleshooting Kubernetes Clusters:
+	4.1 Monitoring Kubernetes Components - Monitoring the Control Plane and Worker Nodes - Logging and Metrics Collection - Using Tanzu Observability
+	---------------------------------------------------------------------------------------------------
+	
+	Tanzu Observability: A Deep Dive into Logging and Metrics
+Tanzu Observability is a comprehensive platform designed to monitor and analyze the performance and health of your applications and infrastructure. It provides robust tools for collecting, storing, and visualizing logs and metrics.
+
+Core Components of Tanzu Observability
+Data Collection:
+
+Agents: Deploy agents on your nodes and applications to collect metrics and logs.
+Integrations: Integrate with various tools and platforms to collect data from different sources.
+Data Processing and Storage:
+
+Time-series Database: Store metrics and events in a high-performance time-series database.
+Log Storage: Store logs in a scalable and searchable format (e.g., Elasticsearch).
+Data Visualization and Analysis:
+
+Dashboards: Create custom dashboards to visualize key metrics and trends.
+Alerting: Set up alerts to notify you of potential issues.
+Anomaly Detection: Automatically identify anomalies in your data.
+Logging with Tanzu Observability
+Centralized Log Management: Collect logs from various sources, including applications, infrastructure, and Kubernetes clusters.
+Log Search and Analysis: Quickly search and analyze logs using powerful query capabilities.
+Log Correlation: Correlate logs with metrics and traces to identify root causes of issues.
+Alerting on Log Events: Set up alerts based on specific log patterns or error messages.
+Metrics Collection with Tanzu Observability
+System Metrics: Monitor system-level metrics like CPU usage, memory utilization, and disk I/O.
+Application Metrics: Track application-specific metrics like response time, error rate, and throughput.
+Custom Metrics: Define and collect custom metrics to track specific business objectives.
+Visualization and Alerting: Visualize metrics on dashboards and set up alerts for critical thresholds.
+Best Practices for Effective Logging and Metrics:
+Standardize Logging: Use a consistent logging framework and format.
+Log Meaningful Information: Include relevant context, such as timestamps, error codes, and user IDs.
+Filter and Aggregate Logs: Use filters and aggregations to reduce log volume and improve performance.
+Correlate Logs, Metrics, and Traces: Combine different data sources to gain deeper insights.
+Set Up Effective Alerts: Define alerts for critical issues and use appropriate notification channels.
+Regularly Review and Optimize: Continuously review and optimize your logging and metrics strategy.
+By effectively leveraging Tanzu Observability, you can gain valuable insights into your application's performance and health, identify and resolve issues quickly, and make data-driven decisions.
+	
+---------------------------------------------------------------------------------------------------
+	4.2 Troubleshooting Kubernetes Issues - Common Problems and Solutions - Using kubectl for Debugging - Analyzing Logs and Events
+---------------------------------------------------------------------------------------------------
+
+Understanding the Problem
+Before diving into solutions, it's crucial to understand the root cause of the issue. Here are some common Kubernetes problems and troubleshooting techniques:
+
+1. Pod Failures:
+
+Check Pod Logs: Use kubectl logs <pod-name> -n <namespace> to inspect the pod's logs for error messages.
+Examine Pod Events: Use kubectl describe pod <pod-name> -n <namespace> to view events related to the pod's lifecycle.
+Verify Resource Limits and Requests: Ensure that the pod has sufficient resources (CPU and memory) to function properly.
+Check Network Connectivity: Verify network connectivity between pods and services.
+2. Deployment Failures:
+
+Review Deployment Configuration: Check the deployment YAML for errors in configuration, such as incorrect image names, misconfigured selectors, or missing volume mounts.
+Inspect Deployment Logs: Use kubectl logs -l app=my-app to view logs from the deployment process.
+Check Replica Sets and Pods: Use kubectl get rs, pods to verify the status of replica sets and pods.
+3. Service Connectivity Issues:
+
+Verify Service Endpoint: Use kubectl get svc <service-name> to check the service's IP address and port.
+Check Service Selector: Ensure that the service selector matches the pod labels.
+Test Service Connectivity: Use kubectl exec <pod-name> -it --namespace <namespace> to test connectivity to the service.
+4. Persistent Volume and Storage Issues:
+
+Check PVC Status: Use kubectl describe pvc <pvc-name> to check the PVC's phase and status.
+Inspect PV: Use kubectl describe pv <pv-name> to check the PV's status and bound claim.
+Verify Storage Class: Ensure the StorageClass is configured correctly and has sufficient storage capacity.
+5. Resource Constraints:
+
+Monitor Resource Usage: Use kubectl top pods, nodes to check resource utilization.
+Adjust Resource Limits and Requests: Increase resource limits or requests for pods that are experiencing resource constraints.
+Horizontal Pod Autoscaler (HPA): Use HPA to automatically scale pods based on resource utilization.
+Using kubectl for Debugging
+Getting Pod Logs: kubectl logs <pod-name> -n <namespace>
+Describing a Pod: kubectl describe pod <pod-name> -n <namespace>
+Getting Pod Events: kubectl describe pod <pod-name> -n <namespace>
+Listing Pods: kubectl get pods -n <namespace>
+Getting Services: kubectl get svc -n <namespace>
+Describing a Service: kubectl describe svc <service-name> -n <namespace>
+Getting Nodes: kubectl get nodes
+Describing a Node: kubectl describe node <node-name>
+Getting Deployments: kubectl get deployments -n <namespace>
+Describing a Deployment: kubectl describe deployment <deployment-name> -n <namespace>
+Analyzing Logs and Events in Tanzu Kubernetes
+Use the Tanzu Observability Platform: Tanzu Observability provides tools for centralized log management, monitoring, and alerting.
+Check Kubernetes Control Plane Logs: Examine logs from components like etcd, kube-apiserver, and kube-controller-manager.
+Analyze Pod Logs: Use kubectl logs to inspect pod logs for errors and warnings.
+Review Event Logs: Use kubectl describe pod to view events related to pods.
+Use a Logging Aggregation Tool: Tools like Elasticsearch, Logstash, and Kibana can be used to collect and analyze logs from multiple sources.
+By understanding these common issues and troubleshooting techniques, you can efficiently diagnose and resolve Kubernetes problems. Remember to always refer to the official Kubernetes documentation and community resources for the latest best practices.
+
+---------------------------------------------------------------------------------------------------	
+V. Tanzu-Specific Features and Enhancements
+	5.1 Tanzu Mission Control - Centralized Management of Kubernetes Clusters - Policy Enforcement and Compliance
+---------------------------------------------------------------------------------------------------
+
+https://www.youtube.com/watch?v=cYBwEfsFgZ8&pp=ygVpVGFuenUgTWlzc2lvbiBDb250cm9sIC0gQ2VudHJhbGl6ZWQgTWFuYWdlbWVudCBvZiBLdWJlcm5ldGVzIENsdXN0ZXJzIC0gUG9saWN5IEVuZm9yY2VtZW50IGFuZCBDb21wbGlhbmNl
+
+
+https://vstellar.com/2023/08/tanzu-mission-control-self-managed-part-1-introduction-architecture/
+https://veducate.co.uk/vmware-tanzu-mission-control-getting-started/
+https://docs.vmware.com/en/VMware-Tanzu-Mission-Control/1.4/tanzumc-sm-install/install-tmc-sm.html
+
+
+https://www.outofmemory.info/tanzu/tmc/tmcsm/tmcsm-installation-part-6/
+---------------------------------------------------------------------------------------------------	
+	5.2 Tanzu Application Catalog - Deploying and Managing Applications in Kubernetes - Building Custom Application Catalogs
+---------------------------------------------------------------------------------------------------
+
+https://www.youtube.com/watch?v=3Plg0-kHEaA
+
+---------------------------------------------------------------------------------------------------	
+	5.3 Tanzu Service Mesh - Enabling Secure Communication and Traffic Management - Observability and Troubleshooting with Service Mesh
+---------------------------------------------------------------------------------------------------
+
+https://www.youtube.com/watch?v=LwjgPd8-O0I
+https://docs.vmware.com/en/VMware-Tanzu-Service-Mesh/services/concepts-guide/GUID-B1ECC858-5D43-425E-ACC9-08561FACE9EB.html
+
+https://www.youtube.com/watch?v=XnKZKVU9aX8
+---------------------------------------------------------------------------------------------------	
+VI. Best Practices for Kubernetes Operations
+---------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+	6.1 Security Best Practices - Role-Based Access Control (RBAC) - Pod Security Policies (PSPs) - Network Security
+---------------------------------------------------------------------------------------------------
+https://www.youtube.com/watch?v=3Plg0-kHEaA&t=7s
+
+PSP: https://www.youtube.com/watch?v=LwGS5emPGwo&t=195s
+	psp deprecated.
+---------------------------------------------------------------------------------------------------	
+	6.2 Operational Best Practices - Resource Management and Optimization - Backup and Recovery - Disaster Recovery
+---------------------------------------------------------------------------------------------------
+
+https://www.youtube.com/watch?v=kLHx-Mm5U7Q
+---------------------------------------------------------------------------------------------------	
+VII. Hands-On Labs and Exercises
+	7.1 Deploying a Sample Application on TKG 7.2 Monitoring and Troubleshooting a Kubernetes Cluster 7.3 Implementing Security Best Practices in Tanzu
+---------------------------------------------------------------------------------------------------
+
+https://www.youtube.com/watch?v=sbN7LKuEy1U
+---------------------------------------------------------------------------------------------------	
+VIII. Certification Preparation
+	8.1 VMware Certified Professional - Tanzu for Kubernetes Operations - Exam Objectives and Preparation Resources - Tips for Success
+	
+	
+	
+	

@@ -1,0 +1,78 @@
+  1  hostnamectl set-hostname kworker
+    2  cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+    3  overlay
+    4  br_netfilter
+    5  EOF
+    6  sudo modprobe overlay
+    7  sudo modprobe br_netfilter
+    8  cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+    9  net.bridge.bridge-nf-call-iptables  = 1
+   10  net.bridge.bridge-nf-call-ip6tables = 1
+   11  net.ipv4.ip_forward                 = 1
+   12  EOF
+   13  sudo sysctl --system
+   14  lsmod | grep br_netfilter
+   15  lsmod | grep overlay
+
+Install containerd    
+   16  vi /etc/containerd/config.toml
+   
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+  [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+    SystemdCgroup = true   
+   
+   17  systemctl restart containerd
+   18  sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+   19  sudo swapoff -a
+   20  sudo setenforce 0
+   21  sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+   22  cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+   23  [kubernetes]
+   24  name=Kubernetes
+   25  baseurl=https://pkgs.k8s.io/core:/stable:/v1.26/rpm/
+   26  enabled=1
+   27  gpgcheck=1
+   28  gpgkey=https://pkgs.k8s.io/core:/stable:/v1.26/rpm/repodata/repomd.xml.key
+   29  exclude=kubelet kubeadm kubectl cri-tools kubernetes-cni
+   30  EOF
+   31  sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+   32  sudo systemctl enable --now kubelet
+   33  sudo apt-get update
+   34  # apt-transport-https may be a dummy package; if so, you can skip that package
+   35  sudo apt-get install -y apt-transport-https ca-certificates curl
+   36  curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.26/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+   37  cd /etc/apt/sources.list.d/kubernetes.list
+   38  cd /etc/apt/sources.list.d/
+   39  ls
+   40  rm -rf kubernetes.list
+   41  sudo apt-get update
+   42  # apt-transport-https may be a dummy package; if so, you can skip that package
+   43  sudo apt-get install -y apt-transport-https ca-certificates curlcurl -fsSL https://pkgs.k8s.io/core:/stable:/v1.26/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+   44  echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.26/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+   45  sudo apt-get update
+   46  sudo apt-get install -y kubelet kubeadm kubectl
+   47  sudo apt-mark hold kubelet kubeadm kubectl
+   48  kubeadm version
+   49  kubectl version
+   50  # Add Docker's official GPG key:
+   51  sudo apt-get update
+   52  sudo apt-get install ca-certificates curl
+   53  sudo install -m 0755 -d /etc/apt/keyrings
+   54  sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+   55  sudo chmod a+r /etc/apt/keyrings/docker.asc
+   56  # Add the repository to Apt sources:
+   57  echo   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+   58    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" |   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+   59  sudo apt-get update
+   60  sudo apt-get install  containerd.io
+   61  ls
+   62  cd /etc/containerd/
+   63  ls
+   64  mv * /tmp/
+   65  vi config.toml
+   66  systemctl restart containerd
+   67  sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+   68  sudo swapoff -a
+   69  watch -n 1 kubectl get po -n kube-system
+   70  ip a
+   71  history

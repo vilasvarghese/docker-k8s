@@ -1,0 +1,241 @@
+Reference: https://github.com/benstitou/kubernetes-spring-mysql-demo
+
+application.yml
+
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:mysql://${DB_SERVER:localhost}:${DB_PORT:3306}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
+		
+		
+dockerfile
+-----------
+FROM adoptopenjdk/openjdk11:jdk-11.0.2.9-slim
+WORKDIR /opt
+ENV PORT 8080
+EXPOSE 8080
+COPY target/*.jar /opt/app.jar
+ENTRYPOINT exec java $JAVA_OPTS -jar app.jar
+
+
+
+docker build -t <YOUR_DOCKER_USERNAME>/kubernetes-spring-mysql-demo:1.0 .
+docker push -t <YOUR_DOCKER_USERNAME>/kubernetes-spring-mysql-demo:1.0
+
+
+configmap
+---------
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config-map
+data:
+  mysql-server: demo-app-mysql    # The name of mysql service
+  mysql-database-name: demoDb     # The name of the database used by the demo app
+  mysql-user-username: myUser     # A new created user for the demo app 
+  
+  
+
+kubectl apply -f mysql-configmap.yaml
+
+
+secrets.yaml 
+
+apiVersion: v1
+kind: Secret
+metadata:
+    name: mysql-pass
+type: Opaque
+data:
+    mysql-root-password: cm9vdHBhc3N3b3Jk       ## rootpassword
+    mysql-user-password: dXNlcnBhc3N3b3Jk       ## userpassword  
+	
+echo -n '<YOUR_NEW_PASSWORD>' | base64
+
+
+kubectl apply -f secrets.yaml	
+
+
+mysql-deployment.yaml
+---------------------
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-app-mysql
+  labels:
+    app: demo-app
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: demo-app
+    tier: mysql
+  clusterIP: None
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  labels:
+    app: demo-app
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-app-mysql
+  labels:
+    app: demo-app
+spec:
+  selector:
+    matchLabels:
+      app: demo-app
+      tier: mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: demo-app
+        tier: mysql
+    spec:
+      containers:
+      - image: mysql:5.6
+        name: mysql
+        env:
+        - name: MYSQL_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: mysql-config-map
+              key: mysql-database-name
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+              key: mysql-root-password
+        - name: MYSQL_USER
+          valueFrom:
+            configMapKeyRef:
+              name: mysql-config-map
+              key: mysql-user-username
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+              key: mysql-user-password
+        livenessProbe:
+          tcpSocket:
+            port: 3306
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-pvc
+		  
+		  
+kubectl apply -f mysql-deployment.yaml
+
+
+kubectl get all
+
+
+kubectl exec -it deploy/demo-app-mysql -- /bin/bash
+
+mysql --user=$MYSQL_USER --password=$MYSQL_PASSWORD
+
+
+app-deployment.yaml
+-------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-app-spring
+  labels:
+    app: demo-app-spring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-app-spring
+  template:
+    metadata:
+      labels:
+        app: demo-app-spring
+    spec:
+      containers:
+      - name: demo-app-spring
+        image: <YOUR_DOCKER_USERNAME>/kubernetes-spring-mysql-demo:1.0
+        imagePullPolicy: IfNotPresent
+        ports:
+          - name: http
+            containerPort: 8080
+        resources:
+          limits:
+            cpu: 0.2
+            memory: "200Mi"
+        env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+              key: mysql-user-password
+        - name: DB_SERVER
+          valueFrom:
+            configMapKeyRef:
+              name:  mysql-config-map
+              key: mysql-server
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name:  mysql-config-map
+              key: mysql-database-name
+        - name: DB_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: mysql-config-map
+              key: mysql-user-username
+      imagePullSecrets:
+        - name: regcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-app-spring
+  labels:
+    app: demo-app-spring
+spec:
+  type: LoadBalancer
+  selector:
+    app: demo-app-spring
+  ports:
+  - protocol: TCP
+    name: http
+    port: 8080
+    targetPort: 8080
+    nodePort: 30000
+	
+ kubectl apply -f app-deployment.yaml
+
+ 
+		  

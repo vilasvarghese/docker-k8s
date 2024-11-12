@@ -366,6 +366,57 @@ Section 3: Getting Started with OpenShift
 -----------------------------------------------------------------------------------------------------
 	Installing OpenShift
 -----------------------------------------------------------------------------------------------------
+Different options 
+	Local Installation 
+		linux only supported 
+			no 
+				mac 
+				win
+		Resource requirement 
+			RAM: 9 GB
+			Storage: 35 GB
+			cVCPU: 4 
+			
+	Openshift developer sandbox 
+		Hosted installation of dev. sandbox 4 
+		Low resource requirements 
+		Compatible with most os 
+		only 30 days support 
+		Simpler installation 
+
+
+				
+		Red hat account setup 
+			https://developers.redhat.com/developer-sandbox
+	
+		Install oc on linux
+			https://docs.okd.io/4.13/cli_reference/openshift_cli/getting-started-cli.html
+			scroll down to see instal oc on other os
+			Reference: https://www.udemy.com/course/openshift-for-developers/learn/lecture/28232210#overview
+			
+	install openshift usign crc 	
+			https://www.youtube.com/watch?v=655jwHpIyMM
+	install openshift on aws 
+		https://www.youtube.com/watch?v=z3bX_vfe3_M&t=972s
+
+	https://267092042432.signin.aws.amazon.com/console
+		ocp 
+			my old mail pwd + 1 
+			AKIAT4L7NELAEX3C4IMY/UX90mJCH9W1gw7uEIa+rhzbS3Pxldj7HXvF+vo85
+		create bastion host 
+			micro + ec2 
+			
+		Create user 
+			oc 
+			command line access 
+				Admin access 
+			
+		Created needed tools 	
+			
+
+Getting stated
+	https://docs.redhat.com/en/documentation/red_hat_openshift_local/2.40
+
 -----------------------------------------------------------------------------------------------------
 	Setting up a local cluster
 -----------------------------------------------------------------------------------------------------
@@ -714,3 +765,8 @@ Scan
 	Azure 
 		Data Factory
 		
+		
+		
+https://github.com/ryanhay/ocp4-metal-install		
+
+

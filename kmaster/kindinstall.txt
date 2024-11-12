@@ -7,10 +7,8 @@ systemctl enable docker
 
 	kind install
 	------------
-https://kind.sigs.k8s.io/docs/user/quick-start/
-curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.14.0/kind-linux-amd64
-mv ./kind /usr/lib/kind
-chmod +x /usr/lib/kind
+	
+Refer: https://kind.sigs.k8s.io/docs/user/quick-start/
 
 	create k8s cluster
 	------------------
@@ -24,13 +22,14 @@ https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html
 		https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html
 
 curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.24.17/2024-07-12/bin/linux/amd64/kubectl
+or https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html
 
 mv kubectl /usr/bin/kubectl
 chmod +x /usr/bin/kubectl
 kubectl get pod
 
 kind get clusters
-kubectl cluster-info --context kind-kind
+kubectl cluster-info --context kind-kind	#kubectl cluster-info --context kind-kcluster
 kubectl get nodes
 kubectl run nginx --image=nginx
 kubectl get pod
