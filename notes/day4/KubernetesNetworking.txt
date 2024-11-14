@@ -4,7 +4,25 @@
 ##########################################################################################################
 References: 
 https://sookocheff.com/post/kubernetes/understanding-kubernetes-networking-model/
+Kubernetes documentation 
 
+
+There are 4 distinct networking problems to address:
+	Highly-coupled container-to-container communications: 
+		solved by Pods and localhost communications.
+	Pod-to-Pod communications: 
+	Pod-to-Service communications: 
+	External-to-Service communications: 
+
+
+Kubernetes clusters require to allocate non-overlapping IP addresses for Pods, Services and Nodes, from a range of available addresses configured in the following components:
+
+	The network plugin is configured to assign IP addresses to Pods.
+	The kube-apiserver is configured to assign IP addresses to Services.
+	The kubelet or the cloud-controller-manager is configured to assign IP addresses/cidr to Nodes.
+			
+			
+			
 			
 			
 			Written in 2018
@@ -945,3 +963,261 @@ In summary, while
 		service load balancing, 
 		the specific mechanism it uses 
 			(whether iptables or IPVS) depends on the proxy mode configured for your cluster.
+			
+
+##############################################################################################################################
+			MORE DETAILED ANALYSIS
+
+#############################################################################################################################
+			
+			
+https://kubernetes.io/docs/concepts/services-networking/service/#externalname
+https://kubernetes.io/docs/reference/networking/virtual-ips/
+https://kubernetes.io/docs/concepts/services-networking/service/
+https://kubernetes.io/docs/tutorials/services/connect-applications-service/
+
+
+
+Kubernetes Services Explained
+
+
+What is a Service?
+
+	A Service 
+		abstraction 
+			helps expose a group of Pods running on your cluster. 
+		single, 
+		consistent way to 
+			access those Pods, 
+			even if the Pods are 
+				created or 
+				destroyed, or 
+				their IP addresses change. 
+		This is essential for building applications that are scalable and resilient.
+
+Why are Services Needed?
+
+	Dynamic Pods: 
+		Pods 
+			are ephemeral, 
+			difficult to keep track of their IP addresses and access them directly.
+	Scalability: 
+		multiple service instances running at the same time. 
+		Services 
+			distribute traffic across these instances 
+			without needing to modify your application code.
+How Services Work
+
+	Define a Service: You define a Service object in the Kubernetes API. This object specifies:
+
+	Selector: 
+		A label selector that identifies the Pods that belong to the Service.
+	Ports: 
+		The ports that the Service exposes.
+	Type: 
+		The type of Service (e.g., ClusterIP, NodePort, LoadBalancer, ExternalName).
+	Service Discovery: 
+		Kubernetes keeps track of the Pods that match the selector in the Service. It uses different mechanisms for service discovery depending on the type of Service:
+
+	ClusterIP: 
+		The Service is assigned an internal IP address within the cluster. Pods can access the Service using this IP address.
+	NodePort: 
+		The Service is exposed on a port on each node in the cluster. You can access the Service from outside the cluster by connecting to any node's IP address and the assigned port.
+	LoadBalancer: 
+		Kubernetes provisions a load balancer (provided by your cloud provider) that routes traffic to the Pods in the Service.
+	ExternalName: 
+		The Service maps to an external resource by its name (e.g., a hostname).
+	Traffic Routing: 
+		When a client tries to access the Service, Kubernetes routes the traffic to one of the Pods that match the selector. The specific routing mechanism depends on the type of Service:
+
+	ClusterIP and NodePort: 
+		Kubernetes uses kube-proxy, a network proxy running on each node, to route traffic to the Pods.
+	LoadBalancer: 
+		The cloud provider's load balancer routes traffic to the Pods.
+Types of Services
+
+	ClusterIP (default): 
+		Service is only accessible from within the cluster.
+	NodePort: 
+		Service is exposed on a port on each node in the cluster.
+	LoadBalancer: 
+		Exposes the Service externally using an external load balancer.
+	ExternalName: 
+		Maps the Service to an external resource by its name.
+Choosing the Right Service Type
+--------------------------------
+	The type of Service you choose depends on your application's requirements. Here's a general guideline:
+
+		Use ClusterIP for services that only need to be accessed from within the cluster.
+		Use NodePort if you need to expose your service to the outside world, but don't need a full-fledged load balancer.
+		Use LoadBalancer if you need a highly available and scalable way to expose your service to the outside world.
+		Use ExternalName if you want to map a service to an external resource.
+
+Additional Considerations
+
+	Headless Services: 
+		Services can be configured without a cluster IP address. This is useful for scenarios where you want to directly access Pods by their names.
+	Custom Endpoints: You can define custom endpoints for Services to expose resources that are not Pods running in the cluster.
+
+Connect applications running in containers within a Kubernetes cluster and expose them to external services.
+
+Key Points:
+
+	Pods: 
+		Individual container instances with their own IP address. They can communicate with other pods on the same network.
+	Services: 
+		Abstractions that define a set of pods offering the same functionality. Services have a unique cluster IP address that remains stable even if individual pods are recreated.
+	Endpoints: 
+		Represent the actual pods backing a Service. 
+		They are dynamically updated based on the Service's selector (a label query).
+	Environment Variables & DNS: 
+		Pods can discover Services through environment variables or DNS (if the CoreDNS cluster addon is running).
+
+Additional points:
+
+The document explains how to configure environment variables and DNS for Service discovery within pods.
+It also details how to create a secure Nginx service with a self-signed certificate and a config map.
+
+
+
+Key Concepts:
+
+	Pods: 
+		A Pod is a group of one or more containers that share storage and network resources.
+	Services: 
+		A Service is an abstraction that defines a logical set of Pods and a policy by which to access them. Services provide a stable network address for Pods that can change as Pods are created or deleted.  
+	Selectors: 
+		A label selector is used in both Services and Deployments to identify Pods that should be part of a Service or managed by a Deployment.
+	Endpoints: 
+		Kubernetes object 
+		stores information about a Service's current endpoints. 
+		They are automatically created and managed by Kubernetes.
+Creating a Service:
+
+	Pods: 
+		The document starts with creating a deployment with two replicas running Nginx container. Each Pod receives a cluster-private IP address. You can access these Pods from any other Pod or node using the assigned IP address.
+	Service Definition: 
+		A Service is created using kubectl expose command. This creates a Service object with a unique cluster IP address and a selector that matches the Pods you want to expose. The Service definition also specifies the target port on the Pods that the Service will route traffic to.
+	Accessing the Service: 
+		two primary ways to find a Service within the cluster:
+			Environment Variables: 
+				Kubernetes automatically adds a set of environment variables for each active Service to the environment of running Pods.
+			DNS: 
+				If the CoreDNS cluster addon is running, Kubernetes assigns DNS names to Services. Pods can then use standard methods to discover and communicate with Services.
+	Securing the Service
+
+Before exposing the Service to the internet, it's recommended to secure the communication channel using HTTPS. This involves:
+
+	Creating a self-signed certificate or using an existing identity certificate.
+	Configuring the Nginx server to use the certificates.
+	Creating a Kubernetes Secret to store the certificates securely and make them accessible to Pods.
+Additional Points:
+
+	The document showcases scaling the deployment (changing the number of replicas) and demonstrates how environment variables for the Service are updated accordingly.
+	It highlights the difference between using environment variables and DNS for Service discovery.
+
+
+
+Ingress
+=======
+Ingress in Kubernetes
+	Ingress is a Kubernetes resource that exposes 
+		HTTP and 
+		HTTPS 
+			routes from outside the cluster to services within the cluster. 
+	single entry point for 
+		external traffic, 
+		routing requests to the 
+			appropriate backend services 
+			based on predefined rules.
+
+Here's a breakdown of the key points:
+
+	Purpose: Manages external access to services in a Kubernetes cluster, typically HTTP traffic.
+Benefits:
+	Simplifies external access management.
+	Enables features like 
+		load balancing, 
+		SSL termination, and 
+		name-based virtual hosting.
+	Requirements:
+		An Ingress controller running in the cluster to fulfill the Ingress configuration.
+		Services defined within the cluster that handle the incoming traffic.
+Ingress Resource
+An Ingress resource is a YAML file defining how to route traffic. It consists of:
+
+	rules: Define how to match incoming requests and route them to backend services. Each rule specifies:
+	Optional host (e.g., foo.bar.com) - for hostname-based routing.
+	Paths (e.g., /path1, /path2) - URL paths to match.
+	Backend service: The service to send traffic to if the rule matches.
+	defaultBackend (optional): Defines the default service to handle requests that don't match any rule in the spec.rules.
+	ingressClassName (optional): References an IngressClass resource that specifies the Ingress controller to use.
+	tls (optional): Configures TLS termination for secure communication (HTTPS).
+Ingress Controllers
+	Ingress controllers are responsible for implementing the Ingress configuration. They typically use a load balancer or reverse proxy to route traffic to backend services based on the defined rules. Popular Ingress controllers include:
+
+NGINX Ingress Controller
+
+Ingress Classes (introduced in Kubernetes 1.18):
+
+Allow specifying additional configuration for different Ingress controller implementations.
+Define the Ingress controller to use for an Ingress resource through the ingressClassName field.
+Key Concepts
+Path Types:
+	Exact: Matches the URL path exactly and with case sensitivity.
+	Prefix: Matches based on a URL path prefix, split by "/".
+	ImplementationSpecific: Matching behavior is up to the Ingress controller.
+Hostname Wildcards:
+	Use *.example.com to match any subdomain of "example.com".
+	Load Balancing:
+	Ingress controllers implement load balancing policies to distribute traffic across backend services.
+	TLS Termination:
+	Ingress can be configured with a TLS secret for secure communication (HTTPS).
+Updating an Ingress
+	To update an existing Ingress configuration, edit the resource YAML file and apply the changes using kubectl apply -f or kubectl replace -f. The Ingress controller will then reconfigure the load balancer based on the updated rules.
+
+
+
+EndpointSlices
+==============
+
+EndpointSlices 
+	newer, 
+	more scalable way to manage network endpoints for Services in Kubernetes compared to the older Endpoints API. They address the limitations of Endpoints, especially when dealing with large clusters and many backend Pods.
+
+Key Points:
+
+	Function: Track nework endpoints for Services.
+Benefits:
+	Improved scalability for large clusters and many endpoints.
+	Enables features like dual-stack networking and topology-aware routing.
+	Management:
+	Created and managed by the control plane (endpoint slice controller) by default.
+	Owned by the Service they track endpoints for.
+	Labeled with endpointslice.kubernetes.io/managed-by to identify the managing entity.
+Structure:
+	Group network endpoints by Service name, port number, and protocol.
+	Contain up to 100 endpoints (configurable).
+	Support IPv4, IPv6, and FQDN addresses.
+	Include conditions like ready, serving, and terminating for endpoints.
+	May contain topology information (node and zone) for each endpoint.
+Distribution:
+	Control plane tries to fill existing slices before creating new ones.
+	Endpoints might be duplicated across slices temporarily due to changes arriving at different times.
+	Clients need to iterate through all slices and deduplicate endpoints for a Service.
+Comparison with Endpoints:
+
+	EndpointSlices offer significant scalability improvements by splitting endpoints into smaller resources.
+	Endpoints became a bottleneck for large Services with frequent updates due to their size and update traffic.
+Additional Resources:
+
+Kubernetes documentation on EndpointSlices: 
+
+https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/
+
+
+
+Other topics not considered 
+	https://kubernetes.io/docs/tasks/access-application-cluster/connecting-frontend-backend/
+	https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/
+	https://kubernetes.io/docs/concepts/services-networking/gateway/

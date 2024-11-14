@@ -135,7 +135,7 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 21. 
 Execute the join command retrieved from the init command on the worker node.
 
-22. Add calico network plugin 
+22. Add calico network plugin
 kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
 kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
 kubectl create -f https://docs.projectcalico.org/manifests/custom-resources.yaml
