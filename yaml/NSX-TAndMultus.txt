@@ -291,7 +291,11 @@ By understanding these concepts, you can effectively leverage Multus to create c
 
 
 
-
+Feature	VLAN	VXLAN	SR-IOV
+Network Layer	Layer 2	Layer 2 over Layer 3	Layer 2
+Scope	Local network	Wide-area network	Single physical adapter
+Implementation	Software	Software	Hardware
+Use Cases	Segmenting networks, security	Extending Layer 2 networks over Layer 3, data center virtualization	Improving network performance for virtual machines
 
 
 
