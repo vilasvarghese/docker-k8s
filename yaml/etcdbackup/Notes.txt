@@ -33,17 +33,26 @@ etcdctl \
 		
 		
 1. /etc/kubernetes/pki/etcd/ca.crt - Certificate Authority (CA) Certificate
-	What it is: This is the Certificate Authority (CA) certificate used to sign other certificates in the etcd cluster. The CA acts as the trusted entity that validates the authenticity of certificates.
-	Purpose: It is used to verify the identity of the client or server certificates that were issued by this CA. In the etcd context, it ensures that any entity (server or client) presenting a certificate signed by this CA is trusted.
-	Use Case: The CA certificate is distributed to both etcd clients and servers to validate the trust chain of certificates during mutual TLS (mTLS) authentication.
+	What it is: 
+		This is the Certificate Authority (CA) certificate used to sign other certificates in the etcd cluster. The CA acts as the trusted entity that validates the authenticity of certificates.
+	Purpose: 
+		It is used to verify the identity of the client or server certificates that were issued by this CA. In the etcd context, it ensures that any entity (server or client) presenting a certificate signed by this CA is trusted.
+	Use Case: 
+		The CA certificate is distributed to both etcd clients and servers to validate the trust chain of certificates during mutual TLS (mTLS) authentication.
 2. /etc/kubernetes/pki/etcd/server.crt - etcd Server Certificate
-	What it is: This is the server certificate for the etcd service, signed by the CA (from ca.crt).
-	Purpose: It is used by the etcd server to prove its identity to etcd clients (such as the Kubernetes API server). This ensures that the client is communicating with a legitimate etcd server and not an imposter.
-	Use Case: During a secure (TLS) communication session, the etcd server presents this certificate to the client (e.g., the Kubernetes API server) to establish trust. The client checks if this certificate is signed by the trusted CA (from ca.crt).
+	What it is: 
+		This is the server certificate for the etcd service, signed by the CA (from ca.crt).
+	Purpose: 
+		It is used by the etcd server to prove its identity to etcd clients (such as the Kubernetes API server). This ensures that the client is communicating with a legitimate etcd server and not an imposter.
+	Use Case: 
+		During a secure (TLS) communication session, the etcd server presents this certificate to the client (e.g., the Kubernetes API server) to establish trust. The client checks if this certificate is signed by the trusted CA (from ca.crt).
 3. /etc/kubernetes/pki/etcd/server.key - etcd Server Private Key
-	What it is: This is the private key corresponding to the server.crt certificate.
-	Purpose: The private key is used by the etcd server to encrypt the communication and sign messages securely. Only the entity that holds the private key can decrypt messages encrypted with its public key (present in server.crt).
-	Use Case: This key is never shared and is used to authenticate and secure communication between the etcd server and clients. When a client connects to the etcd server, the server uses this private key to decrypt the data and prove that it is the rightful owner of the server.crt.
+	What it is: 
+		This is the private key corresponding to the server.crt certificate.
+	Purpose: 
+		The private key is used by the etcd server to encrypt the communication and sign messages securely. Only the entity that holds the private key can decrypt messages encrypted with its public key (present in server.crt).
+	Use Case: 
+		This key is never shared and is used to authenticate and secure communication between the etcd server and clients. When a client connects to the etcd server, the server uses this private key to decrypt the data and prove that it is the rightful owner of the server.crt.
 Summary of Roles:
 	CA Certificate (ca.crt): The trusted root that signs and validates certificates.
 	Server Certificate (server.crt): The certificate used by the etcd server to establish trust with clients.
@@ -96,6 +105,9 @@ ETCDCTL_API=3 etcdctl --endpoints=https://[127.0.0.1]:2379 --cacert=/etc/kuberne
 	ETCDCTL_API=3 etcdctl snapshot restore /tmp/snapshot.db --endpoints=https://127.0.0.1:2379 --name=master --data-dir=/var/lib/etcd-backup --initial-cluster=master=https://127.0.0.1:2380 --initial-cluster-token=etcd-cluster-1 --initial-advertise-peer-urls=https://127.0.0.1:2380 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key 
 
 
+	ETCDCTL_API=3 etcdctl --data-dir=/var/lib/etcd-backup  snapshot restore /tmp/snapshot.db 
+	
+	Modify the data-dir in etcd.yml 
 
 Restore
 5. Restore	refer configuration from /etc/kubernetes/manifests/etcd.yaml and
