@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy war app to Azure Web App - vilaswebapp
+name: Build and deploy WAR app to Azure Web App - vilaswebapp
 
 on:
   push:
@@ -49,5 +49,5 @@ jobs:
         with:
           app-name: 'vilaswebapp'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_37FF4204C5B2445887BBC30341ADB1F6 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_540961B462A84C3F95FDDE43E19FD1D7 }}
           package: '*.war'
