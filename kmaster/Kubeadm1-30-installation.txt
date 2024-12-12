@@ -5,3 +5,137 @@ used kubernetes documentation
 		to install kubeadm installation 
 		
 https://devopscube.com/setup-kubernetes-cluster-kubeadm/
+
+
+
+On master node 
+
+    1  hostnamectl set-hostname kmaster
+    2  hostname
+    3  cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+       overlay
+       br_netfilter
+       EOF
+    7  sudo modprobe overlay
+    8  sudo modprobe br_netfilter
+    9  cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+	   net.bridge.bridge-nf-call-iptables  = 1
+       net.bridge.bridge-nf-call-ip6tables = 1
+       net.ipv4.ip_forward                 = 1
+       EOF
+   14  # Apply sysctl params without reboot
+   15  sudo sysctl --system
+   16  sudo swapoff -a
+   17  (crontab -l 2>/dev/null; echo "@reboot /sbin/swapoff -a") | crontab - || true
+   18  hostname
+   19  sudo apt-get update -y
+   20  sudo apt-get install -y software-properties-common gpg curl apt-transport-https ca-certificates
+   21  curl -fsSL https://pkgs.k8s.io/addons:/cri-o:/prerelease:/main/deb/Release.key |     gpg --dearmor -o /etc/apt/keyrings/cri-o-apt-keyring.gpg
+   22  echo "deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://pkgs.k8s.io/addons:/cri-o:/prerelease:/main/deb/ /" |     tee /etc/apt/sources.list.d/cri-o.list
+   23  sudo apt-get update -y
+   24  sudo apt-get install -y cri-o
+   25  sudo systemctl daemon-reload
+   26  sudo systemctl enable crio --now
+   27  sudo systemctl start crio.service
+   28  systemctl status crio.service
+   29  clear
+   30  VERSION="v1.30.0"
+   31  wget https://github.com/kubernetes-sigs/cri-tools/releases/download/$VERSION/crictl-$VERSION-linux-amd64.tar.gz
+   32  sudo tar zxvf crictl-$VERSION-linux-amd64.tar.gz -C /usr/local/bin
+   33  rm -f crictl-$VERSION-linux-amd64.tar.gz
+   34  clear
+   35  crictl get pods
+   36  crictl pods
+   37  KUBERNETES_VERSION=1.30
+   38  sudo mkdir -p /etc/apt/keyrings
+   39  curl -fsSL https://pkgs.k8s.io/core:/stable:/v$KUBERNETES_VERSION/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+   40  echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v$KUBERNETES_VERSION/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+   41  sudo apt-get update -y
+   42  apt-cache madison kubeadm | tac
+   43  sudo apt-get install -y kubelet=1.30.8-1.1 kubectl=1.30.8-1.1 kubeadm=1.30.8-1.1
+   44  sudo apt-mark hold kubelet kubeadm kubectl
+   45  sudo apt-get install -y jq
+   46  local_ip="$(ip --json addr show eth0 | jq -r '.[0].addr_info[] | select(.family == "inet") | .local')"
+   47  cat > /etc/default/kubelet << EOF
+      KUBELET_EXTRA_ARGS=--node-ip=$local_ip
+      EOF
+   50  ip a
+   51  sudo kubeadm init
+   
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+exit
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+   
+   52  kubectl get nodes
+   53  kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+   54  watch -n 1 kubectl get nodes
+   55  watch -n 1 kubectl get pods -n kube-system
+
+kubectl describe node kmaster | grep Taint
+kubectl taint node kmaster node-role.kubernetes.io/control-plane:NoSchedule-
+
+On worker node 
+--------------
+
+    1  hostnamectl set-hostname kworker1
+    2  hostname
+    3  cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+overlay
+br_netfilter
+EOF
+
+    4  sudo modprobe overlay
+    5  sudo modprobe br_netfilter
+    6  cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-iptables  = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward                 = 1
+EOF
+
+    7  # Apply sysctl params without reboot
+    8  sudo sysctl --system
+    9  sudo swapoff -a
+   10  (crontab -l 2>/dev/null; echo "@reboot /sbin/swapoff -a") | crontab - || true
+   11  hostname
+   12  sudo apt-get update -y
+   13  sudo apt-get install -y software-properties-common gpg curl apt-transport-https ca-certificates
+   14  curl -fsSL https://pkgs.k8s.io/addons:/cri-o:/prerelease:/main/deb/Release.key |     gpg --dearmor -o /etc/apt/keyrings/cri-o-apt-keyring.gpg
+   15  echo "deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://pkgs.k8s.io/addons:/cri-o:/prerelease:/main/deb/ /" |     tee /etc/apt/sources.list.d/cri-o.list
+   16  sudo apt-get update -y
+   17  sudo apt-get install -y cri-o
+   18  sudo systemctl daemon-reload
+   19  sudo systemctl enable crio --now
+   20  sudo systemctl start crio.service
+   21  systemctl status crio.service
+   22  clear
+   23  VERSION="v1.30.0"
+   24  wget https://github.com/kubernetes-sigs/cri-tools/releases/download/$VERSION/crictl-$VERSION-linux-amd64.tar.gz
+   25  sudo tar zxvf crictl-$VERSION-linux-amd64.tar.gz -C /usr/local/bin
+   26  rm -f crictl-$VERSION-linux-amd64.tar.gz
+   27  clear
+   28  crictl get pods
+   29  crictl pods
+   30  KUBERNETES_VERSION=1.30
+   31  sudo mkdir -p /etc/apt/keyrings
+   32  curl -fsSL https://pkgs.k8s.io/core:/stable:/v$KUBERNETES_VERSION/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+   33  echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v$KUBERNETES_VERSION/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+   34  sudo apt-get update -y
+   35  apt-cache madison kubeadm | tac
+   36  sudo apt-get install -y kubelet=1.30.8-1.1 kubectl=1.30.8-1.1 kubeadm=1.30.8-1.1
+   37  sudo apt-mark hold kubelet kubeadm kubectl
+   38  sudo apt-get install -y jq
+   39  local_ip="$(ip --json addr show eth0 | jq -r '.[0].addr_info[] | select(.family == "inet") | .local')"
+   40  cat > /etc/default/kubelet << EOF
+KUBELET_EXTRA_ARGS=--node-ip=$local_ip
+EOF
+
+   41  ip a
+   42 Copy paste your join command from the result of "kubeadm init in the master node.
+   Following is just an example for you to see how it looks 
+		
+   kubeadm join 172.31.31.12:6443 --token 5suza8.9dpzcmnyqeuvdh6t         --discovery-token-ca-cert-hash sha256:90a3e15120b625f9d4fef6ec13c6d7cf62f4fc476efb896ce83eab2fef2210b3

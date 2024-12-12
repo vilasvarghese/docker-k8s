@@ -53,7 +53,7 @@ why?
 		that requires lot of system file updates
 		More details: https://dev.to/carminezacc/does-kubernetes-support-selinux-3oop
 
-7. Disable Swap 
+7. Disable Swap
 sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 sudo swapoff -a
 
