@@ -2,7 +2,7 @@
 Run Mysql DB
 
 docker run -d -e MYSQL_ROOT_PASSWORD=admin -v /home/docker/mysql-data:/var/lib/mysql --name mysqlserver mysql
-
+docker run -d -e MYSQL_ROOT_PASSWORD=admin -v /d/code1/mysqlvol:/var/lib/mysql --name mysqlserver mysql
 
 Once you started the Mysql container, connect to the container using docker exec -it <containerid> /bin/bash
 
