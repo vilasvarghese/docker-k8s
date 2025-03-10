@@ -1,0 +1,81 @@
+   
+   this should be done on ubuntu 20.04
+   
+   
+   1 apt-get update
+
+   2 sudo init 0
+
+   3 kubeadm init --apiserver-advertise-address=192.168.147.128 --pod-network-cidr=192.168.0.0/16 -v=10
+
+   4 mkdir -p $HOME/.kube
+
+   5 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+
+   6 sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+   7 export KUBECONFIG=/etc/kubernetes/admin.conf
+
+   8 kubectl get nodes
+
+   9 kubectl apply -f https://docs.projectcalico.org/v3.23/manifests/calico.yaml
+
+  10 kubectl get nodes
+
+  11 sudo init 6
+
+  12 sudo apt-get update
+
+  13 sudo apt-get install docker.io -y
+
+  14 sudo apt install curl
+
+  15 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+
+  16 sudo apt-get install -y apt-transport-https ca-certificates curl gpg
+
+  17 sudo apt-get install gpg
+
+  18 sudo mkdir -p -m 755 /etc/apt/keyrings
+
+  19 echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+  20 curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+  21 sudo apt update
+
+  22 sudo apt install -y kubelet kubeadm kubectl
+
+  23 swapoff -a
+
+  24 sudo nano /usr/lib/systemd/system/kubelet.service.d/10-kubeadm.conf 
+
+  25 kubectl get nodes
+
+  26 swapoff -a
+
+  27 kubectl get nodes
+
+  28 systemctl restart kubelet
+
+  29 kubectl get nodes
+
+  30 sudo nano /etc/fstab 
+
+  31 init 6
+
+  32 kubectl get nodes
+
+  33 init 0
+
+  34 kubectl run nginx --image=nginx
+
+  35 kubectl get pod
+
+  36 kubectl get pod -n kube-system
+
+  37 init 0
+
+  38 kubectl get pod -n kube-system
+
+  39 watch -n 1 kubectl get pod -n kube-system
