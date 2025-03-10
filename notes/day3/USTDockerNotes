@@ -2196,65 +2196,65 @@ Docker security is a multifaceted topic, encompassing various aspects of securin
 
 1. Image Security:
 
-Base Image Selection:
-Use official and trusted base images from reputable sources.
-Prefer minimal base images (e.g., Alpine Linux, distroless images) to reduce the attack surface.
-Avoid using the latest tag; use specific version tags for reproducibility and security.
-Dockerfile Security:
-Minimize the number of layers in your Dockerfile to reduce image size.
-Use the COPY instruction instead of ADD whenever possible.
-Avoid storing sensitive information (e.g., passwords, API keys) in Dockerfiles.
-Use a .dockerignore file to exclude unnecessary files from the build context.
-Follow the principle of least privilege: only install necessary packages.
-Image Scanning:
-Regularly scan Docker images for vulnerabilities using tools like Trivy, Clair, or Snyk.
-Integrate image scanning into your CI/CD pipeline.
-Address identified vulnerabilities promptly.
-Image Signing:
-Sign Docker images using Docker Content Trust to ensure image integrity and authenticity.
-Verify image signatures before deploying containers.
-Multi-Stage Builds:
-Use multi-stage builds to separate the build environment from the runtime environment, resulting in smaller and more secure images.
+	Base Image Selection:
+		Use official and trusted base images from reputable sources.
+		Prefer minimal base images (e.g., Alpine Linux, distroless images) to reduce the attack surface.
+		Avoid using the latest tag; use specific version tags for reproducibility and security.
+	Dockerfile Security:
+		Minimize the number of layers in your Dockerfile to reduce image size.
+		Use the COPY instruction instead of ADD whenever possible.
+		Avoid storing sensitive information (e.g., passwords, API keys) in Dockerfiles.
+		Use a .dockerignore file to exclude unnecessary files from the build context.
+		Follow the principle of least privilege: only install necessary packages.
+	Image Scanning:
+		Regularly scan Docker images for vulnerabilities using tools like Trivy, Clair, or Snyk.
+		Integrate image scanning into your CI/CD pipeline.
+		Address identified vulnerabilities promptly.
+	Image Signing:
+		Sign Docker images using Docker Content Trust to ensure image integrity and authenticity.
+		Verify image signatures before deploying containers.
+	Multi-Stage Builds:
+		Use multi-stage builds to separate the build environment from the runtime environment, resulting in smaller and more secure images.
 2. Container Runtime Security:
 
-Principle of Least Privilege:
-Run containers as non-root users.
-Use Linux capabilities to restrict container privileges.
-Apply AppArmor or SELinux profiles to further restrict container access.
-Resource Limits:
-Set resource limits (CPU, memory, disk I/O) for containers to prevent resource exhaustion and denial-of-service attacks.
-Use the --cpu, --memory, and --blkio-weight flags with docker run.
-Seccomp Profiles:
-Use seccomp profiles to restrict the system calls that a container can make.
-Docker provides default seccomp profiles, or you can create custom profiles.
-Namespaces and Cgroups:
-Docker uses Linux namespaces and cgroups to isolate containers from the host system and each other.
-Ensure that these isolation mechanisms are properly configured.
-Read-Only Root Filesystem:
-Mount the container's root filesystem as read-only to prevent unauthorized modifications.
-Use the --read-only flag with docker run.
-Tmpfs Mounts:
-Use tmpfs mounts for sensitive data to prevent it from being written to disk.
-Update Docker Engine:
-Keep the docker engine updated with the latest security patches.
+	Principle of Least Privilege:
+	Run containers as non-root users.
+	Use Linux capabilities to restrict container privileges.
+	Apply AppArmor or SELinux profiles to further restrict container access.
+	Resource Limits:
+	Set resource limits (CPU, memory, disk I/O) for containers to prevent resource exhaustion and denial-of-service attacks.
+	Use the --cpu, --memory, and --blkio-weight flags with docker run.
+	Seccomp Profiles:
+	Use seccomp profiles to restrict the system calls that a container can make.
+	Docker provides default seccomp profiles, or you can create custom profiles.
+	Namespaces and Cgroups:
+	Docker uses Linux namespaces and cgroups to isolate containers from the host system and each other.
+	Ensure that these isolation mechanisms are properly configured.
+	Read-Only Root Filesystem:
+	Mount the container's root filesystem as read-only to prevent unauthorized modifications.
+	Use the --read-only flag with docker run.
+	Tmpfs Mounts:
+	Use tmpfs mounts for sensitive data to prevent it from being written to disk.
+	Update Docker Engine:
+	Keep the docker engine updated with the latest security patches.
 3. Docker Host Security:
 
-Operating System Security:
-Keep the host operating system updated with the latest security patches.
-Harden the host OS by disabling unnecessary services and ports.
-Use a security-hardened Linux distribution.
-Firewall Rules:
-Configure firewall rules to restrict access to the Docker host and containers.
-Only open necessary ports.
-Access Control:
-Restrict access to the Docker daemon socket (/var/run/docker.sock).
-Use role-based access control (RBAC) to manage user permissions.
-Limit physical access to the host.
-Log Monitoring:
-Monitor Docker logs and system logs for suspicious activity.
-Use a centralized logging system to collect and analyze logs.
-Regular Security Audits:
-Conduct regular security audits of your Docker infrastructure.
+	Operating System Security:
+	Keep the host operating system updated with the latest security patches.
+	Harden the host OS by disabling unnecessary services and ports.
+	Use a security-hardened Linux distribution.
+	Firewall Rules:
+	Configure firewall rules to restrict access to the Docker host and containers.
+	Only open necessary ports.
+	Access Control:
+	Restrict access to the Docker daemon socket (/var/run/docker.sock).
+	Use role-based access control (RBAC) to manage user permissions.
+	Limit physical access to the host.
+	Log Monitoring:
+	Monitor Docker logs and system logs for suspicious activity.
+	Use a centralized logging system to collect and analyze logs.
+	Regular Security Audits:
+	Conduct regular security audits of your Docker infrastructure.
 4. Docker Swarm Security:
 
 Mutual TLS (mTLS):
