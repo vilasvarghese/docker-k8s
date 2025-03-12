@@ -2218,67 +2218,67 @@ Docker security is a multifaceted topic, encompassing various aspects of securin
 2. Container Runtime Security:
 
 	Principle of Least Privilege:
-	Run containers as non-root users.
-	Use Linux capabilities to restrict container privileges.
+		Run containers as non-root users.
+		Use Linux capabilities to restrict container privileges.
 	Apply AppArmor or SELinux profiles to further restrict container access.
 	Resource Limits:
-	Set resource limits (CPU, memory, disk I/O) for containers to prevent resource exhaustion and denial-of-service attacks.
-	Use the --cpu, --memory, and --blkio-weight flags with docker run.
+		Set resource limits (CPU, memory, disk I/O) for containers to prevent resource exhaustion and denial-of-service attacks.
+		Use the --cpu, --memory, and --blkio-weight flags with docker run.
 	Seccomp Profiles:
-	Use seccomp profiles to restrict the system calls that a container can make.
-	Docker provides default seccomp profiles, or you can create custom profiles.
+		Use seccomp profiles to restrict the system calls that a container can make.
+		Docker provides default seccomp profiles, or you can create custom profiles.
 	Namespaces and Cgroups:
-	Docker uses Linux namespaces and cgroups to isolate containers from the host system and each other.
-	Ensure that these isolation mechanisms are properly configured.
+		Docker uses Linux namespaces 	and cgroups to isolate containers from the host system and each other.
+		Ensure that these isolation mechanisms are properly configured.
 	Read-Only Root Filesystem:
-	Mount the container's root filesystem as read-only to prevent unauthorized modifications.
-	Use the --read-only flag with docker run.
+		Mount the container's root filesystem as read-only to prevent unauthorized modifications.
+		Use the --read-only flag with docker run.
 	Tmpfs Mounts:
-	Use tmpfs mounts for sensitive data to prevent it from being written to disk.
+		Use tmpfs mounts for sensitive data to prevent it from being written to disk.
 	Update Docker Engine:
-	Keep the docker engine updated with the latest security patches.
+		Keep the docker engine updated with the latest security patches.
 3. Docker Host Security:
 
 	Operating System Security:
-	Keep the host operating system updated with the latest security patches.
-	Harden the host OS by disabling unnecessary services and ports.
-	Use a security-hardened Linux distribution.
+		Keep the host operating system updated with the latest security patches.
+		Harden the host OS by disabling unnecessary services and ports.
+		Use a security-hardened Linux distribution.
 	Firewall Rules:
-	Configure firewall rules to restrict access to the Docker host and containers.
-	Only open necessary ports.
+		Configure firewall rules to restrict access to the Docker host and containers.
+		Only open necessary ports.
 	Access Control:
-	Restrict access to the Docker daemon socket (/var/run/docker.sock).
-	Use role-based access control (RBAC) to manage user permissions.
-	Limit physical access to the host.
+		Restrict access to the Docker daemon socket (/var/run/docker.sock).
+		Use role-based access control (RBAC) to manage user permissions.
+		Limit physical access to the host.
 	Log Monitoring:
-	Monitor Docker logs and system logs for suspicious activity.
-	Use a centralized logging system to collect and analyze logs.
+		Monitor Docker logs and system logs for suspicious activity.
+		Use a centralized logging system to collect and analyze logs.
 	Regular Security Audits:
-	Conduct regular security audits of your Docker infrastructure.
+		Conduct regular security audits of your Docker infrastructure.
 4. Docker Swarm Security:
 
 Mutual TLS (mTLS):
-Docker Swarm uses mTLS to encrypt communication between nodes.
-Ensure that TLS is properly configured.
+	Docker Swarm uses mTLS to encrypt communication between nodes.
+	Ensure that TLS is properly configured.
 Swarm Locking:
-Enable Swarm locking to encrypt the Raft log and Swarm state.
-Securely store the unlock key.
+	Enable Swarm locking to encrypt the Raft log and Swarm state.
+	Securely store the unlock key.
 Node Security:
-Apply the same security best practices to Swarm nodes as to Docker hosts.
-Secrets Management:
+	Apply the same security best practices to Swarm nodes as to Docker hosts.
+	Secrets Management:
 Use Docker secrets to securely manage sensitive data.
-Avoid storing secrets in environment variables or configuration files.
+	Avoid storing secrets in environment variables or configuration files.
 Network Security:
-Use overlay networks to isolate Swarm services.
-Configure network policies to restrict communication between services.
+	Use overlay networks to isolate Swarm services.
+	Configure network policies to restrict communication between services.
 5. Docker Compose Security:
 
-Secrets and Configs:
-Use Docker secrets and configs in Compose files to manage sensitive data and configuration files.
-Environment Variables:
-Use environment variables in Compose files to avoid hardcoding sensitive data.
-File Permissions:
-Ensure that file permissions are properly set for Compose files and related resources.
+	Secrets and Configs:
+	Use Docker secrets and configs in Compose files to manage sensitive data and configuration files.
+	Environment Variables:
+	Use environment variables in Compose files to avoid hardcoding sensitive data.
+	File Permissions:
+		Ensure that file permissions are properly set for Compose files and related resources.
 6. Security Tools and Best Practices:
 
 Container Runtime Security Tools:
@@ -2354,38 +2354,43 @@ Docker Trusted Registry (DTR):
 	It provided security features like image scanning, vulnerability analysis, and access control.
 	DTR ensured that only trusted and secure images were deployed in production.
 	MCR is now the Mirantis product that delivers this Container Runtime functionality.
-	Security Features:
+Security Features:
 
-Docker EE included various security features, such as:
-	Role-based access control (RBAC) to restrict access to resources.
-	Image scanning to detect vulnerabilities.
-	Secrets management to securely store sensitive data.
-	Mutual TLS (mTLS) for secure communication between nodes.
-Support and Maintenance:
+	Docker EE included various security features, such as:
+		Role-based access control (RBAC) to restrict access to resources.
+		Image scanning to detect vulnerabilities.
+		Secrets management to securely store sensitive data.
+		Mutual TLS (mTLS) for secure communication between nodes.
+	Support and Maintenance:
 
-	Docker EE provided commercial support and maintenance, ensuring that enterprises had access to expert assistance.
-	This was a key differentiator from the open-source Docker Community Edition.
-Integrated Vulnerability Scanning:
+		Docker EE provided commercial support and maintenance, ensuring that enterprises had access to expert assistance.
+		This was a key differentiator from the open-source Docker Community Edition.
+	Integrated Vulnerability Scanning:
 
-	Docker EE had integrated vulnerability scanning into the DTR, and the UCP.
-	This allowed for deep scanning of the images, and the running containers.
-Advanced Networking:
+		Docker EE had integrated vulnerability scanning into the DTR, and the UCP.
+		This allowed for deep scanning of the images, and the running containers.
+	Advanced Networking:
 
-	Enhanced networking capabilities were part of the enterprise version.
-	This included better overlay networking, and more advanced routing.
-Transition to Mirantis Products:
+		Enhanced networking capabilities were part of the enterprise version.
+		This included better overlay networking, and more advanced routing.
+	Transition to Mirantis Products:
 
-Docker Enterprise was acquired by Mirantis, and the product line has evolved.
-Mirantis Kubernetes Engine (MKE):
-This is the evolution of the Kubernetes orchestration components of Docker EE.
-Mirantis Container Runtime (MCR):
-This is the evolution of the Docker Trusted Registry (DTR) and the container runtime components.
+	Docker Enterprise was acquired by Mirantis, and the product line has evolved.
+	Mirantis Kubernetes Engine (MKE):
+		This is the evolution of the Kubernetes orchestration components of Docker EE.
+	Mirantis Container Runtime (MCR):
+		This is the evolution of the Docker Trusted Registry (DTR) and the container runtime components.
+
 Key Differences from Docker Community Edition (CE):
 
-Commercial Support: Docker EE offered commercial support, while CE is community-supported.
-Enterprise Features: Docker EE included enterprise-grade features like UCP, DTR, and advanced security.
-Certification: Docker EE provided a certified and supported platform.
-Cost: Docker EE was a commercial product, while CE is free and open-source.
+Commercial Support: 
+	Docker EE offered commercial support, while CE is community-supported.
+Enterprise Features: 
+	Docker EE included enterprise-grade features like UCP, DTR, and advanced security.
+Certification: 
+	Docker EE provided a certified and supported platform.
+Cost: 
+	Docker EE was a commercial product, while CE is free and open-source.
 In summary:
 
 While Docker EE in its original form is no longer offered, its core concepts and features have been integrated into Mirantis Kubernetes Engine (MKE) and Mirantis Container Runtime (MCR). These tools are designed to provide enterprise-grade container orchestration and management. Understanding the former Docker EE architecture is still very useful for those who work within enterprise containerization.
@@ -2396,7 +2401,8 @@ While Docker EE in its original form is no longer offered, its core concepts and
 	-------------------------------------------------------------------------------------
 	
 	
-	Docker Content Trust (DCT) is a security feature that allows you to verify the integrity and publisher of Docker images. It uses digital signatures to ensure that images haven't been tampered with and that they originate from a trusted source. Here's a signing images and enabling Docker Content Trust:
+Docker Content Trust (DCT) 
+	security feature that allows you to verify the integrity and publisher of Docker images. It uses digital signatures to ensure that images haven't been tampered with and that they originate from a trusted source. Here's a signing images and enabling Docker Content Trust:
 
 Understanding Docker Content Trust (DCT)
 

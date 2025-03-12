@@ -1,0 +1,26 @@
+sudo apt update
+    2  sudo apt install openssh-server
+    3  sudo apt install net-tools
+    4  sudo apt upgrade
+    5  sudo init 0
+    6  clear
+    7  sudo nano /etc/hosts
+    8  sudo swapoff -a 
+   11  sudo init 6
+   12  sudo apt-get update
+   13  sudo apt-get install docker.io -y
+   14  sudo apt install curl
+   15  curl -s https://url.usb.m.mimecastprotect.com/s/QvukC93vr3ckxBARyIEhOUqG_8r?domain=packages.cloud.google.com | sudo apt-key add -
+   16  sudo apt-get install -y apt-transport-https ca-certificates curl gpg
+   17  sudo apt-get install gpg
+   18  sudo mkdir -p -m 755 /etc/apt/keyrings
+   19  echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://url.usb.m.mimecastprotect.com/s/A8pSC0AjRAhG43QJOh2igU9oWI-?domain=pkgs.k8s.io /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+   20  curl -fsSL https://url.usb.m.mimecastprotect.com/s/F7kWCg7WJ7TAN2KPXT3sWU4jFaT?domain=pkgs.k8s.io | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+   21  sudo apt update
+   22  sudo apt install -y kubelet kubeadm kubectl
+   23  kubeadm init --apiserver-advertise-address=192.168.198.128 --pod-network-cidr=https://url.usb.m.mimecastprotect.com/s/TT1rCjAWRAhnAqDlLT1tvUmzZ0L?domain=192.168.0.0 -v=10
+   24  mkdir -p $HOME/.kube
+   25  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+   26  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+   27  export KUBECONFIG=/etc/kubernetes/admin.conf 
+   28  kubectl get nodes

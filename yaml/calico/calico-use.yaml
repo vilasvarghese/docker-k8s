@@ -1,0 +1,9 @@
+kubectl create secret docker-registry regcred \
+  --docker-server=docker.io \
+  --docker-username=<your-dockerhub-username> \
+  --docker-password=<your-dockerhub-password> \
+  --docker-email=<your-dockerhub-email> -n kube-system
+  
+kubectl apply -f calico.yaml 
+#calico got from kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/calico.yaml
+#Modified at line 4600 and 4921

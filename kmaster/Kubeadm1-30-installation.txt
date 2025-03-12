@@ -139,3 +139,7 @@ EOF
    Following is just an example for you to see how it looks 
 		
    kubeadm join 172.31.31.12:6443 --token 5suza8.9dpzcmnyqeuvdh6t         --discovery-token-ca-cert-hash sha256:90a3e15120b625f9d4fef6ec13c6d7cf62f4fc476efb896ce83eab2fef2210b3
+
+
+calico 
+	kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/calico.yaml
