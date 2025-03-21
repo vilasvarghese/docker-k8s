@@ -1,0 +1,82 @@
+pod
+	wait for specific pod to be ready using labels - good for scripting
+	$ kubectl wait --for=condition-ready pod -l foo-bar
+
+list pod status
+$ kubectl -n <namespace> get pods -ojson | jq '.items[].status'
+
+list pods that are not ready
+$ kubectl -n <namespace> get pods -ojson | jq '.items[].status.containerStatuses | select(.[].ready == false) | .metadata.name'
+
+List pods and the nodes that they run on
+$ kubectl get pod -o=custom-colums=NODE:.spec.nodeName,NAME:.metadata.name
+
+List pods sorted by memory usage
+$ kubectl top pods --all-namespaces --sort-by="memory"
+
+List pods that have specific label value
+$ kubectl get pods -l 'label in (foo,bar)'
+
+number of pods running in specific namespace
+$ kubectl -n <namespace> get pods -ojson | jq '. | length'
+
+pod logs from last restart
+$ kubectl logs <name> --previous
+
+pod logs from pods with specific label
+$ kubectl logs -l foo=bar
+
+copy a file from pod to local (can work visa versa)
+$ kubectl cp <namespace>/<pod name>:<file path> <local file path>
+
+delete pod NOW
+$ kubectl delete pod <name> --now
+
+service
+secrets
+copy a secret from one namespace to another
+$ kubectl get secrets -o json --namespace | \ jq '.items[].metadata.namespace = ""' | \ kubectl create-f -
+deployment
+create the default yaml to customize for your deployment
+$ kubectl run test -- image=grafana/grafana --dry-run -o yaml
+patching
+edit a resource and get the patch
+$ kubectl edit <resource>/<name> --output-pathch
+
+Apply the patch
+$ kubectl patch --patch=<output file from previous>
+
+port-fowrard
+forward a port from a service to a local port
+$ kubectl port-foward svc/<name> <local-port>:<remote-port>
+environment vars
+list env vars for a resource
+$ kubectl set env <resource>/<name> --list
+selector
+Get all resources that match a selector
+$ kubectl get deployment,replicasets,pods,services --selector=foo=bar
+events
+list events sorted by lastTimestamp
+$ kubectl get events --sort-by=".lastTimestamp"
+
+watch warnings across all namespaces
+$ kubeclt get events -w --field-selector=type=Warning --all-namespaces
+
+add event column to the list of watched pods
+$ kubectl get pods -w --output-watch-events
+
+autoscale
+load-based horizontal pod autoscaling
+$ kubectl autoscale deployment <deployment name> --min=3 --max=12
+annotation
+add annotation
+$ kubectl annotate <resource>/<name> foo=bar
+remove annotation
+$ kubectl annotate <resource>/<name> foo-
+list annotations
+$ kubectl get <resource>/<name> -o jsonpath='{.metadata.annotations}'
+OR
+$ kubectl get <resource>/<name> -o=json | jq -r '.metadata.annotations'
+job & cronjob
+Create a new job from a cronjob
+$ kubectl create job --from=cronjob/<name of cronjob> <name of this job>

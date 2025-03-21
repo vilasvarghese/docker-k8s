@@ -1,3 +1,4 @@
+
 https://loft.sh/blog/kubernetes-service-account-what-it-is-and-how-to-use-it/
 
 kubectl create deployment nginx1 --image=nginx

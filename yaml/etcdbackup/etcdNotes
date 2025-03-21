@@ -1,0 +1,30 @@
+apt install etcd-client 
+
+
+ETCDCTL_API=3 etcdctl snapshot save /tmp/backup.db \
+  --endpoints=https://127.0.0.1:2379 \
+  --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+  --cert=/etc/kubernetes/pki/etcd/server.crt \
+  --key=/etc/kubernetes/pki/etcd/server.key
+  
+  
+ETCDCTL_API=3 etcdctl snapshot restore /tmp/backup.db \
+  --data-dir /var/lib/etcd/my-etcd \
+  --endpoints=https://127.0.0.1:2379 \
+  --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+  --cert=/etc/kubernetes/pki/etcd/server.crt \
+  --key=/etc/kubernetes/pki/etcd/server.key
+  
+open 
+	etcd.yml 
+		update data directory
+		volume mount - this is not logical - but is mandatory 
+		hostpath 
+		
+kubectl get po -n kube-system 
+	is etcd getting recreated.
+	if not delete it 
+	it doesn't work 
+		move etcd.yml and get it back after kubectl get po fails 
+		wait for 4/5 min.
+		

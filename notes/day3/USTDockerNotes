@@ -2402,7 +2402,8 @@ While Docker EE in its original form is no longer offered, its core concepts and
 	
 	
 Docker Content Trust (DCT) 
-	security feature that allows you to verify the integrity and publisher of Docker images. It uses digital signatures to ensure that images haven't been tampered with and that they originate from a trusted source. Here's a signing images and enabling Docker Content Trust:
+	security feature that allows you to verify the integrity and publisher of Docker images. 
+	It uses digital signatures to ensure that images haven't been tampered with and that they originate from a trusted source. Here's a signing images and enabling Docker Content Trust:
 
 Understanding Docker Content Trust (DCT)
 
@@ -2511,7 +2512,8 @@ By enabling Docker Content Trust and signing your images, you can significantly 
 1. Root Privileges:
 
 	Docker Daemon as Root: 
-		By default, the Docker daemon runs as root. This means that any vulnerabilities in the daemon or misconfigurations can lead to root-level compromise of the host system.
+		By default, the Docker daemon runs as root. 
+		This means that any vulnerabilities in the daemon or misconfigurations can lead to root-level compromise of the host system.
 	Container Root Privileges: 
 		By default, containers also run as root. While namespaces and cgroups provide isolation, root within a container can still exploit vulnerabilities to escape the container and gain access to the host.
 2. Linux Capabilities:

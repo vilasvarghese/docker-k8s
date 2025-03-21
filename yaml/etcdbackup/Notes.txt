@@ -1,6 +1,9 @@
 References: https://platform9.com/kb/kubernetes/restore-etcd-cluster-from-quorum-loss
 
 
+Refer: D:\PraiseTheLord\HSBGInfotech\Others\vilas\docker-k8s\yaml\etcdbackup.txt
+
+
 N.B: These steps can fail if you are using a wrong version of etcdctl.
 
 Hence don't install etcdctl using apt install/yum install.
