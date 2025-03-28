@@ -133,7 +133,7 @@ Cluster management best practices
 				Develop and test a disaster recovery plan for your Kubernetes cluster, including strategies for backups, restoring the control plane, and ensuring application availability in case of failures.
 			Education and Training: 
 				Ensure your team has the necessary knowledge and skills to manage the Kubernetes cluster effectively and securely.
-		V. Specific Considerations for Your Location (Thiruvananthapuram, Kerala, India - Tuesday, March 18, 2025):
+		V. Specific Considerations for Your Location:
 
 			Cloud Provider Region Selection: 
 				If using a cloud provider, choose the AWS, Azure, or GCP region that offers the best latency and compliance for your users in India.
