@@ -7,7 +7,7 @@
 <title>Hello World web application</title>
 </head>
 <body>
-   Hello - Updated on 21st April, 2024!!!
+   Hello - Updated on 28th, March, 2025... 12 more days go home!!!
 	<h1>Thanks a lot for being so patient through the session!</h1>
     	<form action="helloServlet" method="post">
     	Enter your name: <input type="text" name="username" size="20">
