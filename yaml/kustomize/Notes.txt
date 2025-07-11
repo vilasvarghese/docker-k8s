@@ -363,18 +363,18 @@ prod/hpa.yaml
 In our production hpa.yaml, let’s say we want to allow up to 10 replicas, with new replicas triggered by a resource utilization threshold of 70% avg CPU usage. This is how that would look:
 
 apiVersion: autoscaling/v2beta2
-  kind: HorizontalPodAutoscaler
-  metadata:
-    name: frontend-deployment-hpa
-  spec:
-    minReplicas: 1
-    maxReplicas: 10
-    metrics:
-    - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
+kind: HorizontalPodAutoscaler
+metadata:
+  name: frontend-deployment-hpa
+spec:
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+  resource:
+    name: cpu
+    target:
+      type: Utilization
         averageUtilization: 70
 prod/rollout-replicas.yaml
 There’s also a rollout-replicas.yaml file in our production directory which specifies our rolling strategy:
@@ -418,9 +418,9 @@ Once you have reviewed, apply your overlays to the cluster with kubectl apply -k
   service/frontend-service created
   deployment.apps/frontend-deployment created
   horizontalpodautoscaler.autoscaling/frontend-deployment-hpa created
-A free 30-day trial for cloud & Kubernetes resource control. Experience in your environment or use sample data. See optimization potential in 48 hours. No card required.
 
-Free Trial
+
+
 Kustomize Best Practices
 Keep your custom resources and their instances in separate packages, otherwise you will encounter race conditions and your creation will get stuck. For example, many people keep both the CertManager CRD and CertManager’s resources in the same package, which can cause problems. Most of the time, reapplying the YAML fixes the issue. But it’s good practice to keep them separately.
 Try to keep the common values like namespace, common metadata in the base file.
