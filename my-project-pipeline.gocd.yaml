@@ -1,0 +1,67 @@
+format_version: 3
+
+pipelines:
+  my_maven_project:
+    group: java_applications # Organize your pipelines into groups
+
+    materials: # Define where your source code comes from
+      my_maven_repo:
+        git: https://github.com/your-org/your-maven-project.git # Replace with your project's Git URL
+        branch: main
+        auto_update: true
+
+    stages:
+      - build: # --- Stage 1: Build ---
+          clean_working_directory: true # Ensures a clean workspace for each run
+          jobs:
+            compile_and_package: # Job 1 within the 'build' stage
+              # Assign resources if you need specific agents (e.g., agents with Java/Maven installed)
+              resources:
+                - java
+                - maven
+              tasks:
+                - exec:
+                    command: mvn # The Maven executable command
+                    arguments: # Arguments to pass to mvn
+                      - clean # First, clean the target directory
+                      - install # Then, compile, test, and package the project
+                    # Optional: Set a working directory if your pom.xml isn't at the root
+                    # working_directory: my-sub-project
+
+                # Optional: If you want to capture the generated JAR/WAR as an artifact
+                # This makes it available for subsequent stages or for download
+                - exec:
+                    command: echo
+                    arguments: "Publishing build artifacts..."
+                  artifact_paths:
+                    - target/*.jar # Adjust if it's a WAR or different packaging
+                    - target/*.war
+                    - target/*.zip
+                    - target/*.tar.gz # Add other relevant artifacts
+
+      - test: # --- Stage 2: Test ---
+          # This stage runs only if the 'build' stage completes successfully
+          clean_working_directory: false # Often keep working directory for test stage to use build artifacts
+          jobs:
+            run_unit_and_integration_tests: # Job 1 within the 'test' stage
+              # Ensure the agent has necessary resources
+              resources:
+                - java
+                - maven
+              tasks:
+                - exec:
+                    command: mvn
+                    arguments:
+                      - test # Execute the 'test' goal, which runs all tests
+                    # Optional: If you have specific test profiles or need to skip packaging
+                    # arguments: ["-Pintegration-tests", "test"]
+                    # arguments: ["test", "-DskipTests=false"] # To explicitly run tests if a previous goal skipped them
+
+                # Optional: Publish test reports (e.g., Surefire/Failsafe reports)
+                - exec:
+                    command: echo
+                    arguments: "Publishing test reports..."
+                  artifact_paths:
+                    - "target/surefire-reports/**/*" # Standard Maven Surefire reports
+                    - "target/failsafe-reports/**/*" # Standard Maven Failsafe reports
+                    - "**/jacoco.exec" # If you use JaCoCo for code coverage
