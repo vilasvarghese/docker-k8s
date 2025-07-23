@@ -6,8 +6,8 @@ pipelines:
 
     materials: # Define where your source code comes from
       my_maven_repo:
-        git: https://github.com/your-org/your-maven-project.git # Replace with your project's Git URL
-        branch: main
+        git: https://github.com/vilasvarghese/docker-k8s.git # Replace with your project's Git URL
+        branch: master
         auto_update: true
 
     stages:
