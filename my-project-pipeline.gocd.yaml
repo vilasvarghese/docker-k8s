@@ -32,7 +32,8 @@ pipelines:
                 # This makes it available for subsequent stages or for download
                 - exec:
                     command: echo
-                    arguments: "Publishing build artifacts..."
+                    arguments: 
+                      - "Publishing build artifacts..."
                   artifact_paths:
                     - target/*.jar # Adjust if it's a WAR or different packaging
                     - target/*.war
@@ -60,7 +61,8 @@ pipelines:
                 # Optional: Publish test reports (e.g., Surefire/Failsafe reports)
                 - exec:
                     command: echo
-                    arguments: "Publishing test reports..."
+                    arguments: 
+                      - "Publishing test reports..."
                   artifact_paths:
                     - "target/surefire-reports/**/*" # Standard Maven Surefire reports
                     - "target/failsafe-reports/**/*" # Standard Maven Failsafe reports
